@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRYscope Estimator — DRYmedic</title>
+<style>
+/* Remove ALL spinner arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+input[type=number] { -moz-appearance:textfield; }
+
+:root{
+  --dark:#1F3864;--med:#2E75B6;--light:#D6DCE4;--alt:#F5F8FB;
+  --green:#1a7a3c;--amber:#b45309;--red:#b91c1c;
+  --border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--r:7px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f7;color:var(--text);font-size:14px;}
+#app{max-width:820px;margin:0 auto;padding:16px;}
+.page{display:none;}.page.active{display:block;}
+
+/* Header */
+#hdr{background:var(--dark);color:white;padding:12px 18px;border-radius:var(--r);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+#hdr h1{font-size:15px;font-weight:700;}
+#hdr .sub{font-size:11px;opacity:.7;margin-top:2px;}
+.prog-wrap{display:flex;gap:5px;}
+.prog-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3);}
+.prog-dot.done{background:rgba(255,255,255,.7);}
+.prog-dot.current{background:white;}
+#prog-lbl{font-size:11px;opacity:.8;text-align:right;margin-top:4px;}
+
+/* Cards */
+.card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;}
+.ct{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--light);padding-bottom:7px;}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.b-auto{background:#d1fae5;color:var(--green);}
+.b-opt{background:#ede9fe;color:#6d28d9;}
+.b-note{background:#e0f2fe;color:#0369a1;}
+.b-warn{background:#fef3c7;color:var(--amber);}
+
+/* Fields */
+.fr{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px;}
+.fg.w2{flex:2;min-width:200px;}
+.fg.full{flex:1 1 100%;}
+.fg.xs{max-width:88px;}
+label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+input[type=text],input[type=number],input[type=date],select{
+  border:1.5px solid var(--border);border-radius:5px;padding:7px 9px;font-size:13px;
+  color:var(--text);background:white;width:100%;transition:border-color .15s;
+}
+input:focus,select:focus{outline:none;border-color:var(--med);}
+.auto-f{background:#f0faf3;border-color:#6ee7b7 !important;color:var(--green);font-style:italic;}
+.sug-f{background:#fefce8;border-color:#fde68a !important;}
+.calc{font-size:12px;font-weight:600;color:var(--med);padding:7px 9px;background:var(--alt);border-radius:5px;border:1px solid var(--light);min-height:34px;display:flex;align-items:center;}
+.hint{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.sf-pill{font-size:11px;font-weight:600;color:var(--dark);padding:3px 8px;background:var(--alt);border-radius:4px;border:1px solid var(--light);margin-top:3px;display:inline-block;}
+.info-box{background:#e0f2fe;border:1px solid #7dd3fc;border-radius:5px;padding:7px 10px;font-size:11px;color:#0369a1;margin-top:6px;line-height:1.5;}
+.warn-box{background:#fef9ec;border:1px solid #fde68a;border-radius:5px;padding:7px 10px;font-size:11px;color:var(--amber);margin-top:6px;line-height:1.5;}
+
+/* Radio buttons */
+.rg{display:flex;gap:6px;flex-wrap:wrap;}
+.rg.sm .rb label{padding:4px 10px;font-size:11px;}
+.rb{position:relative;}
+.rb input{position:absolute;opacity:0;width:0;height:0;}
+.rb label{background:white;border:1.5px solid var(--border);border-radius:5px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;transition:all .15s;display:block;white-space:nowrap;}
+.rb input:checked+label{background:var(--dark);color:white;border-color:var(--dark);}
+.rb.g input:checked+label{background:var(--green);border-color:var(--green);}
+.rb.gy input:checked+label{background:#6b7280;border-color:#6b7280;}
+
+/* Toggle rows (checkbox + content) */
+.tr{display:flex;align-items:center;gap:10px;padding:7px 10px;background:#f9fafb;border:1.5px solid var(--border);border-radius:5px;margin-bottom:5px;flex-wrap:wrap;}
+.tr input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--dark);flex-shrink:0;}
+.tr .tr-lbl{font-size:12px;font-weight:600;color:var(--text);flex:1;cursor:pointer;}
+.tr .tr-sub{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.tr .tr-sub input{width:90px;}
+.tr.active{background:var(--alt);border-color:var(--med);}
+.tr .lbl10{font-size:10px;color:var(--muted);display:block;margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+
+/* Dynamic rows (posts / monitoring) */
+.dyn-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.dyn-row input{width:75px;}
+.dyn-lbl{font-size:11px;color:var(--muted);white-space:nowrap;}
+.btn-rm{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;}
+.btn-rm:hover{color:var(--red);}
+.btn-add{background:white;border:1.5px solid var(--med);color:var(--med);border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+.btn-add:hover{background:var(--alt);}
+
+/* Equipment grid */
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px;margin-top:4px;}
+.ei{border:1.5px solid var(--border);border-radius:5px;padding:8px 10px;background:#fafafa;opacity:.4;transition:all .2s;}
+.ei.on{opacity:1;background:white;border-color:var(--med);}
+.ei-hdr{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.ei-hdr input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--dark);}
+.ei-hdr span{font-size:12px;font-weight:600;cursor:pointer;}
+.ef{display:flex;gap:6px;}
+.ef>div{display:flex;flex-direction:column;gap:2px;}
+.ef input{width:56px;padding:4px 6px;font-size:12px;}
+.ef-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;}
+
+/* Room tabs */
+#room-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.rtab{padding:6px 13px;border:1.5px solid var(--border);border-radius:20px;background:white;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;user-select:none;}
+.rtab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.rtab .rx{margin-left:6px;font-size:13px;opacity:.6;}
+.rtab.active .rx{opacity:.7;}
+#add-room-area{display:flex;align-items:center;gap:6px;}
+#add-room-btn{padding:6px 12px;border:1.5px dashed var(--med);border-radius:20px;background:white;font-size:12px;font-weight:600;color:var(--med);cursor:pointer;}
+#add-room-btn:hover{background:var(--alt);}
+#room-drop-wrap{display:none;align-items:center;gap:6px;}
+#room-drop-wrap select{width:200px;}
+.btn-sm{padding:5px 10px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:none;}
+.btn-ok{background:var(--dark);color:white;}
+.btn-cx{background:#f3f4f6;color:var(--muted);border:1px solid var(--border);}
+
+/* Room body */
+.rbody{display:none;}.rbody.active{display:block;}
+.ss{background:#f8f9fc;border-radius:5px;padding:10px 12px;margin-bottom:10px;border:1px solid #eaecf0;}
+.ss-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+
+/* HEPA sequence */
+.hseq-wrap{background:#f0faf3;border:1px solid #6ee7b7;border-radius:5px;padding:8px 10px;margin-top:8px;}
+.hseq{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.hs{background:white;border:1.5px solid #34d399;border-radius:4px;padding:4px 9px;font-size:11px;font-weight:600;color:var(--green);white-space:nowrap;}
+.hs.m{border-color:var(--med);color:var(--med);background:var(--alt);}
+.ha{color:#9ca3af;font-size:11px;}
+
+/* Nav */
+#nav{display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--border);}
+.btn-nav{padding:10px 24px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
+#btn-bk{background:white;border:1.5px solid var(--border);color:var(--muted);}
+#btn-bk:hover{border-color:var(--dark);color:var(--dark);}
+#btn-nx{background:var(--dark);color:white;}
+#btn-nx:hover{background:#16305a;}
+
+/* Estimate output */
+#est-out{background:white;border:1px solid var(--border);border-radius:var(--r);padding:0;overflow:hidden;margin-bottom:10px;}
+.est-act{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.est-act button{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
+#btn-pdf{background:var(--dark);color:white;}
+#btn-pdf:hover{background:#16305a;}
+#btn-email{background:var(--green);color:white;}
+#btn-email:hover{background:#155e2e;}
+#pdf-mobile-note{display:none;font-size:11px;color:var(--muted);align-self:center;}
+/* PDF download is unreliable on phones — desktop only */
+@media (max-width:640px){#btn-pdf{display:none;}#pdf-mobile-note{display:inline;}}
+#btn-print{background:white;border:1.5px solid var(--border);color:var(--muted);}
+#btn-print:hover{border-color:var(--dark);color:var(--dark);}
+#btn-restart{background:white;border:1.5px solid var(--border);color:var(--muted);}
+#btn-restart:hover{border-color:var(--dark);color:var(--dark);}
+
+/* ═══ ESTIMATE STYLES (inside #est-out) ═══ */
+.est{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#111;max-width:780px;margin:0 auto;}
+.est-pg{padding:20px 24px;border-bottom:2px solid #e2e8f0;}
+.est-pg:last-child{border-bottom:none;}
+.est-brand-bar{background:#1F3864;color:white;padding:10px 14px;margin-bottom:0;border-radius:4px 4px 0 0;}
+.est-brand-bar b{font-size:14px;}
+.est-brand-bar .sub{font-size:10px;opacity:.75;}
+.est-fields{padding:10px 14px 4px;background:#f8f9fc;border-bottom:1px solid #e2e8f0;font-size:11px;}
+.est-fields-grid{display:grid;grid-template-columns:120px 1fr;gap:2px 0;max-width:400px;}
+.est-fields-grid .lbl{font-weight:700;color:#1F3864;}
+.est-stmt{padding:10px 14px;font-size:10.5px;color:#444;line-height:1.5;border-bottom:1px solid #e2e8f0;font-style:italic;}
+/* line items table */
+.est-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.est-tbl th{background:#1F3864;color:white;padding:5px 6px;font-size:10px;font-weight:700;text-align:right;}
+.est-tbl th:first-child{text-align:left;}
+.est-tbl tr.alt td{background:#F5F8FB;}
+.est-tbl td{padding:4px 6px;border-bottom:1px solid #e8ecf0;vertical-align:top;}
+/* Keep rows intact across page breaks (print + PDF) */
+.est-tbl tr{page-break-inside:avoid;break-inside:avoid;}
+.est-tbl thead{display:table-header-group;}
+.est-tbl .sec-hdr,.est-tbl .subsec,.est-tbl .sub-total,.est-tbl .grand-total{page-break-inside:avoid;break-inside:avoid;}
+.est-tbl td.desc{text-align:left;max-width:240px;}
+.est-tbl td.num{text-align:right;white-space:nowrap;}
+.est-tbl .note-row td{font-style:italic;font-size:10px;color:#666;padding:0 6px 4px 20px;border-bottom:none;}
+.est-tbl .sec-hdr td{background:#D6DCE4;font-weight:700;color:#1F3864;font-size:11px;padding:6px;border:1px solid #1F3864;}
+.est-tbl .subsec td{background:#EFEFEF;font-style:italic;font-weight:700;font-size:10.5px;color:#333;padding:4px 6px;}
+.est-tbl .sub-total td{background:#DDE5EF;font-weight:700;border:1px solid #2E75B6;padding:5px 6px;}
+.est-tbl .grand-total td{background:#1F3864;color:white;font-weight:700;font-size:11.5px;padding:6px;}
+/* summary section */
+.est-summary{padding:14px 20px;}
+.est-sum-title{font-size:14px;font-weight:700;color:#1F3864;margin-bottom:4px;}
+.est-sum-rule{border:none;border-top:1.5px solid #1F3864;margin-bottom:10px;}
+.est-sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;}
+.est-sum-row.bold{font-weight:700;}
+.est-sum-row.final{border-top:2px solid #1F3864;margin-top:4px;padding-top:6px;font-weight:700;}
+.est-tax-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e2e8f0;margin-top:4px;}
+.est-tax-hdr{background:#e8ecf0;font-size:10px;font-weight:700;padding:4px 6px;text-align:center;border-right:1px solid #e2e8f0;}
+.est-tax-val{padding:4px 6px;text-align:center;font-size:11px;border-right:1px solid #e2e8f0;}
+.est-footer{font-size:10px;color:#888;display:flex;justify-content:space-between;border-top:1px solid #ddd;padding-top:4px;margin-top:8px;}
+.est-pg{page-break-after:always;}
+.est-pg:last-child{page-break-after:auto;}
+@media print{body{background:white;}#hdr,#nav,.est-act{display:none !important;}#est-out{border:none !important;box-shadow:none !important;}#app{max-width:none;padding:0;}}
+hr.dv{border:none;border-top:1px solid var(--light);margin:10px 0;}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <div><h1>DRYscope Estimator</h1><div class="sub">DRYmedic Restoration Estimating · nothing is stored or sent</div></div>
+  <div style="text-align:right"><div class="prog-wrap" id="prog-wrap"></div><div id="prog-lbl"></div></div>
+</div>
+
+<!-- ═══════════════ PAGE 1 — JOB INFO ═══════════════ -->
+<div class="page active" id="p1">
+<div class="ct" style="font-size:16px;font-weight:700;color:var(--dark);border:none;padding:0;margin-bottom:12px">Job Information</div>
+
+<div class="card">
+  <div class="ct">Customer &amp; Property</div>
+  <div class="fr"><div class="fg w2"><label>Customer Name</label><input type="text" id="customer_name" placeholder="First Last"></div><div class="fg"><label>Job Number</label><input type="text" id="job_number" placeholder="26-0064-WTR"></div></div>
+  <div class="fr"><div class="fg w2"><label>Customer Email <span style="font-weight:400;color:var(--muted);font-size:10px">optional — used by the Email button</span></label><input type="email" id="customer_email" placeholder="name@email.com"></div></div>
+  <div class="fr"><div class="fg w2"><label>Loss Address</label><input type="text" id="address" placeholder="Street address"></div><div class="fg"><label>City</label><input type="text" id="city" placeholder="City"></div></div>
+  <div class="fr"><div class="fg xs"><label>State</label><input type="text" id="state" value="CO" maxlength="2"></div><div class="fg xs"><label>ZIP</label><input type="text" id="zip" placeholder="80138" maxlength="5" oninput="onZip()"></div><div class="fg"><label>Date of Loss</label><input type="date" id="date_loss"></div><div class="fg"><label>Project Manager</label><input type="text" id="tech" placeholder="Name"></div></div>
+</div>
+
+<div class="card">
+  <div class="ct">Tax Jurisdiction <span class="badge b-warn">required for estimate calculation</span></div>
+  <div class="fr">
+    <div class="fg"><label>Quick-select</label>
+      <div class="rg sm">
+        <div class="rb"><input type="radio" name="txq" id="txq_p" value="0.08" onchange="setTax(this)"><label for="txq_p">Parker 8%</label></div>
+        <div class="rb"><input type="radio" name="txq" id="txq_cr" value="0.0775" onchange="setTax(this)"><label for="txq_cr">Castle Rock 7.75%</label></div>
+        <div class="rb"><input type="radio" name="txq" id="txq_hr" value="0.04" onchange="setTax(this)"><label for="txq_hr">Highlands Ranch 4%</label></div>
+        <div class="rb"><input type="radio" name="txq" id="txq_gv" value="0.0725" onchange="setTax(this)"><label for="txq_gv">Greenwood Village 7.25%</label></div>
+        <div class="rb"><input type="radio" name="txq" id="txq_o" value="" onchange="setTax(this)"><label for="txq_o">Other</label></div>
+      </div>
+    </div>
+    <div class="fg xs"><label>Rate %</label><input type="number" id="tax_rate" placeholder="8.00" step="0.01" value="8.00" oninput="document.querySelector('input[name=txq]:checked')&&(document.getElementById('txq_o').checked=true)"></div>
+  </div>
+  <div class="hint" style="margin-top:4px">Enter the property ZIP above and the rate auto-fills for known jurisdictions. Always verify before building.</div>
+  <div id="tax_auto_note" style="display:none;margin-top:6px"></div>
+</div>
+
+<div class="card">
+  <div class="ct">Loss Classification</div>
+  <div class="fr"><div class="fg full"><label>Loss Type</label><div class="rg"><div class="rb"><input type="radio" name="lt" id="lt_w" value="water" checked onchange="onLT()"><label for="lt_w">Water</label></div><div class="rb"><input type="radio" name="lt" id="lt_m" value="mold" onchange="onLT()"><label for="lt_m">Mold</label></div></div></div></div>
+  <div id="cat_row" class="fr"><div class="fg full"><label>Category</label><div class="rg"><div class="rb"><input type="radio" name="cat" id="c1" value="1"><label for="c1">Cat 1</label></div><div class="rb"><input type="radio" name="cat" id="c2" value="2" checked><label for="c2">Cat 2</label></div><div class="rb"><input type="radio" name="cat" id="c3" value="3"><label for="c3">Cat 3</label></div></div></div></div>
+  <div id="mold_row" class="fr" style="display:none"><div class="fg full"><label>Mold Condition</label><div class="rg"><div class="rb"><input type="radio" name="mc" id="mc1" value="1"><label for="mc1">Condition 1</label></div><div class="rb"><input type="radio" name="mc" id="mc2" value="2"><label for="mc2">Condition 2</label></div><div class="rb"><input type="radio" name="mc" id="mc3" value="3" checked><label for="mc3">Condition 3</label></div></div></div></div>
+</div>
+
+<div class="card">
+  <div class="ct">Emergency Service Call</div>
+  <div class="fr">
+    <div class="fg"><label>Emergency call?</label><div class="rg"><div class="rb g"><input type="radio" name="emg" id="emg_y" value="yes" onchange="toggleEmg()"><label for="emg_y">Yes</label></div><div class="rb gy"><input type="radio" name="emg" id="emg_n" value="no" checked onchange="toggleEmg()"><label for="emg_n">No</label></div></div></div>
+    <div class="fg" id="hrs_row" style="display:none"><label>Timing</label><div class="rg"><div class="rb"><input type="radio" name="emg_hrs" id="eh_d" value="during" checked><label for="eh_d">During hours</label></div><div class="rb"><input type="radio" name="emg_hrs" id="eh_a" value="after"><label for="eh_a">After hours</label></div></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Testing <span class="badge b-opt">BIDITM — 20% markup on estimate</span></div>
+
+  <!-- IEP Pre-Assessment -->
+  <div class="tr" id="tr_t_iep_pre">
+    <input type="checkbox" id="t_iep_pre" onchange="testToggle('iep_pre')">
+    <span class="tr-lbl" onclick="document.getElementById('t_iep_pre').click()">IEP Pre-Remediation Assessment</span>
+    <div class="tr-sub" id="ts_iep_pre" style="opacity:.4;pointer-events:none">
+      <div><span class="lbl10">Invoice $</span><input type="text" id="t_iep_pre_inv" placeholder="0.00" style="width:90px" onblur="fmtC(this)" onfocus="unfmtC(this)"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span class="lbl10">10/10</span><input type="checkbox" id="t_iep_pre_1010" style="width:16px;height:16px;cursor:pointer;accent-color:var(--dark)"></div>
+    </div>
+  </div>
+
+  <!-- IEP Post-Assessment (PRV) -->
+  <div class="tr" id="tr_t_iep_post">
+    <input type="checkbox" id="t_iep_post" onchange="testToggle('iep_post')">
+    <span class="tr-lbl" onclick="document.getElementById('t_iep_post').click()">IEP Post-Remediation Assessment (PRV)</span>
+    <div class="tr-sub" id="ts_iep_post" style="opacity:.4;pointer-events:none">
+      <div><span class="lbl10">Invoice $</span><input type="text" id="t_iep_post_inv" placeholder="0.00" style="width:90px" onblur="fmtC(this)" onfocus="unfmtC(this)"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span class="lbl10">10/10</span><input type="checkbox" id="t_iep_post_1010" style="width:16px;height:16px;cursor:pointer;accent-color:var(--dark)"></div>
+    </div>
+  </div>
+
+  <!-- Asbestos — In-House -->
+  <div class="tr" id="tr_t_asb_ih">
+    <input type="checkbox" id="t_asb_ih" onchange="testToggle('asb_ih')">
+    <span class="tr-lbl" onclick="document.getElementById('t_asb_ih').click()">Asbestos Testing — In-House</span>
+    <div class="tr-sub" id="ts_asb_ih" style="opacity:.4;pointer-events:none">
+      <div>
+        <span class="lbl10">Samples</span>
+        <input type="number" id="t_asb_ih_qty" placeholder="0" min="1" style="width:80px">
+        <div class="hint" style="margin-top:3px">Performed in-house by DRYmedic — 6 samples typical</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asbestos — 3rd Party -->
+  <div class="tr" id="tr_t_asb_3p">
+    <input type="checkbox" id="t_asb_3p" onchange="testToggle('asb_3p')">
+    <span class="tr-lbl" onclick="document.getElementById('t_asb_3p').click()">Asbestos Testing — 3rd Party</span>
+    <div class="tr-sub" id="ts_asb_3p" style="opacity:.4;pointer-events:none">
+      <div><span class="lbl10">Invoice $</span><input type="text" id="t_asb_3p_inv" placeholder="0.00" style="width:90px" onblur="fmtC(this)" onfocus="unfmtC(this)"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span class="lbl10">10/10</span><input type="checkbox" id="t_asb_3p_1010" style="width:16px;height:16px;cursor:pointer;accent-color:var(--dark)"></div>
+    </div>
+  </div>
+
+  <!-- Lead -->
+  <div class="tr" id="tr_t_lead">
+    <input type="checkbox" id="t_lead" onchange="testToggle('lead')">
+    <span class="tr-lbl" onclick="document.getElementById('t_lead').click()">Lead Check Testing</span>
+    <div class="tr-sub" id="ts_lead" style="opacity:.4;pointer-events:none">
+      <div>
+        <span class="lbl10">Invoice $</span>
+        <input type="text" id="t_lead_inv" placeholder="0.00" style="width:90px" onblur="fmtC(this)" onfocus="unfmtC(this)">
+        <div class="hint" style="margin-top:3px">Requires certified EPA inspector</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span class="lbl10">10/10</span><input type="checkbox" id="t_lead_1010" style="width:16px;height:16px;cursor:pointer;accent-color:var(--dark)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Subcontractors <span class="badge b-opt">BIDITM — 20% markup applied automatically</span></div>
+  <div id="sub-list"></div>
+</div>
+</div><!-- /p1 -->
+
+<!-- ═══════════════ PAGE 2 — MAIN CHARGES ═══════════════ -->
+<div class="page" id="p2">
+<div class="ct" style="font-size:16px;font-weight:700;color:var(--dark);border:none;padding:0;margin-bottom:12px">Main / Job-Level Charges</div>
+
+<div class="card">
+  <div class="ct">Protection &amp; PPE</div>
+  <div class="fr">
+    <div class="fg"><label>Floor Cloth (LF)</label><input type="number" id="m_cloth_lf" placeholder="0" min="0" step="0.5" oninput="sfCalc('cloth')"></div>
+    <div class="fg"><label>Width</label><div class="rg sm"><div class="rb"><input type="radio" name="cw" id="cw24" value="24" checked onchange="sfCalc('cloth')"><label for="cw24">24"</label></div><div class="rb"><input type="radio" name="cw" id="cw30" value="30" onchange="sfCalc('cloth')"><label for="cw30">30"</label></div></div><span class="sf-pill" id="cloth_sf">0.0 SF</span></div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label>Floor Self-Adhesive (LF)</label><input type="number" id="m_adh_lf" placeholder="0" min="0" step="0.5" oninput="sfCalc('adh')"></div>
+    <div class="fg"><label>Width</label><div class="rg sm"><div class="rb"><input type="radio" name="aw" id="aw24" value="24" checked onchange="sfCalc('adh')"><label for="aw24">24"</label></div><div class="rb"><input type="radio" name="aw" id="aw30" value="30" onchange="sfCalc('adh')"><label for="aw30">30"</label></div></div><span class="sf-pill" id="adh_sf">0.0 SF</span></div>
+  </div>
+  <hr class="dv">
+  <div class="fr">
+    <div class="fg"><label>PPE Heavy Duty (EA)</label><input type="number" id="m_ppe" placeholder="0" min="0"></div>
+    <div class="fg"><label>Gloves (PR)</label><input type="number" id="m_gloves" placeholder="0" min="0"></div>
+    <div class="fg"><label>Respirator Cartridge (EA)</label><input type="number" id="m_resp_c" placeholder="0" min="0"></div>
+    <div class="fg"><label>Respirator Full Face (EA)</label><input type="number" id="m_resp_f" placeholder="0" min="0"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Containment</div>
+  <div class="info-box" style="margin-bottom:10px">Main-level containment only. Room-specific containment entered per room on the next page.</div>
+  <div class="fr">
+    <div class="fg"><label>Containment Barrier (SF)</label><input type="number" id="m_cont_sf" placeholder="0" min="0"></div>
+    <div class="fg"><label>Peel &amp; Seal Zipper (EA)</label><input type="number" id="m_zip" placeholder="0" min="0"></div>
+  </div>
+  <div style="margin-top:6px"><label style="display:block;margin-bottom:6px">Tension Posts <span class="badge b-opt">add row if containment changes mid-job</span></label><div id="post-rows-m"></div><button class="btn-add" onclick="addDynRow('post-rows-m','post-m')">+ Add Post Period</button><div class="hint" style="margin-top:4px">Each row = one containment setup. Total DA = sum of posts × days across all rows.</div></div>
+</div>
+
+<div class="card">
+  <div class="ct">Equipment Monitoring <span class="badge b-auto">HR auto-calculated</span></div>
+  <div class="info-box" style="margin-bottom:10px">
+    <strong>How it works:</strong> Each time a tech visits the job to check on equipment counts as 1 monitoring visit. The total charge is <em>(visits × hrs/visit) + (pieces × 0.33 hrs)</em> — the 0.33 covers setup and takedown per piece. Count <em>every</em> piece set up over the course of the job, even if equipment was added or removed along the way — each piece is set up and taken down once.
+  </div>
+  <div class="fr">
+    <div class="fg">
+      <label>Monitoring Visits <span style="font-weight:400;color:var(--muted);font-size:10px">times tech went to check equipment</span></label>
+      <input type="number" id="m_mon_visits" placeholder="0" min="0" oninput="calcMon()">
+    </div>
+    <div class="fg">
+      <label>Equipment Pieces <span style="font-weight:400;color:var(--muted);font-size:10px">total pieces set up over the job</span></label>
+      <input type="number" id="m_mon_pieces" placeholder="0" min="0" oninput="calcMon()">
+    </div>
+    <div class="fg">
+      <label>Hrs per Visit <span style="font-weight:400;color:var(--amber);font-size:10px">default 1.5 — add drive time if needed</span></label>
+      <input type="number" id="m_hr_rate" value="1.5" min="0.5" step="0.5" oninput="calcMon()">
+    </div>
+    <div class="fg">
+      <label>Total Monitoring HR</label>
+      <div class="calc" id="mon_hr">0.00 HR</div>
+      <div class="hint">(visits × 1.5) + (pieces × 0.33)</div>
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label>Decon Charges (EA) <span class="badge b-auto">suggested from pieces</span></label><input type="number" id="m_decon" placeholder="0" min="0" class="auto-f"><div class="hint">Auto-filled from equipment pieces above — adjust if needed</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Disposal</div>
+  <div class="fr">
+    <div class="fg">
+      <label>Haul Debris (truck loads)</label>
+      <input type="number" id="m_haul" placeholder="e.g. 0.25" min="0" step="0.25">
+      <div class="hint">Enter any value: 0.25, 0.5, 1, 1.5… Billed at the standard $215.74/load.</div>
+    </div>
+    <div class="fg">
+      <label>Dumpster</label>
+      <select id="m_dump" onchange="onDumpster()">
+        <option value="">None</option>
+        <option value="30yd">30-yard / rubber wheel</option>
+        <option value="40yd">40-yard / metal roll-off</option>
+      </select>
+      <div id="dump_extra" style="display:none;margin-top:8px">
+        <div class="rg sm" style="margin-bottom:6px">
+          <div class="rb"><input type="radio" name="dump_price" id="dump_xact" value="xact" checked onchange="onDumpPricing()"><label for="dump_xact">Standard rate</label></div>
+          <div class="rb"><input type="radio" name="dump_price" id="dump_inv_r" value="invoice" onchange="onDumpPricing()"><label for="dump_inv_r">Invoice price</label></div>
+        </div>
+        <div id="dump_inv_wrap" style="display:none;margin-bottom:6px">
+          <input type="text" id="m_dump_inv" placeholder="$0.00" style="max-width:130px" onblur="fmtC(this)" onfocus="unfmtC(this)">
+        </div>
+        <div id="dump_1010_row" style="display:flex;align-items:center;gap:6px;opacity:.4;pointer-events:none">
+          <input type="checkbox" id="dump_1010" disabled style="width:15px;height:15px;cursor:pointer;accent-color:var(--dark)">
+          <label for="dump_1010" style="font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--text)">10/10 load <span style="font-weight:400;color:var(--muted)">(×1.2 — invoice pricing only)</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Equipment Outside Containment <span class="badge b-opt">check to enable</span></div>
+  <div class="eg" id="main-eg"></div>
+  <div class="fr" style="margin-top:10px">
+    <div class="fg"><label>Lay-Flat Ducting (LF)</label><input type="number" id="m_ducting" placeholder="0" min="0"><div class="hint">Ducting outside containment or not room-specific</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Labor</div>
+  <div class="fr">
+    <div class="fg"><label>Tech Labor (HR)</label><input type="number" id="m_tech_labor" placeholder="0" min="0" step="0.25"></div>
+    <div class="fg"><label>Supervisor Hours (HR)</label><input type="number" id="m_super_labor" placeholder="0" min="0" step="0.25"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Additional Charges <span class="badge b-opt">if applicable</span></div>
+  <div class="fr">
+    <div class="fg"><label>Contents Manipulation (HR)</label><input type="number" id="m_contents" placeholder="0" min="0" step="0.25"><div class="hint">Moving and protecting contents</div></div>
+    <div class="fg"><label>Block &amp; Pad Furniture (EA)</label><input type="number" id="m_bp" placeholder="0" min="0" step="1"><div class="hint">Per piece blocked &amp; padded</div></div>
+    <div class="fg"><label>Truck Mount (HR)</label><input type="number" id="m_tm" placeholder="0" min="0" step="0.25"></div>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--light);margin:10px 0">
+  <div id="other-main-items"></div>
+  <div id="other-main-search-ui"></div>
+</div>
+</div><!-- /p2 -->
+
+<!-- ═══════════════ PAGE 3 — ROOMS ═══════════════ -->
+<div class="page" id="p3">
+<div class="ct" style="font-size:16px;font-weight:700;color:var(--dark);border:none;padding:0;margin-bottom:12px">Room-by-Room Line Items</div>
+<div id="room-tabs">
+  <div id="add-room-area">
+    <button id="add-room-btn" onclick="showRoomDrop()">+ Add Room</button>
+    <div id="room-drop-wrap">
+      <select id="room-drop"><option value="">— select room type —</option></select>
+      <button class="btn-sm btn-ok" onclick="confirmRoom()">Add</button>
+      <button class="btn-sm btn-cx" onclick="cancelRoom()">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="room-bodies"></div>
+<div id="no-rooms" style="padding:24px;text-align:center;background:white;border-radius:var(--r);border:1.5px dashed var(--border);font-size:13px;color:var(--muted)">Click <strong>+ Add Room</strong> to start entering room line items.</div>
+</div><!-- /p3 -->
+
+<!-- ═══════════════ PAGE 4 — ESTIMATE ═══════════════ -->
+<div class="page" id="p4">
+<div class="ct" style="font-size:16px;font-weight:700;color:var(--dark);border:none;padding:0;margin-bottom:12px">Estimate Preview</div>
+<div class="est-act">
+  <button id="btn-email" onclick="emailCustomer()">✉ Email Customer</button>
+  <button id="btn-pdf" onclick="downloadPDF()">⬇ Download PDF</button>
+  <button id="btn-print" onclick="window.print()">🖨 Print</button>
+  <button id="btn-restart" onclick="if(confirm('Start over?'))location.reload()">Start New Ticket</button>
+  <span id="pdf-mobile-note">PDF download is desktop-only — open on a computer.</span>
+</div>
+<div class="hint" style="margin-bottom:10px">Email opens a draft in your mail app with the estimate wording prefilled. Download the PDF first and attach it before sending — email can't attach it automatically.</div>
+<div id="est-out"><div id="est-content"></div></div>
+</div><!-- /p4 -->
+
+<!-- NAV -->
+<div id="nav">
+  <button class="btn-nav" id="btn-bk" onclick="goPg(currentPage-1)">← Back</button>
+  <button class="btn-nav" id="btn-nx" onclick="goPg(currentPage+1)">Next →</button>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// PRICING DATA
+// ════════════════════════════════════════════════════════════
+const P = {
+  floor_cloth:       {rem:0,     rep:1.35,   mat:0},
+  floor_adhesive:    {rem:0,     rep:0.78,   mat:0.20},
+  ppe:               {rem:0,     rep:51.79,  mat:39.75},
+  gloves:            {rem:0,     rep:6.59,   mat:0},
+  resp_cart:         {rem:0,     rep:36.59,  mat:36.59},
+  resp_full:         {rem:0,     rep:12.00,  mat:0},
+  containment:       {rem:0,     rep:1.32,   mat:0.20},
+  tension_post:      {rem:0,     rep:3.35,   mat:0},
+  zipper:            {rem:0,     rep:18.34,  mat:12.60},
+  monitoring:        {rem:0,     rep:86.33,  mat:0},
+  decon:             {rem:0,     rep:49.11,  mat:5.9375},
+  haul_debris:       {rem:215.74,rep:0,      mat:0},
+  emerg_call:        {rem:0,     rep:358.96, mat:0},
+  register:          {rem:0,     rep:6.49,   mat:1.25},
+  extract_carpet:    {rem:0,     rep:0.65,   mat:0},
+  extract_hard:      {rem:0,     rep:0.34,   mat:0},
+  muckout:           {rem:3.07,  rep:0,      mat:0},
+  door_slab:         {rem:0,     rep:10.25,  mat:0},
+  ceil_fan:          {rem:26.97, rep:0,      mat:0},
+  light_fix:         {rem:11.92, rep:0,      mat:0},
+  mirror:            {rem:0.41,  rep:0,      mat:0},
+  toilet:            {rem:0,     rep:77.21,  mat:0.80},
+  bathtub:           {rem:0,     rep:175.87, mat:0},
+  shower_tile:       {rem:4.52,  rep:0,      mat:0.20},
+  shower_door:       {rem:26.20, rep:0,      mat:0},
+  water_cap:         {rem:0,     rep:32.90,  mat:1.60},
+  water_detach:      {rem:7.14,  rep:0,      mat:0},
+  vanity:            {rem:0,     rep:26.69,  mat:0},
+  sink:              {rem:0,     rep:46.07,  mat:0},
+  garbage_disp:      {rem:35.72, rep:0,      mat:0},
+  dishwasher:        {rem:0,     rep:86.29,  mat:0},
+  range_elec:        {rem:0,     rep:33.29,  mat:0},
+  range_gas:         {rem:0,     rep:59.15,  mat:0},
+  fridge:            {rem:0,     rep:44.37,  mat:0},
+  range_hood:        {rem:17.98, rep:0,      mat:0},
+  cab_lower:         {rem:0,     rep:31.21,  mat:0},
+  cab_upper:         {rem:0,     rep:26.69,  mat:0},
+  washer:            {rem:0,     rep:42.94,  mat:0},
+  dryer:             {rem:0,     rep:33.11,  mat:0},
+  baseboard:         {rem:0,     rep:1.91,   mat:0},
+  ctr_granite:       {rem:0,     rep:13.55,  mat:0},
+  fl_float:          {rem:4.25,  rep:0,      mat:0},
+  fl_carpet:         {rem:1.31,  rep:0,      mat:0},
+  fl_pad:            {rem:0.84,  rep:0,      mat:0},
+  fl_vinyl:          {rem:2.21,  rep:0,      mat:0},
+  fl_tile:           {rem:5.61,  rep:0,      mat:0},
+  fl_wood:           {rem:5.68,  rep:0,      mat:0},
+  fl_under:          {rem:2.45,  rep:0,      mat:0},
+  fl_backer:         {rem:1.36,  rep:0,      mat:0},
+  fl_tackless:       {rem:1.93,  rep:0,      mat:0},
+  dw_lf_2:           {rem:10.76, rep:0,      mat:0},
+  dw_lf_4:           {rem:10.76, rep:0,      mat:0},
+  dw_sf:             {rem:2.73,  rep:0,      mat:0},
+  wall_tile:         {rem:4.52,  rep:0,      mat:0.20},
+  wall_insul:        {rem:1.45,  rep:0,      mat:0},
+  drill_hole:        {rem:0,     rep:0.86,   mat:0},
+  ceil_dw:           {rem:2.73,  rep:0,      mat:0},
+  ceil_tile:         {rem:0.63,  rep:0,      mat:0},
+  hepa_light:        {rem:0,     rep:0.75,   mat:0},
+  clean_walls:       {rem:0,     rep:1.53,   mat:0.20},
+  clean_floor:       {rem:0,     rep:0.74,   mat:0},
+  clean_ceil:        {rem:0,     rep:1.59,   mat:0},
+  antimicrobial:     {rem:0,     rep:0.41,   mat:0},
+  hepa_detailed:     {rem:0,     rep:1.46,   mat:0},
+  mold_stain:        {rem:0,     rep:1.02,   mat:0.20},
+  dehu_large:        {rem:0,     rep:115.15, mat:0},
+  dehu_xl:           {rem:0,     rep:115.15, mat:0},
+  air_mover:         {rem:0,     rep:26.50,  mat:0},
+  air_mover_axial:   {rem:0,     rep:26.50,  mat:0},
+  scrubber:          {rem:0,     rep:76.04,  mat:0},
+  scrubber_large:    {rem:0,     rep:120.00, mat:0},
+  hepa_neg:          {rem:0,     rep:215.18, mat:196.00},
+  hepa_canister:     {rem:0,     rep:103.42, mat:38.80},
+  carbon_16:         {rem:0,     rep:124.92, mat:99.00},
+  carbon_24:         {rem:0,     rep:249.00, mat:198.00},
+  wall_cavity:       {rem:0,     rep:141.00, mat:0},
+  wood_mat:          {rem:0,     rep:185.00, mat:0},
+  hydroxyl:          {rem:0,     rep:180.00, mat:0},
+  ducting:           {rem:0,     rep:0.50,   mat:0.60},
+  // Specialty framing treatment (searchable via Other Items)
+  sand_floor:        {rem:0,     rep:4.50,   mat:0},
+  sand_walls:        {rem:0,     rep:2.44,   mat:0},
+  blast_confined:    {rem:0,     rep:1.43,   mat:0},
+  dryice_light:      {rem:0,     rep:5.29,   mat:2.00},
+  dryice_heavy:      {rem:0,     rep:10.24,  mat:4.00},
+  dump_30:           {rem:640.88,rep:0,      mat:0},
+  dump_40:           {rem:875.15,rep:0,      mat:0},
+  // Labor
+  tech_labor:        {rem:0,     rep:66.00,  mat:0},
+  supervisor:        {rem:0,     rep:86.33,  mat:0},
+  truck_mount:       {rem:0,     rep:86.33,  mat:0},
+  contents_manip:    {rem:0,     rep:46.49,  mat:0},
+  block_pad:         {rem:0,     rep:76.94,  mat:1.20},  // per piece (EA)
+  // Countertops
+  ctr_solid:         {rem:0,     rep:13.55,  mat:0},  // granite/solid surface detach
+  ctr_tile:          {rem:3.01,  rep:0,      mat:0},  // tile countertop tear out per SF
+  ctr_lam:           {rem:0,     rep:7.22,   mat:0},  // laminate detach
+  // Mirrors
+  mirror_framed_sm:  {rem:0,     rep:18.43,  mat:0},  // framed, up to 24"
+  mirror_framed_md:  {rem:0,     rep:32.86,  mat:0},  // framed, 24–48"
+  mirror_framed_lg:  {rem:0,     rep:54.76,  mat:0},  // framed, 48"+
+  mirror_glued:      {rem:2.85,  rep:0,      mat:0},  // glued-on, per SF
+};
+
+// ════════════════════════════════════════════════════════════
+// CATALOG — full searchable item list with aliases
+// ════════════════════════════════════════════════════════════
+const CATALOG = [
+  // Flooring demo
+  {k:'fl_float',   d:'Tear out floating/laminate floor',  u:'SF',  a:['laminate','lvp','vinyl plank','floating floor','floor demo','floor tear','vinyl plank flooring']},
+  {k:'fl_carpet',  d:'Tear out wet carpet',               u:'SF',  a:['carpet','rug','carpet tear','carpet remove','wet carpet','carpet demo']},
+  {k:'fl_pad',     d:'Tear out carpet pad',               u:'SF',  a:['pad','carpet pad','cushion']},
+  {k:'fl_vinyl',   d:'Tear out vinyl flooring',           u:'SF',  a:['vinyl','sheet vinyl','vct','vinyl tile','vinyl floor','lino','linoleum']},
+  {k:'fl_tile',    d:'Tear out floor tile',               u:'SF',  a:['floor tile','ceramic','porcelain floor','tile floor','floor ceramic']},
+  {k:'fl_wood',    d:'Tear out hardwood floor',           u:'SF',  a:['hardwood','wood floor','engineered wood','solid wood','oak floor']},
+  {k:'fl_under',   d:'Tear out underlayment',             u:'SF',  a:['underlayment','underlay','subfloor paper','rosin paper']},
+  {k:'fl_backer',  d:'Remove cement backer board',        u:'SF',  a:['backer board','cement board','cbu','durock','wonderboard','hardiebacker']},
+  {k:'fl_tackless',d:'Tear out tackless strip',           u:'LF',  a:['tack strip','tackless','carpet tack','tack strip remove']},
+  // Walls demo
+  {k:'dw_lf_2',    d:"Drywall flood cut — 2' high",      u:'LF',  a:['drywall 2','flood cut 2','2 foot drywall','drywall 2ft','drywall cut','flood cut linear']},
+  {k:'dw_lf_4',    d:"Drywall flood cut — 4' high",      u:'LF',  a:['drywall 4','flood cut 4','4 foot drywall','drywall 4ft']},
+  {k:'dw_sf',      d:'Tear out drywall (SF)',             u:'SF',  a:['drywall','sheetrock','gypsum board','drywall sf','drywall square','wall board','wallboard']},
+  {k:'wall_tile',  d:'Tear out wall tile',                u:'SF',  a:['wall tile','ceramic wall','backsplash','tile wall','shower tile surround','tile demo']},
+  {k:'wall_insul', d:'Tear out wall insulation',          u:'SF',  a:['insulation','batt insulation','fiberglass batt','pink insulation','wall insul']},
+  {k:'baseboard',  d:'Baseboard — Detach',                u:'LF',  a:['baseboard','base board','baseboard demo','base molding','base trim','trim detach','basebord','base molding detach']},
+  {k:'drill_hole', d:'Drill holes — cavity drying',       u:'EA',  a:['drill','wall holes','cavity holes','drying holes','drill wall']},
+  // Ceiling demo
+  {k:'ceil_dw',    d:'Tear out ceiling drywall',          u:'SF',  a:['ceiling drywall','ceiling demo','ceiling sheetrock','drywall ceiling']},
+  {k:'ceil_tile',  d:'Remove suspended ceiling tile',     u:'SF',  a:['drop ceiling','ceiling tile','suspended ceiling','grid ceiling','acoustic tile']},
+  // Containment / protection
+  {k:'containment',d:'Containment barrier (SF)',          u:'SF',  a:['containment','plastic sheeting','poly sheeting','barrier','6 mil','containment wall']},
+  {k:'tension_post',d:'Containment tension post',         u:'DA',  a:['tension post','post','containment post','pole']},
+  {k:'zipper',     d:'Peel & seal zipper',                u:'EA',  a:['zipper','peel seal','containment zipper','zip door','access door']},
+  {k:'ducting',    d:'Lay-flat ducting (LF)',              u:'LF',  a:['ducting','duct','layflat','lay flat','flex duct','negative air duct','exhaust duct']},
+  {k:'register',   d:'Mask/cover register',               u:'EA',  a:['register','vent','air vent','hvac vent','cover vent','mask vent','air register']},
+  // Bathroom fixtures
+  {k:'toilet',     d:'Toilet — Detach',                   u:'EA',  a:['toilet','toilett','tolet','commode','john','wc','water closet','throne']},
+  {k:'bathtub',    d:'Bathtub — Detach',                  u:'EA',  a:['tub','bathtub','bath tub','tub detach','bathtup','soaking tub']},
+  {k:'shower_tile',d:'Tear out shower/tub tile surround', u:'SF',  a:['shower tile','tub tile','tub surround','shower surround','tile shower','wall tile shower']},
+  {k:'shower_door',d:'Remove shower door',                u:'EA',  a:['shower door','glass door','shower enclosure','frameless door']},
+  {k:'water_cap',  d:'Water line cap/plug',               u:'EA',  a:['cap line','water cap','cap pipe','plumbing cap','shut off','line cap']},
+  {k:'water_detach',d:'Remove supply line',               u:'EA',  a:['supply line','water line','supply detach','fixture supply','flex line']},
+  {k:'vanity',     d:'Vanity — Detach (LF)',              u:'LF',  a:['vanity','bath cabinet','bathroom cabinet','vanity cabinet','vanity detach']},
+  {k:'sink',       d:'Sink — Detach',                     u:'EA',  a:['sink','kitchen sink','bath sink','sink detach','basin']},
+  {k:'garbage_disp',d:'Remove garbage disposal',         u:'EA',  a:['garbage disposal','disposal','garburator','insinkerator']},
+  {k:'dishwasher', d:'Dishwasher — Detach',               u:'EA',  a:['dishwasher','dish washer','dw detach']},
+  {k:'range_elec', d:'Range electric — Detach & Reset',   u:'EA',  a:['electric range','electric stove','range elec','stove electric','cooktop electric']},
+  {k:'range_gas',  d:'Range gas — Detach & Reset',        u:'EA',  a:['gas range','gas stove','range gas','stove gas','cooktop gas']},
+  {k:'fridge',     d:'Refrigerator — Move & Reset',       u:'EA',  a:['fridge','refrigerator','refer','icebox','refridgerator','fridgerator']},
+  {k:'range_hood', d:'Remove range hood',                  u:'EA',  a:['hood','range hood','exhaust hood','over range microwave','microwave hood']},
+  {k:'cab_lower',  d:'Cabinets lower — Detach (LF)',      u:'LF',  a:['lower cabinets','base cabinets','lower cabs','kitchen base','cabinet lower','base cabinet']},
+  {k:'cab_upper',  d:'Cabinets upper — Detach (LF)',      u:'LF',  a:['upper cabinets','wall cabinets','upper cabs','kitchen upper','cabinet upper','wall cabinet']},
+  {k:'washer',     d:'Washing machine — Detach',          u:'EA',  a:['washer','washing machine','laundry washer']},
+  {k:'dryer',      d:'Dryer — Detach',                    u:'EA',  a:['dryer','clothes dryer','laundry dryer']},
+  // General fixtures
+  {k:'door_slab',  d:'Interior door slab — Detach',       u:'EA',  a:['door','interior door','door detach','door demo','door slab','door remove']},
+  {k:'ceil_fan',   d:'Remove ceiling fan',                 u:'EA',  a:['ceiling fan','fan remove','fan detach','fan light']},
+  {k:'light_fix',  d:'Remove light fixture',               u:'EA',  a:['light fixture','light remove','fixture remove','light demo','electrical fixture','light fix']},
+  {k:'mirror_framed_sm', d:'Remove mirror — framed (up to 24")', u:'EA', a:['mirror small','small mirror','mirror framed small','bathroom mirror small']},
+  {k:'mirror_framed_md', d:'Remove mirror — framed (24–48")',    u:'EA', a:['mirror medium','medium mirror','mirror framed','vanity mirror','bathroom mirror']},
+  {k:'mirror_framed_lg', d:'Remove mirror — framed (48"+)',      u:'EA', a:['mirror large','large mirror','big mirror','wall mirror','full length mirror']},
+  {k:'mirror_glued',d:'Remove mirror — glued-on (SF)',    u:'SF',  a:['mirror glued','glued mirror','mirror sf','plate mirror','wall mirror glued']},
+  {k:'ctr_solid',  d:'Countertop granite/solid — Detach', u:'EA',  a:['granite countertop','solid surface','quartz counter','stone countertop','countertop detach','counter top']},
+  {k:'ctr_tile',   d:'Tear out tile countertop (SF)',     u:'SF',  a:['tile countertop','countertop tile','tile counter','kitchen tile counter']},
+  {k:'ctr_lam',    d:'Countertop laminate — Detach',      u:'EA',  a:['laminate countertop','formica','laminate counter','plastic laminate counter']},
+  {k:'ctr_granite', d:'Countertop — Detach',              u:'EA',  a:['counter detach','countertop remove','remove counter']},
+  // Cleaning
+  {k:'clean_walls',d:'Clean walls — scrub & wipe',        u:'SF',  a:['clean walls','wall cleaning','scrub walls','wipe walls','wash walls','wall scrub']},
+  {k:'clean_floor',d:'Clean floor — scrub & mop',         u:'SF',  a:['clean floor','floor cleaning','scrub floor','mop floor','floor scrub']},
+  {k:'clean_ceil', d:'Clean ceiling/joists',              u:'SF',  a:['clean ceiling','ceiling cleaning','clean joists','joist clean','beam clean']},
+  {k:'hepa_light', d:'HEPA Vacuuming — Light',            u:'SF',  a:['hepa vac','hepa light','hepa vacuum','hepa vac area','hepa vacuuming light']},
+  {k:'hepa_detailed',d:'HEPA Vacuuming — Detailed',       u:'SF',  a:['hepa detailed','hepa detail','hepa vac detail','hepa vacuuming detail']},
+  {k:'antimicrobial',d:'Apply antimicrobial agent',       u:'SF',  a:['antimicrobial','anti microbial','biocide','disinfect','mold treatment','microbial','antimicro']},
+  {k:'mold_stain', d:'Apply mold stain remover',          u:'SF',  a:['mold stain','stain remover','encapsulant','mold remover','bleach treatment','mold stain remover']},
+  {k:'muckout',    d:'Muck-out / flood cleanup',          u:'SF',  a:['muck out','muckout','flood cleanup','mud out','sewage cleanup','muck']},
+  // Equipment
+  {k:'dehu_large', d:'Dehumidifier — Large',              u:'DA',  a:['dehu','dehumidifier','drying','dehum','lg dehu','dehumid','humidity']},
+  {k:'dehu_xl',    d:'Dehumidifier — XLarge',             u:'DA',  a:['dehu xl','xlarge dehu','xl dehu','large dehu','big dehu','xtra dehu']},
+  {k:'air_mover',  d:'Air mover',                         u:'DA',  a:['air mover','fan','blower','drying fan','snail fan','centrifugal fan']},
+  {k:'air_mover_axial',d:'Air mover — axial',             u:'DA',  a:['axial','axial fan','axial air mover','floor fan']},
+  {k:'scrubber',   d:'Air scrubber (regular)',             u:'DA',  a:['air scrubber','scrubber','hepa scrubber','neg air','negative air fan']},
+  {k:'scrubber_large',d:'Air scrubber (large)',            u:'DA',  a:['large scrubber','big scrubber','xl scrubber','neg air large']},
+  {k:'hepa_neg',   d:'HEPA filter — neg air fan',         u:'EA',  a:['hepa filter','neg air filter','scrubber filter','air filter neg','hepa neg']},
+  {k:'hepa_canister',d:'HEPA filter — canister vac',      u:'EA',  a:['canister filter','vac filter','hepa canister','backpack filter','vacuum filter']},
+  {k:'carbon_16',  d:'Carbon vapor filter 16"×16"',       u:'EA',  a:['carbon filter','charcoal filter','vapor filter','carbon 16','carbon vapor']},
+  {k:'carbon_24',  d:'Carbon vapor filter 24"×24"',       u:'EA',  a:['carbon 24','carbon filter 24','big carbon','large carbon filter']},
+  {k:'wall_cavity',d:'Wall cavity drying injection',       u:'DA',  a:['cavity drying','wall drying','inject dry','wall cavity drying','injectidry']},
+  {k:'wood_mat',   d:'Wood floor drying mat',              u:'DA',  a:['wood mat','floor mat','hardwood mat','drying mat','floor drying']},
+  // Specialty framing treatment
+  {k:'sand_floor', d:'Sand exposed framing — floor',       u:'SF',  a:['sand floor','sanding floor','sand framing floor','sand subfloor','sanding']},
+  {k:'sand_walls', d:'Sand exposed framing — walls',       u:'SF',  a:['sand walls','sanding walls','sand framing walls','sand studs','sanding']},
+  {k:'blast_confined',d:'Confined space blasting — add-on',u:'SF',  a:['confined space blasting','blasting add on','confined blast','tight space blast']},
+  {k:'dryice_light',d:'Dry ice blasting — framing (standard)',u:'SF',a:['dry ice blasting','dry ice','ice blasting','co2 blasting','media blasting','soda blasting']},
+  {k:'dryice_heavy',d:'Dry ice blasting — framing (heavy)',u:'SF',  a:['dry ice blast heavy','heavy dry ice','ice blasting heavy','heavy blasting']},
+  // Extraction
+  {k:'extract_carpet',d:'Water extraction — carpet',      u:'SF',  a:['extract carpet','carpet extraction','vacuum water','wet vac carpet','extraction carpet']},
+  {k:'extract_hard',d:'Water extraction — hard surface',  u:'SF',  a:['extract hard','hard surface extraction','wet vac floor','extraction hard','vacuum water floor']},
+  // Labor
+  {k:'tech_labor', d:'Tech labor (hourly)',                u:'HR',  a:['tech labor','labor','tech hours','technician','field tech','tech hour']},
+  {k:'supervisor', d:'Supervisor hours',                   u:'HR',  a:['supervisor','super','project manager','pm hours','lead tech']},
+  {k:'monitoring', d:'Equipment monitoring',               u:'HR',  a:['monitoring','monitor','equip monitoring','setup teardown']},
+  {k:'decon',      d:'Equipment decontamination',          u:'EA',  a:['decon','equipment decon','decontamination','equip clean','decontaminate']},
+  {k:'contents_manip',d:'Contents manipulation',          u:'HR',  a:['contents','content manipulation','moving contents','pack out','move furniture','contents hr']},
+  {k:'block_pad',  d:'Block & pad furniture',              u:'HR',  a:['block pad','furniture block','block and pad','pad furniture']},
+  {k:'haul_debris',d:'Haul debris (truck load)',           u:'EA',  a:['haul','haul debris','trash hauling','dump run','debris removal','dump load']},
+];
+
+// Fuzzy search: matches if every query word appears in item text (with 1-char tolerance for long words)
+function fuzzySearch(query) {
+  if(!query || query.length < 2) return [];
+  const normalize = s => s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const q = normalize(query);
+  const qWords = q.split(' ').filter(w => w.length >= 2);
+  if(!qWords.length) return [];
+
+  return CATALOG.filter(function(item) {
+    const text = normalize(item.d + ' ' + item.a.join(' '));
+    return qWords.every(function(qw) {
+      if(text.includes(qw)) return true;
+      // 1-char typo tolerance for words 4+ chars
+      if(qw.length >= 4) {
+        return text.split(' ').some(function(tw) {
+          if(Math.abs(tw.length - qw.length) > 2) return false;
+          const len = Math.min(tw.length, qw.length);
+          let diff = Math.abs(tw.length - qw.length);
+          for(let i = 0; i < len && diff <= 1; i++) if(tw[i] !== qw[i]) diff++;
+          return diff <= 1;
+        });
+      }
+      return false;
+    });
+  }).slice(0, 10);
+}
+
+// ── Other Items (free-add from catalog) ──────────────────────────────
+const otherSections = {}; // sectionId → [{k, d, u, qty}]
+
+function buildOtherSearchUI(sectionId) {
+  // IDs follow pattern: other-{sectionId}-items and other-{sectionId}-search-ui
+  const ui = document.getElementById('other-'+sectionId+'-search-ui');
+  if(!ui) return;
+  ui.innerHTML =
+    '<div style="margin-top:4px"><label style="display:block;margin-bottom:5px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">Search &amp; Add Item from Catalog</label>' +
+    '<div style="position:relative">' +
+      '<input type="text" id="cat_search_'+sectionId+'" placeholder="Type anything — toilet, baseboard, drywall 2ft, hepa filter…" ' +
+        'style="width:100%;padding-right:32px" oninput="runCatalogSearch(\''+sectionId+'\')" autocomplete="off">' +
+      '<span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none">🔍</span>' +
+    '</div>' +
+    '<div id="cat_results_'+sectionId+'" style="display:none;background:white;border:1.5px solid var(--med);border-top:none;border-radius:0 0 5px 5px;max-height:220px;overflow-y:auto;position:relative;z-index:10"></div>' +
+    '</div>';
+  otherSections[sectionId] = otherSections[sectionId] || [];
+  renderOtherItems(sectionId);
+}
+
+function runCatalogSearch(sectionId) {
+  const q = document.getElementById('cat_search_'+sectionId).value;
+  const res = document.getElementById('cat_results_'+sectionId);
+  const results = fuzzySearch(q);
+  if(!results.length || q.length < 2) { res.style.display='none'; return; }
+  res.style.display = '';
+  res.innerHTML = results.map(function(item) {
+    return '<div onclick="addOtherItem(\''+sectionId+'\',\''+item.k+'\',\''+item.d.replace(/'/g,"\\'")+'\',\''+item.u+'\')" ' +
+      'style="padding:7px 12px;cursor:pointer;border-bottom:1px solid var(--light);font-size:12px;display:flex;justify-content:space-between" ' +
+      'onmouseenter="this.style.background=\'var(--alt)\'" onmouseleave="this.style.background=\'\'">' +
+      '<span>'+item.d+'</span><span style="color:var(--muted);font-size:11px">'+item.u+'</span></div>';
+  }).join('');
+}
+
+function addOtherItem(sectionId, key, desc, unit) {
+  otherSections[sectionId] = otherSections[sectionId] || [];
+  otherSections[sectionId].push({k:key, d:desc, u:unit, qty:1});
+  document.getElementById('cat_search_'+sectionId).value = '';
+  document.getElementById('cat_results_'+sectionId).style.display = 'none';
+  renderOtherItems(sectionId);
+}
+
+function removeOtherItem(sectionId, idx) {
+  otherSections[sectionId].splice(idx, 1);
+  renderOtherItems(sectionId);
+}
+
+function renderOtherItems(sectionId) {
+  const list = document.getElementById('other-'+sectionId+'-items');
+  if(!list) return;
+  const items = otherSections[sectionId] || [];
+  if(!items.length){ list.innerHTML=''; return; }
+  list.innerHTML = '<div style="margin-bottom:6px">'+
+    items.map(function(item, i) {
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:5px 8px;background:var(--alt);border-radius:5px;border:1px solid var(--border)">' +
+        '<input type="number" value="'+item.qty+'" min="0" step="0.1" style="width:70px" ' +
+          'oninput="otherSections[\''+sectionId+'\']['+i+'].qty=parseFloat(this.value)||0">' +
+        '<span style="font-size:11px;color:var(--muted)">'+item.u+'</span>' +
+        '<span style="font-size:12px;flex:1">'+item.d+'</span>' +
+        '<button class="btn-rm" onclick="removeOtherItem(\''+sectionId+'\','+i+')">×</button>' +
+      '</div>';
+    }).join('') + '</div>';
+}
+
+// Close catalog dropdown when clicking elsewhere
+document.addEventListener('click', function(e) {
+  document.querySelectorAll('[id^="cat_results_"]').forEach(function(el) {
+    if(!el.previousElementSibling?.contains(e.target)) el.style.display='none';
+  });
+});
+
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
+const EQUIP_DEFS = [
+  {id:'dehu_large',label:'Dehu — Large',unit:'DA'},
+  {id:'dehu_xl',label:'Dehu — XLarge',unit:'DA'},
+  {id:'air_mover',label:'Air Mover',unit:'DA'},
+  {id:'air_mover_axial',label:'Air Mover Axial',unit:'DA'},
+  {id:'scrubber',label:'Air Scrubber Reg.',unit:'DA'},
+  {id:'scrubber_large',label:'Air Scrubber Large',unit:'DA'},
+  {id:'hepa_neg',label:'HEPA Filter (neg air)',unit:'EA'},
+  {id:'hepa_canister',label:'HEPA Filter (canister)',unit:'EA',mainOnly:true},
+  {id:'carbon_16',label:'Carbon Filter 16×16',unit:'EA'},
+  {id:'carbon_24',label:'Carbon Filter 24×24',unit:'EA'},
+  {id:'wall_cavity',label:'Wall Cavity Drying',unit:'DA'},
+  {id:'wood_mat',label:'Wood Floor Mat',unit:'DA'},
+];
+
+const ROOM_OPTIONS = [
+  {label:'Master Bedroom',     type:'Bedroom'},
+  {label:'Bedroom',            type:'Bedroom',     inc:true},
+  {label:'Master Bathroom',    type:'Bathroom'},
+  {label:'Bathroom',           type:'Bathroom',    inc:true},
+  {label:'Kitchen',            type:'Kitchen'},
+  {label:'Laundry Room',       type:'Laundry Room'},
+  {label:'Living Room',        type:'Living Room'},
+  {label:'Family Room',        type:'Living Room',  inc:true},
+  {label:'Office',             type:'Office',       inc:true},
+  {label:'Hallway',            type:'Hallway',      inc:true},
+  {label:'Basement',           type:'Basement',     inc:true},
+  {label:'Crawl Space',        type:'Crawl Space'},
+  {label:'Garage',             type:'Garage'},
+  {label:'Utility Room',       type:'Other'},
+];
+
+const ROOM_SPECIALS = {
+  Bathroom: ['toilet','bathtub','shower_tile','shower_door','water_cap','water_detach','vanity','exhaust_fan'],
+  Kitchen:  ['sink','garbage_disp','dishwasher','range_elec','range_gas','fridge','range_hood','cab_lower','cab_upper'],
+  'Laundry Room': ['washer','dryer'],
+  'Crawl Space':  ['crawl'],
+};
+
+const SUB_DEFS = [
+  {id:'plumber',   label:'Plumber'},
+  {id:'elec',      label:'Electrical'},
+  {id:'hvac',      label:'HVAC'},
+  {id:'cabinets',  label:'Cabinets'},
+  {id:'tmp_svc',   label:'TMP Services',  note:'billable to insurance'},
+  {id:'tmp_labor', label:'TMP Labor',     note:'billable to insurance'},
+  {id:'other',     label:'Other Subcontractor', specify:true},
+];
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let currentPage = 1;
+const TOTAL_PAGES = 4;
+let LAST_EST = null;  // {total, lt} captured at estimate render, used by the Email button
+let rooms = [];
+let roomCounter = 0;
+const roomTypeCounts = {};
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+window.onload = function() {
+  buildProgress();
+  buildSubList();
+  buildRoomDropdown();
+  buildEquipGrid('main-eg', 'me', null);
+  addDynRow('post-rows-m','post-m');
+  updateNav();
+  // Build Other Items search for Main
+  otherSections['main'] = [];
+  buildOtherSearchUI('main');
+};
+
+// ════════════════════════════════════════════════════════════
+// PROGRESS
+// ════════════════════════════════════════════════════════════
+function buildProgress() {
+  const w = document.getElementById('prog-wrap');
+  w.innerHTML = '';
+  for(let i=1;i<=TOTAL_PAGES;i++){
+    const d=document.createElement('div');
+    d.className='prog-dot'+(i<currentPage?' done':i===currentPage?' current':'');
+    w.appendChild(d);
+  }
+  const lbls=['Job Info','Main Charges','Rooms','Estimate'];
+  document.getElementById('prog-lbl').textContent=lbls[currentPage-1]+' ('+currentPage+'/'+TOTAL_PAGES+')';
+}
+
+function goPg(n) {
+  if(n<1||n>TOTAL_PAGES) return;
+  document.querySelector('.page.active').classList.remove('active');
+  document.getElementById('p'+n).classList.add('active');
+  currentPage=n;
+  buildProgress();
+  updateNav();
+  if(n===4) renderEstimate();
+  window.scrollTo(0,0);
+}
+
+function updateNav() {
+  document.getElementById('btn-bk').style.visibility = currentPage===1?'hidden':'visible';
+  document.getElementById('btn-nx').textContent = currentPage===TOTAL_PAGES-1?'Build Estimate →':'Next →';
+  document.getElementById('btn-nx').style.display = currentPage===TOTAL_PAGES?'none':'';
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 1 HELPERS
+// ════════════════════════════════════════════════════════════
+function onLT() {
+  const w = document.querySelector('input[name=lt]:checked').value==='water';
+  document.getElementById('cat_row').style.display = w?'':'none';
+  document.getElementById('mold_row').style.display = w?'none':'';
+}
+function toggleEmg() {
+  document.getElementById('hrs_row').style.display = document.getElementById('emg_y').checked?'':'none';
+}
+function trActive(trId, cb) {
+  document.getElementById(trId).classList.toggle('active', cb.checked);
+}
+
+function buildSubList() {
+  const list = document.getElementById('sub-list');
+  SUB_DEFS.forEach(function(s) {
+    const wrap = document.createElement('div');
+    wrap.id = 'sub_wrap_'+s.id;
+    const div = document.createElement('div');
+    div.className = 'tr';
+    div.id = 'tr_sub_'+s.id;
+    div.innerHTML =
+      '<input type="checkbox" id="sub_chk_'+s.id+'" onchange="subToggle(\''+s.id+'\')">' +
+      '<span class="tr-lbl" onclick="document.getElementById(\'sub_chk_'+s.id+'\').click()">'+s.label+(s.note?' <span style="font-weight:400;color:var(--muted);font-size:11px">('+s.note+')</span>':'')+' </span>'+
+      '<div class="tr-sub" id="tr_sub_inp_'+s.id+'" style="opacity:.4;pointer-events:none">'+
+        '<div><span class="lbl10">Invoice $</span><input type="text" id="sub_inv_'+s.id+'" placeholder="0.00" style="width:95px" onblur="fmtC(this)" onfocus="unfmtC(this)"></div>'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span class="lbl10">10/10</span><input type="checkbox" id="sub_1010_'+s.id+'" style="width:16px;height:16px;cursor:pointer;accent-color:var(--dark)"></div>'+
+      '</div>';
+    wrap.appendChild(div);
+    // Specify field for Other
+    if(s.specify) {
+      const specDiv = document.createElement('div');
+      specDiv.id = 'sub_specify_wrap_'+s.id;
+      specDiv.style.cssText = 'display:none;padding:4px 10px 6px 34px';
+      specDiv.innerHTML = '<input type="text" id="sub_specify_'+s.id+'" placeholder="Specify subcontractor type…" style="width:100%;max-width:360px">';
+      wrap.appendChild(specDiv);
+    }
+    list.appendChild(wrap);
+    // Wire currency input
+    currInput('sub_inv_'+s.id);
+  });
+}
+function subToggle(id) {
+  const on = document.getElementById('sub_chk_'+id).checked;
+  const inp = document.getElementById('tr_sub_inp_'+id);
+  inp.style.opacity = on?'1':'.4';
+  inp.style.pointerEvents = on?'':'none';
+  document.getElementById('tr_sub_'+id).classList.toggle('active', on);
+  // Show specify field if applicable
+  const spec = document.getElementById('sub_specify_wrap_'+id);
+  if(spec) spec.style.display = on?'':'none';
+}
+
+function testToggle(key) {
+  const on = document.getElementById('t_'+key).checked;
+  const sub = document.getElementById('ts_'+key);
+  if(sub){ sub.style.opacity = on?'1':'.4'; sub.style.pointerEvents = on?'':'none'; }
+  const tr = document.getElementById('tr_t_'+key);
+  if(tr) tr.classList.toggle('active', on);
+  // Wire currency inputs when first enabled (not for sample-count-only fields)
+  const invEl = document.getElementById('t_'+key+'_inv');
+  if(on && invEl) currInput('t_'+key+'_inv');
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 2 HELPERS
+// ════════════════════════════════════════════════════════════
+function setTax(el) {
+  if(el.value) document.getElementById('tax_rate').value=(parseFloat(el.value)*100).toFixed(2);
+}
+function getTaxRate() {
+  return (parseFloat(document.getElementById('tax_rate').value)||0)/100;
+}
+// ZIP → jurisdiction/rate for the known presets. Unknown ZIPs fall back to manual.
+const ZIP_TAX = {
+  '80134':{j:'Parker',r:8.00,q:'txq_p'},            '80138':{j:'Parker',r:8.00,q:'txq_p'},
+  '80104':{j:'Castle Rock',r:7.75,q:'txq_cr'},      '80108':{j:'Castle Rock',r:7.75,q:'txq_cr'}, '80109':{j:'Castle Rock',r:7.75,q:'txq_cr'},
+  '80126':{j:'Highlands Ranch',r:4.00,q:'txq_hr'},  '80129':{j:'Highlands Ranch',r:4.00,q:'txq_hr'}, '80130':{j:'Highlands Ranch',r:4.00,q:'txq_hr'},
+  '80111':{j:'Greenwood Village',r:7.25,q:'txq_gv'},'80121':{j:'Greenwood Village',r:7.25,q:'txq_gv'}
+};
+function onZip() {
+  const z=(document.getElementById('zip').value||'').trim();
+  const note=document.getElementById('tax_auto_note');
+  if(!note) return;
+  const m=ZIP_TAX[z];
+  if(m){
+    document.getElementById('tax_rate').value=m.r.toFixed(2);
+    const radio=document.getElementById(m.q); if(radio) radio.checked=true;
+    note.className='info-box';
+    note.textContent='ZIP '+z+' → '+m.j+' ('+m.r.toFixed(2)+'%) auto-filled as a starting point. Confirm the property is inside city limits — unincorporated addresses in this ZIP often use a different rate.';
+    note.style.display='';
+  } else if(z.length>=5){
+    document.getElementById('txq_o').checked=true;
+    note.className='warn-box';
+    note.textContent='ZIP '+z+' is not in the known list — pick a jurisdiction or enter the verified combined rate manually.';
+    note.style.display='';
+  } else {
+    note.style.display='none';
+  }
+}
+function sfCalc(type) {
+  const lf=parseFloat(document.getElementById('m_'+type+'_lf').value)||0;
+  const w=parseFloat(document.querySelector('input[name="'+(type==='cloth'?'cw':'aw')+'"]:checked')?.value||24);
+  document.getElementById(type+'_sf').textContent=(lf*w/12).toFixed(1)+' SF';
+}
+function onDumpster() {
+  const v=document.getElementById('m_dump').value;
+  document.getElementById('dump_extra').style.display=v?'':'none';
+  if(v) onDumpPricing();
+}
+
+// Dynamic rows (posts, monitoring)
+function addDynRow(containerId, prefix) {
+  const wrap=document.getElementById(containerId);
+  const row=document.createElement('div');
+  row.className='dyn-row';
+  row.innerHTML=
+    '<input type="number" class="dyn-qty" min="1" placeholder="Posts">'+
+    '<span class="dyn-lbl">posts ×</span>'+
+    '<input type="number" class="dyn-days" min="1" placeholder="Days">'+
+    '<span class="dyn-lbl">days</span>'+
+    '<button class="btn-rm" onclick="this.parentElement.remove()">×</button>';
+  wrap.appendChild(row);
+}
+
+function calcMon() {
+  const visits  = parseFloat(document.getElementById('m_mon_visits')?.value)||0;
+  const pieces  = parseFloat(document.getElementById('m_mon_pieces')?.value)||0;
+  const rate    = parseFloat(document.getElementById('m_hr_rate').value)||1.5;
+  const hr      = parseFloat(((visits * rate) + (pieces * 0.33)).toFixed(2));
+  document.getElementById('mon_hr').textContent = hr.toFixed(2) + ' HR';
+  const decon = document.getElementById('m_decon');
+  if(pieces > 0){ decon.value = pieces; decon.classList.add('auto-f'); }
+}
+function onDumpPricing() {
+  const inv=document.getElementById('dump_inv_r').checked;
+  document.getElementById('dump_inv_wrap').style.display = inv ? '' : 'none';
+  if(inv) currInput('m_dump_inv');
+  // 10/10 (×1.2) only applies to invoice pricing — lock it otherwise
+  const chk=document.getElementById('dump_1010');
+  const rowEl=document.getElementById('dump_1010_row');
+  if(chk){ chk.disabled=!inv; if(!inv) chk.checked=false; }
+  if(rowEl){ rowEl.style.opacity=inv?'1':'.4'; rowEl.style.pointerEvents=inv?'':'none'; }
+}
+
+// Equipment grids
+function buildEquipGrid(gridId, prefix, roomId) {
+  const grid=document.getElementById(gridId);
+  if(!grid) return;
+  EQUIP_DEFS.forEach(function(eq){
+    if(roomId && eq.mainOnly) return;   // some equipment (e.g. HEPA canister filter) is Main-level only
+    const isDA=eq.unit==='DA';
+    const key=roomId?(prefix+'_'+roomId+'_'+eq.id):(prefix+'_'+eq.id);
+    const inp=isDA?
+      '<div class="ef"><div><div class="ef-lbl">Units</div><input type="number" id="'+key+'_u" min="1" placeholder="1" disabled></div><div><div class="ef-lbl">Days</div><input type="number" id="'+key+'_d" min="1" placeholder="1" disabled></div></div>':
+      '<div class="ef"><div><div class="ef-lbl">EA</div><input type="number" id="'+key+'_u" min="1" placeholder="1" disabled></div></div>';
+    const d=document.createElement('div');
+    d.className='ei'; d.id=key+'_wrap';
+    d.innerHTML='<div class="ei-hdr"><input type="checkbox" id="'+key+'_chk" onchange="toggleEq(\''+key+'\')"><span onclick="document.getElementById(\''+key+'_chk\').click()">'+eq.label+'</span></div>'+inp;
+    grid.appendChild(d);
+  });
+}
+function toggleEq(key) {
+  const on=document.getElementById(key+'_chk').checked;
+  document.getElementById(key+'_wrap').classList.toggle('on',on);
+  document.getElementById(key+'_wrap').querySelectorAll('input[type=number]').forEach(function(i){i.disabled=!on;});
+}
+
+// ════════════════════════════════════════════════════════════
+// CURRENCY FORMATTING
+// All currency inputs must be type="text".
+// oninput stores the raw number in dataset.raw.
+// onblur formats as $X.XX. onfocus restores raw number.
+// ════════════════════════════════════════════════════════════
+function fmtC(el) {
+  const raw = el.dataset.raw || el.value.replace(/[^0-9.]/g,'');
+  const n = parseFloat(raw);
+  if(!isNaN(n) && n > 0) {
+    el.dataset.raw = String(n);
+    el.value = '$' + n.toFixed(2);
+    el.classList.add('auto-f');
+  } else {
+    el.value = '';
+    el.dataset.raw = '';
+    el.classList.remove('auto-f');
+  }
+}
+function unfmtC(el) {
+  el.value = el.dataset.raw || '';
+  el.classList.remove('auto-f');
+}
+function rawC(id) {
+  const el = document.getElementById(id);
+  if(!el) return 0;
+  return parseFloat(el.dataset.raw || el.value.replace(/[^0-9.]/g,'')) || 0;
+}
+function currInput(id) {
+  // Call after creating a currency input to wire the oninput handler
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', function(){ this.dataset.raw = this.value.replace(/[^0-9.]/g,''); });
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 3 — ROOMS
+// ════════════════════════════════════════════════════════════
+function buildRoomDropdown() {
+  const sel=document.getElementById('room-drop');
+  ROOM_OPTIONS.forEach(function(o){
+    const opt=document.createElement('option');
+    opt.value=o.label; opt.textContent=o.label; sel.appendChild(opt);
+  });
+}
+function showRoomDrop() {
+  document.getElementById('add-room-btn').style.display='none';
+  document.getElementById('room-drop-wrap').style.display='flex';
+  document.getElementById('room-drop').value='';
+}
+function cancelRoom() {
+  document.getElementById('room-drop-wrap').style.display='none';
+  document.getElementById('add-room-btn').style.display='';
+}
+function confirmRoom() {
+  const sel=document.getElementById('room-drop');
+  const baseName=sel.value;
+  if(!baseName){alert('Please select a room type.');return;}
+  cancelRoom();
+
+  // Auto-increment name
+  const opt = ROOM_OPTIONS.find(function(o){return o.label===baseName;})||{label:baseName,type:'Other'};
+  roomTypeCounts[baseName]=(roomTypeCounts[baseName]||0)+1;
+  const count=roomTypeCounts[baseName];
+  const displayName = (count===1&&!opt.inc) ? baseName : (count===1 ? baseName : baseName+' '+count);
+
+  const id=++roomCounter;
+  rooms.push({id,name:displayName,type:opt.type||'Other'});
+  document.getElementById('no-rooms').style.display='none';
+  renderRoomTabs();
+  buildRoomBody(id,displayName,opt.type||'Other');
+  activateRoom(rooms.length-1);
+}
+function renderRoomTabs() {
+  document.querySelectorAll('.rtab').forEach(function(t){t.remove();});
+  const addArea=document.getElementById('add-room-area');
+  rooms.forEach(function(r,i){
+    const t=document.createElement('div');
+    t.className='rtab';
+    t.innerHTML=r.name+' <span class="rx" data-idx="'+i+'">×</span>';
+    t.addEventListener('click',function(e){
+      if(e.target.classList.contains('rx')) removeRoom(parseInt(e.target.dataset.idx));
+      else activateRoom(i);
+    });
+    document.getElementById('room-tabs').insertBefore(t,addArea);
+  });
+}
+function activateRoom(idx) {
+  document.querySelectorAll('.rbody').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.rtab').forEach(function(t){t.classList.remove('active');});
+  if(idx>=0&&idx<rooms.length){
+    const tabs=document.querySelectorAll('.rtab');
+    if(tabs[idx]) tabs[idx].classList.add('active');
+    const body=document.getElementById('rbody_'+rooms[idx].id);
+    if(body) body.classList.add('active');
+  }
+}
+function removeRoom(idx) {
+  if(!confirm('Remove "'+rooms[idx].name+'"?')) return;
+  const r=rooms[idx];
+  const b=document.getElementById('rbody_'+r.id);
+  if(b) b.remove();
+  rooms.splice(idx,1);
+  renderRoomTabs();
+  if(!rooms.length) document.getElementById('no-rooms').style.display='';
+  else activateRoom(Math.min(idx,rooms.length-1));
+}
+
+// ════════════════════════════════════════════════════════════
+// BUILD ROOM BODY
+// ════════════════════════════════════════════════════════════
+function buildRoomBody(id,name,type) {
+  const sp=ROOM_SPECIALS[type]||[];
+  const isCrawl=(type==='Crawl Space');
+
+  function nfi(fid,lbl,hint,cls){
+    return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0" step="0.1"'+(cls?' class="'+cls+'"':'')+' oninput="suggestClean('+id+')">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
+  }
+  function nfi_noev(fid,lbl,hint){
+    return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0" step="0.1">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
+  }
+
+  let html='<div class="card"><div class="ct">📍 '+name+' <span style="font-weight:400;color:var(--muted);font-size:12px">— '+type+'</span></div>';
+
+  // Containment per room
+  html+='<div class="ss"><div class="ss-title">Containment &amp; Registers</div>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Containment Barrier (SF)</label><input type="number" id="r'+id+'_cont_sf" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Peel &amp; Seal Zipper (EA)</label><input type="number" id="r'+id+'_zip" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Mask/Cover Register (EA)</label><input type="number" id="r'+id+'_reg" placeholder="0" min="0"></div>'+
+    '</div>'+
+    '<div style="margin-top:6px"><label style="display:block;margin-bottom:5px">Tension Posts</label>'+
+    '<div id="r'+id+'_posts"></div>'+
+    '<button class="btn-add" onclick="addDynRow(\'r'+id+'_posts\',\'rp'+id+'\')">+ Add Post Period</button>'+
+    '</div></div>';
+
+  // Extraction
+  html+='<div class="ss"><div class="ss-title">Extraction (water jobs)</div>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Carpet Extraction (SF)</label><input type="number" id="r'+id+'_ext_carp" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Hard Surface Extraction (SF)</label><input type="number" id="r'+id+'_ext_hard" placeholder="0" min="0"></div>'+
+    '</div>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Muck-Out</label>'+
+        '<div class="rg sm">'+
+          '<div class="rb gy"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_n" value="no" checked><label for="r'+id+'_muck_n">No</label></div>'+
+          '<div class="rb g"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_y" value="yes"><label for="r'+id+'_muck_y">Yes</label></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fg" id="r'+id+'_muck_sf_wrap" style="display:none"><label>Muck-Out Area (SF)</label><input type="number" id="r'+id+'_muck_sf" placeholder="0" min="0"><div class="hint">Removal &amp; disposal of standing debris/sludge</div></div>'+
+    '</div></div>';
+
+  // Wire muck-out radio
+  // (done via inline onchange — set below in script after innerHTML)
+
+  // Room-specific fixtures
+  if(!isCrawl && sp.length){
+    html+='<div class="ss"><div class="ss-title">'+type+' Fixtures</div><div class="fr">';
+    if(sp.includes('toilet'))      html+='<div class="fg"><label>Toilet — Detach &amp; Set Aside (EA)</label><input type="number" id="r'+id+'_toilet" placeholder="0" min="0"></div>';
+    if(sp.includes('bathtub'))     html+='<div class="fg"><label>Bathtub — Detach (EA)</label><input type="number" id="r'+id+'_tub" placeholder="0" min="0"></div>';
+    if(sp.includes('shower_tile')) html+='<div class="fg"><label>Shower/Tub Tile — Tear Out (SF)</label><input type="number" id="r'+id+'_sh_tile" placeholder="0" min="0" step="0.1"></div>';
+    if(sp.includes('shower_door')) html+='<div class="fg"><label>Shower Door — Remove (EA)</label><input type="number" id="r'+id+'_sh_door" placeholder="0" min="0"></div>';
+    if(sp.includes('water_cap'))   html+='<div class="fg"><label>Water Line Cap (EA)</label><input type="number" id="r'+id+'_wcap" placeholder="0" min="0"></div>';
+    if(sp.includes('water_detach'))html+='<div class="fg"><label>Water Line Detach (EA)</label><input type="number" id="r'+id+'_wdet" placeholder="0" min="0"></div>';
+    if(sp.includes('vanity'))      html+='<div class="fg"><label>Vanity — Detach (LF)</label><input type="number" id="r'+id+'_van" placeholder="0" min="0" step="0.5"></div>';
+    if(sp.includes('exhaust_fan')) html+='<div class="fg"><label>Exhaust Fan — Remove (EA)</label><input type="number" id="r'+id+'_exfan" placeholder="0" min="0"></div>';
+    if(sp.includes('sink'))        html+='<div class="fg"><label>Sink — Detach (EA)</label><input type="number" id="r'+id+'_sink" placeholder="0" min="0"></div>';
+    if(sp.includes('garbage_disp'))html+='<div class="fg"><label>Garbage Disposal — Remove (EA)</label><input type="number" id="r'+id+'_gdisp" placeholder="0" min="0"></div>';
+    if(sp.includes('dishwasher'))  html+='<div class="fg"><label>Dishwasher — Detach (EA)</label><input type="number" id="r'+id+'_dw" placeholder="0" min="0"></div>';
+    if(sp.includes('range_elec'))  html+='<div class="fg"><label>Range Electric — Detach &amp; Reset (EA)</label><input type="number" id="r'+id+'_re" placeholder="0" min="0"></div>';
+    if(sp.includes('range_gas'))   html+='<div class="fg"><label>Range Gas — Detach &amp; Reset (EA)</label><input type="number" id="r'+id+'_rg" placeholder="0" min="0"></div>';
+    if(sp.includes('fridge'))      html+='<div class="fg"><label>Refrigerator — Move &amp; Reset (EA)</label><input type="number" id="r'+id+'_frid" placeholder="0" min="0"></div>';
+    if(sp.includes('range_hood'))  html+='<div class="fg"><label>Range Hood — Remove (EA)</label><input type="number" id="r'+id+'_rhood" placeholder="0" min="0"></div>';
+    if(sp.includes('cab_lower'))   html+='<div class="fg"><label>Cabinets Lower — Detach (LF)</label><input type="number" id="r'+id+'_cabl" placeholder="0" min="0" step="0.5"></div>';
+    if(sp.includes('cab_upper'))   html+='<div class="fg"><label>Cabinets Upper — Detach (LF)</label><input type="number" id="r'+id+'_cabu" placeholder="0" min="0" step="0.5"></div>';
+    if(sp.includes('washer'))      html+='<div class="fg"><label>Washer — Detach (EA)</label><input type="number" id="r'+id+'_wash" placeholder="0" min="0"></div>';
+    if(sp.includes('dryer'))       html+='<div class="fg"><label>Dryer — Detach (EA)</label><input type="number" id="r'+id+'_dryr" placeholder="0" min="0"></div>';
+    html+='</div></div>';
+  }
+
+  // Crawl space
+  if(isCrawl){
+    html+='<div class="ss"><div class="ss-title">Crawl Space</div><div class="fr">'+
+      nfi_noev('soil_sf','Level Soil (SF)')+nfi_noev('vapor_sf','Vapor Barrier (SF)')+
+      nfi_noev('lime_sf','Hydrated Lime (SF)')+nfi_noev('insul_rem','Insulation Remove (SF)')+
+      nfi_noev('insul_inst','Insul. Board Install (SF)')+'</div></div>';
+  }
+
+  // General fixtures (any room)
+  html+='<div class="ss"><div class="ss-title">Other Fixtures — Any Room</div><div class="fr">'+
+    '<div class="fg"><label>Door Slab — Detach (EA)</label><input type="number" id="r'+id+'_dslab" placeholder="0" min="0"></div>'+
+    '<div class="fg"><label>Ceiling Fan — Remove (EA)</label><input type="number" id="r'+id+'_cfan" placeholder="0" min="0"></div>'+
+    '<div class="fg"><label>Light Fixture — Remove (EA)</label><input type="number" id="r'+id+'_lfix" placeholder="0" min="0"></div>'+
+    '</div><div class="fr">'+
+    '<div class="fg"><label>Baseboard — Detach (LF)</label><input type="number" id="r'+id+'_bboard" placeholder="0" min="0" step="0.5"></div>'+
+    '</div>'+
+    // Mirrors
+    '<div style="margin-top:6px"><label style="display:block;margin-bottom:5px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase">Mirrors</label>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Framed — Small (up to 24") EA</label><input type="number" id="r'+id+'_mir_sm" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Framed — Medium (24–48") EA</label><input type="number" id="r'+id+'_mir_md" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Framed — Large (48"+) EA</label><input type="number" id="r'+id+'_mir_lg" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Glued-On — Remove (SF)</label><input type="number" id="r'+id+'_mir_sf" placeholder="0" min="0" step="0.1"></div>'+
+    '</div></div>'+
+    // Countertops
+    '<div style="margin-top:6px"><label style="display:block;margin-bottom:5px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase">Countertops</label>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Granite / Solid Surface — Detach (EA)</label><input type="number" id="r'+id+'_ctr_sol" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Tile — Tear Out (SF)</label><input type="number" id="r'+id+'_ctr_tile" placeholder="0" min="0" step="0.1"></div>'+
+      '<div class="fg"><label>Laminate — Detach (EA)</label><input type="number" id="r'+id+'_ctr_lam" placeholder="0" min="0"></div>'+
+    '</div></div>'+
+    '</div>';
+
+  // Flooring
+  html+='<div class="ss"><div class="ss-title">Flooring Demo</div><div class="fr">'+
+    nfi('fl_float','Floating Floor — Tear Out (SF)')+nfi('fl_carpet','Carpet — Tear Out (SF)')+nfi('fl_pad','Carpet Pad — Tear Out (SF)','','')+'</div>'+
+    '<div class="fr">'+nfi('fl_vinyl','Vinyl — Tear Out (SF)')+nfi('fl_tile','Floor Tile — Tear Out (SF)')+nfi('fl_wood','Hardwood — Tear Out (SF)')+'</div>'+
+    '<div class="fr">'+nfi('fl_under','Underlayment — Tear Out (SF)')+nfi('fl_back','Cement Backer — Remove (SF)')+
+    '<div class="fg"><label>Tackless Strip (LF)</label><input type="number" id="r'+id+'_fl_tack" placeholder="0" min="0" step="0.5" oninput="suggestClean('+id+')"></div></div></div>';
+
+  // Walls
+  html+='<div class="ss"><div class="ss-title">Walls Demo</div><div class="fr">'+
+    nfi('dw_2ft',"Drywall Flood Cut — 2' (LF)")+nfi('dw_4ft',"Drywall Flood Cut — 4' (LF)")+nfi('dw_sf','Drywall Tear Out (SF)')+'</div>'+
+    '<div class="fr">'+nfi('wall_tile','Wall Tile — Tear Out (SF)')+nfi('wall_insul','Insulation — Tear Out (SF)')+
+    '<div class="fg"><label>Cavity Drying Holes (EA)</label><input type="number" id="r'+id+'_drill" placeholder="0" min="0"></div>'+
+    '</div></div>';
+
+  // Ceiling
+  html+='<div class="ss"><div class="ss-title">Ceiling Demo</div><div class="fr">'+
+    nfi('ceil_dw','Drywall Ceiling — Tear Out (SF)')+nfi('ceil_tile','Suspended Tile — Remove (SF)')+'</div></div>';
+
+  // Cleaning
+  html+='<div class="ss"><div class="ss-title">Clean-Up <span class="badge b-auto">HEPA sandwich enforced</span></div>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Clean Walls (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
+        '<input type="number" class="sug-f" id="r'+id+'_cl_w" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
+      '</div>'+
+      '<div class="fg"><label>Clean Floor (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
+        '<input type="number" class="sug-f" id="r'+id+'_cl_f" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
+      '</div>'+
+      '<div class="fg"><label>Clean Ceiling/Joists (SF)</label>'+
+        '<input type="number" id="r'+id+'_cl_c" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')">'+
+      '</div>'+
+    '</div>'+
+    '<div class="fr">'+
+      '<div class="fg">'+
+        '<label style="display:flex;align-items:center;gap:6px;text-transform:none;font-weight:600;color:var(--text)"><input type="checkbox" id="r'+id+'_mold_stain_chk" onchange="toggleMoldStain('+id+')" style="width:15px;height:15px;cursor:pointer;accent-color:var(--dark)">Apply mold/mildew stain remover <span style="color:var(--amber);font-weight:400;font-size:10px">only if noted</span></label>'+
+        '<input type="number" class="sug-f" id="r'+id+'_mold_stain" placeholder="0" min="0" step="0.1" style="display:none;margin-top:5px" oninput="this.dataset.manual=1"><div class="hint" id="r'+id+'_mold_stain_hint" style="display:none">Suggested SF auto-filled from cleaned area — adjust if needed.</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="hseq-wrap">'+
+      '<div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">HEPA Sandwich (auto)</div>'+
+      '<div class="hseq">'+
+        '<div class="hs" id="r'+id+'_hl">HEPA Light — 0 SF</div><div class="ha">→</div>'+
+        '<div class="hs m" id="r'+id+'_cw">Clean Walls — 0 SF</div><div class="ha">→</div>'+
+        '<div class="hs m" id="r'+id+'_cf">Clean Floor — 0 SF</div><div class="ha">→</div>'+
+        '<div class="hs" id="r'+id+'_am">Antimicrobial — 0 SF</div><div class="ha">→</div>'+
+        '<div class="hs" id="r'+id+'_hd">HEPA Detailed — 0 SF</div>'+
+      '</div>'+
+    '</div></div>';
+
+  // Equipment
+  html+='<div class="ss"><div class="ss-title">Equipment in This Room</div>'+
+    '<div class="eg" id="re_grid_'+id+'"></div>'+
+    '<div class="fr" style="margin-top:10px">'+
+      '<div class="fg"><label>Lay-Flat Ducting (LF)</label><input type="number" id="r'+id+'_duct" placeholder="0" min="0"><div class="hint">Enter LF of lay-flat ducting used in this room</div></div>'+
+    '</div></div>';
+
+  // Other Items (searchable)
+  html+='<div class="ss"><div class="ss-title">Other Items</div>'+
+    '<div id="other-r'+id+'-items"></div>'+
+    '<div id="other-r'+id+'-search-ui"></div>'+
+    '</div>';
+
+  html+='</div>';// end card
+
+  const div=document.createElement('div');
+  div.className='rbody'; div.id='rbody_'+id;
+  div.innerHTML=html;
+  document.getElementById('room-bodies').appendChild(div);
+  buildEquipGrid('re_grid_'+id,'re',id);
+  addDynRow('r'+id+'_posts','rp'+id);
+
+  // Build Other Items search for this room
+  otherSections['r'+id] = [];
+  buildOtherSearchUI('r'+id);
+
+  // Wire muck-out toggle
+  const yn = div.querySelectorAll('input[name="r'+id+'_muck"]');
+  yn.forEach(function(r){
+    r.addEventListener('change',function(){
+      div.querySelector('#r'+id+'_muck_sf_wrap').style.display=document.getElementById('r'+id+'_muck_y').checked?'':'none';
+    });
+  });
+}
+
+function suggestClean(id) {
+  function gv(fid){return parseFloat(document.getElementById('r'+id+'_'+fid)?.value)||0;}
+  const wallSF=(gv('dw_2ft')*2)+(gv('dw_4ft')*4)+gv('dw_sf')+gv('wall_tile');
+  const floorSF=gv('fl_float')+gv('fl_carpet')+gv('fl_vinyl')+gv('fl_tile')+gv('fl_wood');
+  const wEl=document.getElementById('r'+id+'_cl_w');
+  const fEl=document.getElementById('r'+id+'_cl_f');
+  if(wEl&&!wEl.dataset.manual&&wallSF>0) wEl.value=wallSF.toFixed(1);
+  if(fEl&&!fEl.dataset.manual&&floorSF>0) fEl.value=floorSF.toFixed(1);
+  recalcHepa(id);
+}
+
+function recalcHepa(id) {
+  function gv(fid){return parseFloat(document.getElementById('r'+id+'_'+fid)?.value)||0;}
+  const w=gv('cl_w'),f=gv('cl_f'),c=gv('cl_c');
+  const total=parseFloat((w+f+c).toFixed(2));
+  // Suggest mold stain SF only when the box is checked and not manually overridden
+  const msChk=document.getElementById('r'+id+'_mold_stain_chk');
+  const ms=document.getElementById('r'+id+'_mold_stain');
+  if(ms&&msChk&&msChk.checked&&!ms.dataset.manual&&total>0) ms.value=total.toFixed(1);
+  document.getElementById('r'+id+'_hl').textContent='HEPA Light — '+total.toFixed(1)+' SF';
+  document.getElementById('r'+id+'_cw').textContent='Clean Walls — '+w.toFixed(1)+' SF';
+  document.getElementById('r'+id+'_cf').textContent='Clean Floor — '+f.toFixed(1)+' SF';
+  document.getElementById('r'+id+'_am').textContent='Antimicrobial — '+total.toFixed(1)+' SF';
+  document.getElementById('r'+id+'_hd').textContent='HEPA Detailed — '+total.toFixed(1)+' SF';
+}
+
+function toggleMoldStain(id) {
+  const chk=document.getElementById('r'+id+'_mold_stain_chk');
+  const ms=document.getElementById('r'+id+'_mold_stain');
+  const hint=document.getElementById('r'+id+'_mold_stain_hint');
+  if(chk.checked){
+    ms.style.display=''; if(hint) hint.style.display='';
+    if(!ms.dataset.manual) recalcHepa(id);   // fills suggested SF
+  } else {
+    ms.style.display='none'; if(hint) hint.style.display='none';
+    ms.value=''; delete ms.dataset.manual;   // back to 0
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// ESTIMATE RENDERER
+// ════════════════════════════════════════════════════════════
+let itemNum=0;
+function iv(qty,remU,repU,matU,TAX){
+  const pre=qty*remU+qty*repU;
+  const tax=Math.round(qty*matU*TAX*100)/100;
+  return {pre,tax,total:Math.round((pre+tax)*100)/100,rem:remU,rep:repU};
+}
+function fmt(n){return n===0?'0.00':n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function row(desc,qty,unit,r,TAX,alt,notes){
+  itemNum++;
+  const v=iv(qty,r.rem,r.rep,r.mat,TAX);
+  let html='<tr'+(alt?' class="alt"':'')+'>'+
+    '<td class="desc">'+itemNum+'. '+desc+'</td>'+
+    '<td class="num">'+qty+(unit?' '+unit:'')+' </td>'+
+    '<td class="num">'+(v.rem?fmt(v.rem):'0.00')+'</td>'+
+    '<td class="num">'+(v.rep?fmt(v.rep):'0.00')+'</td>'+
+    '<td class="num">'+(v.tax?fmt(v.tax):'')+'</td>'+
+    '<td class="num"><b>'+fmt(v.total)+'</b></td></tr>';
+  if(notes) html+='<tr class="note-row"><td colspan="6">'+notes+'</td></tr>';
+  return {html,pre:v.pre,tax:v.tax,total:v.total};
+}
+function secHdr(name){
+  return '<tr class="sec-hdr"><td colspan="6">'+name+'</td></tr>';
+}
+function subHdr(name){
+  return '<tr class="subsec"><td colspan="6">***'+name+'***</td></tr>';
+}
+function subTotal(label,tax,total){
+  return '<tr class="sub-total">'+
+    '<td colspan="4"><b>'+label+'</b></td>'+
+    '<td class="num"><b>'+fmt(tax)+'</b></td>'+
+    '<td class="num"><b>'+fmt(total)+'</b></td></tr>';
+}
+function grandTotalRow(id,tax,total){
+  return '<tr class="grand-total">'+
+    '<td colspan="4"><b>Line Item Totals: '+id+'</b></td>'+
+    '<td class="num">'+fmt(tax)+'</td>'+
+    '<td class="num">'+fmt(total)+'</td></tr>';
+}
+
+function getEquipRows(prefix,roomId,TAX,alt0) {
+  let html='',pre=0,tax=0;let alt=alt0;
+  EQUIP_DEFS.forEach(function(eq){
+    const key=roomId?(prefix+'_'+roomId+'_'+eq.id):(prefix+'_'+eq.id);
+    const chk=document.getElementById(key+'_chk');
+    if(!chk||!chk.checked) return;
+    const u=parseFloat(document.getElementById(key+'_u')?.value)||0;
+    if(!u) return;
+    const p=P[eq.id];
+    if(!p) return;
+    if(eq.unit==='DA'){
+      const d=parseFloat(document.getElementById(key+'_d')?.value)||0;
+      if(!d) return;
+      const r2=row(eq.label,u*d,'DA',p,TAX,alt);
+      html+=r2.html; pre+=r2.pre; tax+=r2.tax; alt=!alt;
+    } else {
+      const r2=row(eq.label+' (neg air/scrubber filter)',u,'EA',p,TAX,alt);
+      html+=r2.html; pre+=r2.pre; tax+=r2.tax; alt=!alt;
+    }
+  });
+  return {html,pre,tax};
+}
+
+function renderEstimate() {
+  itemNum=0;
+  const TAX=getTaxRate();
+  const lt=document.querySelector('input[name=lt]:checked')?.value||'water';
+  const estId=(document.getElementById('job_number').value||'ESTIMATE').toUpperCase();
+  const custName=document.getElementById('customer_name').value||'—';
+  const addr=document.getElementById('address').value||'';
+  const cityStateZip=(document.getElementById('city').value||'')+', '+(document.getElementById('state').value||'CO')+' '+(document.getElementById('zip').value||'');
+  const dateVal=document.getElementById('date_loss').value||'';
+  const dateDisp=dateVal?new Date(dateVal+'T12:00:00').toLocaleDateString('en-US'):new Date().toLocaleDateString('en-US');
+  const today=new Date().toLocaleDateString('en-US');
+  const operatorName=(document.getElementById('tech').value||'').trim().toUpperCase()||'—';
+  const lossTypeDisp=lt==='mold'?'Mold Remediation':'Water Mitigation';
+
+  let grandPre=0, grandTax=0;
+  let tableBody='';
+
+  // ── MAIN SECTION ──
+  tableBody+=secHdr('Main');
+  let mPre=0,mTax=0;
+  let alt=false;
+
+  // Emergency call
+  if(document.getElementById('emg_y').checked){
+    const afterH=document.getElementById('eh_a').checked;
+    const r2=row('Emergency Service Call — '+(afterH?'After Hours':'During Hours'),1,'EA',P.emerg_call,TAX,alt,'After-hours emergency response charge.');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+
+  // Testing (BIDITM) — only added to estimate when invoice > 0 or samples > 0
+  function addTestBid(checkId, desc, invId, id1010) {
+    if(!document.getElementById(checkId)?.checked) return;
+    const cost = rawC(invId);
+    if(cost <= 0) return;
+    const is1010 = document.getElementById(id1010)?.checked;
+    const total = Math.round(cost * 1.20 * 100) / 100;
+    const r2 = row(desc+' (Bid Item)', 1, 'EA', {rem:0,rep:total,mat:0}, TAX, alt,
+      'Invoice: $'+cost.toFixed(2)+'. ×1.20 markup = $'+total.toFixed(2)+(is1010?' (10/10)':''));
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+  addTestBid('t_iep_pre',  'IEP Pre-Remediation Assessment',       't_iep_pre_inv',  't_iep_pre_1010');
+  addTestBid('t_iep_post', 'IEP Post-Remediation Assessment (PRV)','t_iep_post_inv', 't_iep_post_1010');
+  addTestBid('t_asb_3p',   'Asbestos Testing — 3rd Party',         't_asb_3p_inv',   't_asb_3p_1010');
+  addTestBid('t_lead',     'Lead Check Testing',                    't_lead_inv',     't_lead_1010');
+  // Asbestos in-house — sample count (no invoice)
+  if(document.getElementById('t_asb_ih')?.checked) {
+    const samples = parseFloat(document.getElementById('t_asb_ih_qty')?.value)||0;
+    if(samples > 0) {
+      const r2 = row('Asbestos Testing — In-House', samples, 'samples',
+        {rem:0,rep:0,mat:0}, TAX, alt, 'Performed in-house by DRYmedic. '+samples+' sample'+(samples!==1?'s':'')+' collected.');
+      tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+    }
+  }
+
+  // Subs (BIDITM) — only added when checked AND invoice > 0
+  SUB_DEFS.forEach(function(s){
+    if(!document.getElementById('sub_chk_'+s.id)?.checked) return;
+    const cost = rawC('sub_inv_'+s.id);
+    if(cost <= 0) return;
+    const is1010 = document.getElementById('sub_1010_'+s.id)?.checked;
+    const total = Math.round(cost * 1.20 * 100) / 100;
+    const specEl = document.getElementById('sub_specify_'+s.id);
+    const specLabel = specEl && specEl.value ? ' ('+specEl.value+')' : '';
+    const r2 = row(s.label+specLabel+' (Bid Item)', 1, 'EA', {rem:0,rep:total,mat:0}, TAX, alt,
+      'Invoice: $'+cost.toFixed(2)+'. ×1.20 markup = $'+total.toFixed(2)+(is1010?' (10/10)':''));
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  });
+
+  // Floor cloth
+  const clothLF=parseFloat(document.getElementById('m_cloth_lf').value)||0;
+  if(clothLF>0){
+    const cw=parseFloat(document.querySelector('input[name=cw]:checked')?.value||24);
+    const clothSF=parseFloat((clothLF*cw/12).toFixed(1));
+    const r2=row('Floor protection - cloth - skid resistant leak proof',clothSF,'SF',P.floor_cloth,TAX,alt,'Clean & Safe by KS International. '+clothLF+' LF × '+cw+'" = '+clothSF+' SF.');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+  const adhLF=parseFloat(document.getElementById('m_adh_lf').value)||0;
+  if(adhLF>0){
+    const aw=parseFloat(document.querySelector('input[name=aw]:checked')?.value||24);
+    const adhSF=parseFloat((adhLF*aw/12).toFixed(1));
+    const r2=row('Floor protection - self-adhesive plastic film',adhSF,'SF',P.floor_adhesive,TAX,alt,adhLF+' LF × '+aw+'" = '+adhSF+' SF.');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+
+  // PPE
+  function addMain(fid,qty,desc,pkey,unitLabel,notes){
+    if(qty<=0) return;
+    const r2=row(desc,qty,unitLabel,P[pkey],TAX,alt,notes||'');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+  addMain('m_ppe',  parseFloat(document.getElementById('m_ppe').value)||0, 'Add for personal protective equipment - Heavy duty','ppe','EA','IICRC required respiratory/body protection for remediation personnel.');
+  addMain('m_gloves',parseFloat(document.getElementById('m_gloves').value)||0,'Personal protective gloves - disposable','gloves','PR','');
+  addMain('m_resp_c',parseFloat(document.getElementById('m_resp_c').value)||0,'Respirator cartridge - HEPA & vapor & gas (per pair)','resp_cart','EA','');
+  addMain('m_resp_f',parseFloat(document.getElementById('m_resp_f').value)||0,'Respirator - full face multi-purpose (per day)','resp_full','EA','');
+
+  // Containment
+  const contSF=parseFloat(document.getElementById('m_cont_sf').value)||0;
+  if(contSF>0){addMain('',contSF,'Containment Barrier/Airlock/Decon. Chamber','containment','SF','6 mil plastic sheeting. Prevents cross contamination of affected areas.');}
+  // Tension posts
+  let postDA=0;
+  document.querySelectorAll('#post-rows-m .dyn-row').forEach(function(r){
+    const q=parseFloat(r.querySelector('.dyn-qty').value)||0;
+    const d=parseFloat(r.querySelector('.dyn-days').value)||0;
+    postDA+=q*d;
+  });
+  if(postDA>0){addMain('',postDA,'Containment Barrier - tension post (per day)','tension_post','DA','');}
+  // Zipper
+  addMain('m_zip',parseFloat(document.getElementById('m_zip').value)||0,'Peel & seal zipper - heavy duty','zipper','EA','');
+
+  // Monitoring
+  const monVisits=parseFloat(document.getElementById('m_mon_visits')?.value)||0;
+  const monPieces=parseFloat(document.getElementById('m_mon_pieces')?.value)||0;
+  const monRate=parseFloat(document.getElementById('m_hr_rate').value)||1.5;
+  const monHR=parseFloat(((monVisits*monRate)+(monPieces*0.33)).toFixed(2));
+  if(monHR>0){
+    const r2=row('Equipment setup, take down, and monitoring (hourly charge)',monHR,'HR',P.monitoring,TAX,alt,
+      monVisits+' monitoring visit'+(monVisits!==1?'s':'')+' × '+monRate+' hrs + '+monPieces+' piece'+(monPieces!==1?'s':'')+' × 0.33 hrs = '+monHR+' HR.');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+
+  // Decon
+  const deconQty=parseFloat(document.getElementById('m_decon').value)||0;
+  if(deconQty>0){
+    const r2=row('Equipment decontamination charge - per piece of equipment',deconQty,'EA',P.decon,TAX,alt,'');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+
+  // Haul debris
+  const haulLoads=parseFloat(document.getElementById('m_haul').value)||0;
+  if(haulLoads>0){
+    const r2=row('Haul debris - per pickup truck load - including dump fees',haulLoads,'EA',P.haul_debris,TAX,alt,'');
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  }
+
+  // Dumpster
+  const dumpVal=document.getElementById('m_dump').value;
+  if(dumpVal){
+    const is1010=document.getElementById('dump_1010').checked;
+    const useInvDump=document.getElementById('dump_inv_r')?.checked;
+    const dumpInvAmt=rawC('m_dump_inv');
+    const dumpLabel='Dumpster load - '+(dumpVal==='30yd'?'Approx. 30 yards, rubber wheel':'Approx. 40 yards, metal roll-off');
+    const qty=is1010?1.2:1;
+    if(useInvDump && dumpInvAmt>0){
+      const dumpBid={rem:0,rep:Math.round(dumpInvAmt*(is1010?1.2:1)*100)/100,mat:0};
+      const r2=row(dumpLabel,1,'EA',dumpBid,TAX,alt,
+        'Invoice: $'+dumpInvAmt.toFixed(2)+(is1010?' × 1.2 (10/10)':'')+'. Total: $'+(dumpBid.rep).toFixed(2));
+      tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+    } else {
+      const basePrice=dumpVal==='30yd'?P.dump_30:P.dump_40;
+      const r2=row(dumpLabel,qty,'EA',basePrice,TAX,alt,is1010?'10/10 load — ×1.2 applied.':'');
+      tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+    }
+  }
+
+  // Equipment outside containment
+  const mainEqRes=getEquipRows('me',null,TAX,alt);
+  tableBody+=mainEqRes.html; mPre+=mainEqRes.pre; mTax+=mainEqRes.tax;
+
+  // Other job-level
+  const gl=parseFloat(document.getElementById('m_gl')?.value)||0;
+  if(gl>0){addMain('',gl,'General Labor','monitoring','HR','');}
+
+  // Other Items added via catalog search (Main)
+  (otherSections['main']||[]).forEach(function(it){
+    if(!it.qty||it.qty<=0) return;
+    const p=P[it.k]; if(!p) return;
+    const r2=row(it.d,it.qty,it.u,p,TAX,alt);
+    tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
+  });
+
+  grandPre+=mPre; grandTax+=mTax;
+  tableBody+=subTotal('Total: Main',Math.round(mTax*100)/100,Math.round((mPre+mTax)*100)/100);
+
+  // ── ROOMS ──
+  rooms.forEach(function(rm){
+    const id=rm.id;
+    tableBody+=secHdr(rm.name);
+    let rPre=0,rTax=0; let rAlt=false;
+
+    function addR(desc,qty,unit,pkey,notes){
+      if(!qty||qty<=0) return;
+      const r2=row(desc,qty,unit,P[pkey],TAX,rAlt,notes||'');
+      tableBody+=r2.html; rPre+=r2.pre; rTax+=r2.tax; rAlt=!rAlt;
+    }
+    function gn(fid){return parseFloat(document.getElementById('r'+id+'_'+fid)?.value)||0;}
+    // Run a subsection; only emit its header if line items were actually added.
+    function sub(name, fn){
+      const lenBefore=tableBody.length;
+      rAlt=false;
+      fn();
+      if(tableBody.length>lenBefore){
+        tableBody = tableBody.slice(0,lenBefore) + subHdr(name) + tableBody.slice(lenBefore);
+      }
+    }
+
+    // Containment per room
+    if(gn('cont_sf')>0){addR('Containment Barrier/Airlock/Decon. Chamber',gn('cont_sf'),'SF','containment','');}
+    let rPostDA=0;
+    document.querySelectorAll('#r'+id+'_posts .dyn-row').forEach(function(r){
+      const q=parseFloat(r.querySelector('.dyn-qty').value)||0;
+      const d=parseFloat(r.querySelector('.dyn-days').value)||0;
+      rPostDA+=q*d;
+    });
+    if(rPostDA>0){addR('Containment Barrier - tension post (per day)',rPostDA,'DA','tension_post','');}
+    if(gn('zip')>0){addR('Peel & seal zipper - heavy duty',gn('zip'),'EA','zipper','');}
+    if(gn('reg')>0){addR('Mask and cover register / air return',gn('reg'),'EA','register','');}
+
+    // Demo subsection
+    sub('Demolition', function(){
+
+    // Extraction
+    if(gn('ext_carp')>0){addR('Water extraction from carpeted floor',gn('ext_carp'),'SF','extract_carpet','');}
+    if(gn('ext_hard')>0){addR('Water extraction from hard surface floor',gn('ext_hard'),'SF','extract_hard','');}
+    if(document.getElementById('r'+id+'_muck_y')?.checked&&gn('muck_sf')>0){
+      addR('Muck-out/Flood loss cleanup',gn('muck_sf'),'SF','muckout','');
+    }
+
+    // Room-type fixtures
+    const sp=ROOM_SPECIALS[rm.type]||[];
+    if(sp.includes('toilet')&&gn('toilet')>0){addR('Toilet - Detach',gn('toilet'),'EA','toilet','Detached and set aside for flood cut and subfloor access.');}
+    if(sp.includes('bathtub')&&gn('tub')>0){addR('Bathtub - Detach',gn('tub'),'EA','bathtub','');}
+    if(sp.includes('shower_tile')&&gn('sh_tile')>0){addR('Tear out non-salv. tile & bag for disposal',gn('sh_tile'),'SF','shower_tile','Non-salvageable tile removed to expose substrate.');}
+    if(sp.includes('shower_door')&&gn('sh_door')>0){addR('Remove shower door',gn('sh_door'),'EA','shower_door','');}
+    if(sp.includes('water_cap')&&gn('wcap')>0){addR('Water line copper cap/plug - per cap',gn('wcap'),'EA','water_cap','');}
+    if(sp.includes('water_detach')&&gn('wdet')>0){addR('Remove plumbing fixture supply line',gn('wdet'),'EA','water_detach','');}
+    if(sp.includes('vanity')&&gn('van')>0){addR('Cabinet - vanity unit - Detach',gn('van'),'LF','vanity','');}
+    if(sp.includes('sink')&&gn('sink')>0){addR('Sink - single basin - Detach',gn('sink'),'EA','sink','');}
+    if(sp.includes('garbage_disp')&&gn('gdisp')>0){addR('Remove garbage disposal',gn('gdisp'),'EA','garbage_disp','');}
+    if(sp.includes('dishwasher')&&gn('dw')>0){addR('Dishwasher - Detach',gn('dw'),'EA','dishwasher','');}
+    if(sp.includes('range_elec')&&gn('re')>0){addR('Range - freestanding - electric - Detach & Reset',gn('re'),'EA','range_elec','');}
+    if(sp.includes('range_gas')&&gn('rg')>0){addR('Range - freestanding - gas - Detach & Reset',gn('rg'),'EA','range_gas','');}
+    if(sp.includes('fridge')&&gn('frid')>0){addR('Refrigerator - Detach',gn('frid'),'EA','fridge','');}
+    if(sp.includes('range_hood')&&gn('rhood')>0){addR('Remove range hood',gn('rhood'),'EA','range_hood','');}
+    if(sp.includes('cab_lower')&&gn('cabl')>0){addR('Cabinet - lower (base) unit - Detach',gn('cabl'),'LF','cab_lower','');}
+    if(sp.includes('cab_upper')&&gn('cabu')>0){addR('Cabinet - upper (wall) unit - Detach',gn('cabu'),'LF','cab_upper','');}
+    if(sp.includes('washer')&&gn('wash')>0){addR('Washing machine - Detach',gn('wash'),'EA','washer','');}
+    if(sp.includes('dryer')&&gn('dryr')>0){addR('Dryer - Detach',gn('dryr'),'EA','dryer','');}
+    if(sp.includes('exhaust_fan')&&gn('exfan')>0){addR('Remove exhaust fan',gn('exfan'),'EA','light_fix','');}
+
+    // General fixtures
+    if(gn('dslab')>0){addR('Interior door slab only - Detach',gn('dslab'),'EA','door_slab','');}
+    if(gn('cfan')>0){addR('Remove ceiling fan & light',gn('cfan'),'EA','ceil_fan','');}
+    if(gn('lfix')>0){addR('Remove light fixture',gn('lfix'),'EA','light_fix','');}
+    if(gn('mirr')>0){addR('Remove mirror',gn('mirr'),'EA','mirror','');}
+    if(gn('bboard')>0){addR('Baseboard - Detach',gn('bboard'),'LF','baseboard','');}
+    if(gn('ctr')>0){addR('Countertop - solid surface/granite - Detach',gn('ctr'),'EA','ctr_granite','');}
+
+    // Flooring demo
+    if(gn('fl_float')>0){addR('Tear out non-salv floating floor & bag for disposal',gn('fl_float'),'SF','fl_float','Laminate/vinyl plank floating floor.');}
+    if(gn('fl_carpet')>0){addR('Tear out wet non-salvageable carpet, cut & bag',gn('fl_carpet'),'SF','fl_carpet','');}
+    if(gn('fl_pad')>0){addR('Tear out wet carpet pad and bag for disposal',gn('fl_pad'),'SF','fl_pad','');}
+    if(gn('fl_vinyl')>0){addR('Tear out non-salvageable vinyl, cut & bag',gn('fl_vinyl'),'SF','fl_vinyl','');}
+    if(gn('fl_tile')>0){addR('Tear out non-salvageable tile floor & bag for disposal',gn('fl_tile'),'SF','fl_tile','');}
+    if(gn('fl_wood')>0){addR('Tear out non-salv solid/eng. wood floor & bag',gn('fl_wood'),'SF','fl_wood','');}
+    if(gn('fl_under')>0){addR('Tear out non-salv underlayment & bag for disposal',gn('fl_under'),'SF','fl_under','');}
+    if(gn('fl_back')>0){addR('Remove 1/2" cement backer board',gn('fl_back'),'SF','fl_backer','');}
+    if(gn('fl_tack')>0){addR('Tear out tackless strip and bag for disposal',gn('fl_tack'),'LF','fl_tackless','');}
+
+    // Walls demo
+    if(gn('dw_2ft')>0){addR("Tear out wet drywall, cleanup, bag, per LF up to 2' tall",gn('dw_2ft'),'LF','dw_lf_2','Flood cut at 2 ft height.');}
+    if(gn('dw_4ft')>0){addR("Tear out wet drywall, cleanup, bag, per LF up to 4' tall",gn('dw_4ft'),'LF','dw_lf_4','Flood cut at 4 ft height.');}
+    if(gn('dw_sf')>0){addR('Tear out wet drywall, cleanup, bag for disposal',gn('dw_sf'),'SF','dw_sf','');}
+    if(gn('wall_tile')>0){addR('Tear out non-salv. tile & bag for disposal',gn('wall_tile'),'SF','wall_tile','Wall tile removal.');}
+    if(gn('wall_insul')>0){addR('Tear out and bag wet insulation',gn('wall_insul'),'SF','wall_insul','');}
+    if(gn('drill')>0){addR('Drill holes for wall cavity drying',gn('drill'),'EA','drill_hole','');}
+
+    // Ceiling demo
+    if(gn('ceil_dw')>0){addR('Remove wet acoustic & drywall and bag for disposal',gn('ceil_dw'),'SF','ceil_dw','');}
+    if(gn('ceil_tile')>0){addR('Remove wet suspended ceiling tile and bag for disposal',gn('ceil_tile'),'SF','ceil_tile','');}
+
+    });
+
+    // Cleaning
+    sub('Cleaning', function(){
+    const clW=gn('cl_w'),clF=gn('cl_f'),clC=gn('cl_c');
+    const hSF=parseFloat((clW+clF+clC).toFixed(2));
+    if(hSF>0){
+      addR('HEPA Vacuuming - Light - (PER SF)',hSF,'SF','hepa_light','Initial HEPA vacuum pass across all demo\'d surfaces. '+clW+' SF walls + '+clF+' SF floor + '+clC+' SF ceiling = '+hSF+' SF.');
+    }
+    if(clW>0){addR('Clean the surface area with cleaning agent (walls)',clW,'SF','clean_walls','Mechanical scrubbing of exposed wall framing/surfaces per IICRC S500/S520.');}
+    if(clF>0){addR('Clean floor/surface - scrub and mop',clF,'SF','clean_floor','Mechanical scrubbing of exposed subfloor following flooring removal.');}
+    if(clC>0){addR('Clean floor or roof joist system',clC,'SF','clean_ceil','Cleaning of exposed ceiling joists/structure.');}
+    if(hSF>0){addR('Apply anti-microbial agent to the surface area',hSF,'SF','antimicrobial','EPA-registered antimicrobial agent applied to all demo\'d surfaces per IICRC S500/S520.');}
+    if(hSF>0){addR('HEPA Vacuuming - Detailed - (PER SF)',hSF,'SF','hepa_detailed','Final detailed HEPA pass. Completes the HEPA sandwich per IICRC S500/S520.');}
+    const moldStain=gn('mold_stain');
+    if(moldStain>0){addR('Apply mold/mildew stain remover',moldStain,'SF','mold_stain','Applied where visible staining requires treatment.');}
+    });
+
+    // Equipment
+    sub('Equipment', function(){
+      if(gn('duct')>0){addR('Ducting - lay-flat - Large',gn('duct'),'LF','ducting','Lay-flat ducting used to direct exhaust from negative air fan out of containment.');}
+      const roomEqRes=getEquipRows('re',id,TAX,rAlt);
+      tableBody+=roomEqRes.html; rPre+=roomEqRes.pre; rTax+=roomEqRes.tax;
+    });
+
+    // Other Items added via catalog search (this room)
+    sub('Additional Items', function(){
+      (otherSections['r'+id]||[]).forEach(function(it){
+        if(!it.qty||it.qty<=0) return;
+        const p=P[it.k]; if(!p) return;
+        const r2=row(it.d,it.qty,it.u,p,TAX,rAlt);
+        tableBody+=r2.html; rPre+=r2.pre; rTax+=r2.tax; rAlt=!rAlt;
+      });
+    });
+
+    grandPre+=rPre; grandTax+=rTax;
+    tableBody+=subTotal('Total: '+rm.name,Math.round(rTax*100)/100,Math.round((rPre+rTax)*100)/100);
+  });
+
+  // Grand totals
+  const gT=Math.round((grandPre+grandTax)*100)/100;
+  const gPre=Math.round(grandPre*100)/100;
+  const gTax=Math.round(grandTax*100)/100;
+  tableBody+=grandTotalRow(estId,gTax,gT);
+  LAST_EST={total:gT, lt:lt};   // for the Email Customer button
+
+  // Build statement
+  const stmtWater='This estimate covers water mitigation services performed at your property following water damage. Scope includes containment setup, removal of non-salvageable materials, structural drying with professional equipment, and antimicrobial treatment. This estimate is for mitigation services only and does not include structural repairs or reconstruction. All work is performed in accordance with IICRC S500 (Water Damage Restoration) and IICRC S520 (Mold Remediation) standards.';
+  const stmtMold='This estimate covers mold remediation services performed at your property, including containment, HEPA vacuuming, surface cleaning, antimicrobial treatment, and demolition of affected materials as required. This estimate is for remediation services only and does not include structural repairs or reconstruction. Pre- and post-remediation assessments by a licensed Industrial Hygienist are not included and will be quoted separately.';
+
+  const taxPct=(getTaxRate()*100).toFixed(2)+'%';
+
+  const html=
+  '<div class="est">'+
+  '<div class="est-pg">'+
+    '<div class="est-brand-bar"><b>DRYmedic Restoration Services</b><br><span class="sub">7334 S. Alton Way | 14F  •  Centennial, CO 80112  •  www.drymedicparkerco.com  •  Office 720-719-0034</span></div>'+
+    '<div class="est-fields">'+
+      '<div class="est-fields-grid">'+
+        '<span class="lbl">Client:</span><span>'+custName+'</span>'+
+        '<span class="lbl">Property:</span><span>'+addr+'</span>'+
+        '<span class="lbl"></span><span>'+cityStateZip+'</span>'+
+        '<span class="lbl">Operator:</span><span>'+operatorName+'</span>'+
+        '<span class="lbl">Type of Estimate:</span><span>'+lossTypeDisp+'</span>'+
+        '<span class="lbl">Date of Loss:</span><span>'+dateDisp+'</span>'+
+        '<span class="lbl">Price List:</span><span>DRYmedic Price List — May 2026</span>'+
+        '<span class="lbl">Estimate:</span><span>'+estId+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="est-stmt">'+(lt==='mold'?stmtMold:stmtWater)+'</div>'+
+    '<table class="est-tbl">'+
+      '<thead><tr>'+
+        '<th style="text-align:left;width:44%">DESCRIPTION</th>'+
+        '<th style="width:8%">QTY</th>'+
+        '<th style="width:9%">REMOVE</th>'+
+        '<th style="width:9%">REPLACE</th>'+
+        '<th style="width:8%">TAX</th>'+
+        '<th style="width:10%">TOTAL</th>'+
+      '</tr></thead>'+
+      '<tbody>'+tableBody+'</tbody>'+
+    '</table>'+
+    '<div class="est-footer"><span>'+estId+'</span><span>'+today+'</span><span>Page: 1</span></div>'+
+  '</div>'+
+  '<div class="est-pg">'+
+    '<div class="est-brand-bar" style="border-radius:0"><b>DRYmedic Restoration Services</b> <span class="sub" style="font-size:10px;opacity:.75">7334 S. Alton Way | 14F  •  Centennial, CO 80112  •  www.drymedicparkerco.com  •  Office 720-719-0034</span></div>'+
+    '<div class="est-summary">'+
+      '<div class="est-sum-title">Summary</div><hr class="est-sum-rule">'+
+      '<div class="est-sum-row"><span>Line Item Total</span><span>$'+fmt(gPre)+'</span></div>'+
+      '<div class="est-sum-row"><span>Material Sales Tax</span><span>$'+fmt(gTax)+'</span></div>'+
+      '<div class="est-sum-row bold"><span>Replacement Cost Value</span><span>$'+fmt(gT)+'</span></div>'+
+      '<div class="est-sum-row final"><span>Net Claim</span><span>$'+fmt(gT)+'</span></div>'+
+    '</div>'+
+    '<div class="est-footer" style="padding:4px 14px"><span>'+estId+'</span><span>'+today+'</span><span>Page: 2</span></div>'+
+  '</div>'+
+  '</div>';
+
+  document.getElementById('est-content').innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════════
+// PDF EXPORT
+// ════════════════════════════════════════════════════════════
+function emailCustomer() {
+  if(!LAST_EST){ alert('Build the estimate first.'); return; }
+  const gv=function(id){return parseFloat(document.getElementById(id)?.value)||0;};
+  const first=(document.getElementById('customer_name').value||'').trim().split(/\s+/)[0]||'there';
+  const addr=(document.getElementById('address').value||'your property').trim();
+  const to=(document.getElementById('customer_email').value||'').trim();
+  const total=LAST_EST.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const std=LAST_EST.lt==='mold'?'mold remediation':'water mitigation';
+  // Scope bullets from reliable job-level signals
+  const b=[];
+  if(['t_iep_pre','t_iep_post','t_asb_ih','t_asb_3p','t_lead'].some(function(id){return document.getElementById(id)?.checked;}))
+    b.push('State of Colorado required testing as noted');
+  if(gv('m_cloth_lf')>0 || gv('m_adh_lf')>0) b.push('Set up floor protection from the entry of the home to the work space');
+  if(gv('m_cont_sf')>0) b.push('Build containment to control dust and prevent cross contamination');
+  b.push('Demo and dispose of wet or damaged materials');
+  b.push('Set up drying equipment');
+  if(gv('m_mon_visits')>0) b.push('Monitor daily until drying standards are met');
+  b.push('Clean affected areas and apply antimicrobial treatment');
+  const bullets=b.map(function(x){return '- '+x;}).join('\n');
+  const subject='DRYmedic Restoration — Estimate for '+addr;
+  const body=
+    'Hi '+first+',\n\n'+
+    'Please see the attached estimate.\n\n'+
+    'Scope of work:\n'+bullets+'\n\n'+
+    'The estimate comes out to $'+total+' if we don’t run into unforeseen issues behind the walls.\n\n'+
+    'If insurance does not accept the claim, we will provide a 15% discount once we send our final invoice.\n\n'+
+    'This does not include any reconstruction of the space.\n'+
+    'All the work being done is in accordance with standards set by the IICRC for '+std+'.\n'+
+    'If you have any questions on the billing, we are completely transparent and will go over any questions you have.\n\n'+
+    'Thanks,\nKeith\nDRYmedic Restoration Services of Parker\n720-798-5570';
+  window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+
+// html2pdf is loaded lazily — only when the user clicks Download PDF — so the
+// app never waits on (or breaks because of) the CDN at page load.
+const HTML2PDF_SRC='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+let _html2pdfLoading=null;
+function ensureHtml2Pdf(cb) {
+  if(typeof html2pdf!=='undefined'){ cb(true); return; }
+  if(_html2pdfLoading){ _html2pdfLoading.push(cb); return; }
+  _html2pdfLoading=[cb];
+  const s=document.createElement('script');
+  s.src=HTML2PDF_SRC;
+  s.onload=function(){ _html2pdfLoading.forEach(function(f){f(true);}); _html2pdfLoading=null; };
+  s.onerror=function(){ _html2pdfLoading.forEach(function(f){f(false);}); _html2pdfLoading=null; };
+  document.head.appendChild(s);
+}
+function downloadPDF() {
+  const el=document.getElementById('est-content');
+  if(!el || !el.innerHTML.trim()){ alert('Build the estimate first.'); return; }
+  const btn=document.getElementById('btn-pdf');
+  const label=btn?btn.textContent:'';
+  if(btn){ btn.textContent='Preparing PDF…'; btn.disabled=true; }
+  const restore=function(){ if(btn){ btn.textContent=label; btn.disabled=false; } };
+  ensureHtml2Pdf(function(ok){
+    if(!ok){
+      restore();
+      alert('The PDF generator needs an internet connection the first time. You appear to be offline — use the Print button and choose "Save as PDF" instead.');
+      return;
+    }
+    const estId=(document.getElementById('job_number').value||'ESTIMATE').toUpperCase();
+    const nameParts=(document.getElementById('customer_name').value||'').trim().split(/\s+/).filter(Boolean);
+    const last=nameParts.length?nameParts[nameParts.length-1]:'Customer';
+    const fname=last+'_'+estId+'_Estimate.pdf';
+    html2pdf().set({
+      margin:[0.3,0.3,0.45,0.3],
+      filename:fname,
+      image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'in',format:'letter',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy'],avoid:['tr','.sec-hdr','.subsec','.sub-total']}
+    }).from(el).save().then(restore, restore);
+  });
+}
+</script>
+</body>
+</html>
