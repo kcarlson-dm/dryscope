@@ -140,11 +140,12 @@ input:focus,select:focus{outline:none;border-color:var(--med);}
 .est-act button{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
 #btn-pdf{background:var(--dark);color:white;}
 #btn-pdf:hover{background:#16305a;}
-#btn-email{background:var(--green);color:white;}
-#btn-email:hover{background:#155e2e;}
+#btn-email,#btn-share{background:var(--green);color:white;}
+#btn-email:hover,#btn-share:hover{background:#155e2e;}
 #pdf-mobile-note{display:none;font-size:11px;color:var(--muted);align-self:center;}
-/* PDF download is unreliable on phones — desktop only */
+/* PDF download is unreliable on phones — desktop only. Send Estimate (share sheet) is mobile only. */
 @media (max-width:640px){#btn-pdf{display:none;}#pdf-mobile-note{display:inline;}}
+@media (min-width:641px){#btn-share{display:none;}}
 #btn-print{background:white;border:1.5px solid var(--border);color:var(--muted);}
 #btn-print:hover{border-color:var(--dark);color:var(--dark);}
 #btn-restart{background:white;border:1.5px solid var(--border);color:var(--muted);}
@@ -198,8 +199,14 @@ hr.dv{border:none;border-top:1px solid var(--light);margin:10px 0;}
 <body>
 <div id="app">
 <div id="hdr">
-  <div><h1>DRYscope Estimator</h1><div class="sub">DRYmedic Restoration Estimating · nothing is stored or sent</div></div>
+  <div><h1>DRYscope Estimator</h1><div class="sub">DRYmedic Restoration Estimating · nothing is stored or sent · <span id="app-ver"></span></div></div>
   <div style="text-align:right"><div class="prog-wrap" id="prog-wrap"></div><div id="prog-lbl"></div></div>
+</div>
+
+<div id="quote-bar" style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px">
+  <input type="file" id="quote-file" accept=".json,application/json" style="display:none" onchange="loadQuoteFile(this)">
+  <button class="btn-sm btn-cx" onclick="document.getElementById('quote-file').click()">📂 Load Quote</button>
+  <button class="btn-sm btn-cx" onclick="saveQuote()">💾 Save Quote</button>
 </div>
 
 <!-- ═══════════════ PAGE 1 — JOB INFO ═══════════════ -->
@@ -458,13 +465,13 @@ hr.dv{border:none;border-top:1px solid var(--light);margin:10px 0;}
 <div class="page" id="p4">
 <div class="ct" style="font-size:16px;font-weight:700;color:var(--dark);border:none;padding:0;margin-bottom:12px">Estimate Preview</div>
 <div class="est-act">
-  <button id="btn-email" onclick="emailCustomer()">✉ Email Customer</button>
+  <button id="btn-share" onclick="shareEstimate()">✉ Send Estimate</button>
   <button id="btn-pdf" onclick="downloadPDF()">⬇ Download PDF</button>
   <button id="btn-print" onclick="window.print()">🖨 Print</button>
   <button id="btn-restart" onclick="if(confirm('Start over?'))location.reload()">Start New Ticket</button>
   <span id="pdf-mobile-note">PDF download is desktop-only — open on a computer.</span>
 </div>
-<div class="hint" style="margin-bottom:10px">Email opens a draft in your mail app with the estimate wording prefilled. Download the PDF first and attach it before sending — email can't attach it automatically.</div>
+<div class="hint" style="margin-bottom:10px">On a phone, tap <b>Send Estimate</b> to share the PDF (already attached) to Outlook, Mail, or Messages. On a computer, use <b>Download PDF</b> and attach it to your email.</div>
 <div id="est-out"><div id="est-content"></div></div>
 </div><!-- /p4 -->
 
@@ -480,108 +487,114 @@ hr.dv{border:none;border-top:1px solid var(--light);margin:10px 0;}
 // PRICING DATA
 // ════════════════════════════════════════════════════════════
 const P = {
-  floor_cloth:       {rem:0,     rep:1.35,   mat:0},
-  floor_adhesive:    {rem:0,     rep:0.78,   mat:0.20},
-  ppe:               {rem:0,     rep:51.79,  mat:39.75},
-  gloves:            {rem:0,     rep:6.59,   mat:0},
-  resp_cart:         {rem:0,     rep:36.59,  mat:36.59},
-  resp_full:         {rem:0,     rep:12.00,  mat:0},
-  containment:       {rem:0,     rep:1.32,   mat:0.20},
-  tension_post:      {rem:0,     rep:3.35,   mat:0},
-  zipper:            {rem:0,     rep:18.34,  mat:12.60},
-  monitoring:        {rem:0,     rep:86.33,  mat:0},
-  decon:             {rem:0,     rep:49.11,  mat:5.9375},
-  haul_debris:       {rem:215.74,rep:0,      mat:0},
-  emerg_call:        {rem:0,     rep:358.96, mat:0},
-  register:          {rem:0,     rep:6.49,   mat:1.25},
-  extract_carpet:    {rem:0,     rep:0.65,   mat:0},
-  extract_hard:      {rem:0,     rep:0.34,   mat:0},
-  muckout:           {rem:3.07,  rep:0,      mat:0},
-  door_slab:         {rem:0,     rep:10.25,  mat:0},
-  ceil_fan:          {rem:26.97, rep:0,      mat:0},
-  light_fix:         {rem:11.92, rep:0,      mat:0},
-  mirror:            {rem:0.41,  rep:0,      mat:0},
-  toilet:            {rem:0,     rep:77.21,  mat:0.80},
-  bathtub:           {rem:0,     rep:175.87, mat:0},
-  shower_tile:       {rem:4.52,  rep:0,      mat:0.20},
-  shower_door:       {rem:26.20, rep:0,      mat:0},
-  water_cap:         {rem:0,     rep:32.90,  mat:1.60},
-  water_detach:      {rem:7.14,  rep:0,      mat:0},
-  vanity:            {rem:0,     rep:26.69,  mat:0},
-  sink:              {rem:0,     rep:46.07,  mat:0},
-  garbage_disp:      {rem:35.72, rep:0,      mat:0},
-  dishwasher:        {rem:0,     rep:86.29,  mat:0},
-  range_elec:        {rem:0,     rep:33.29,  mat:0},
-  range_gas:         {rem:0,     rep:59.15,  mat:0},
-  fridge:            {rem:0,     rep:44.37,  mat:0},
-  range_hood:        {rem:17.98, rep:0,      mat:0},
-  cab_lower:         {rem:0,     rep:31.21,  mat:0},
-  cab_upper:         {rem:0,     rep:26.69,  mat:0},
-  washer:            {rem:0,     rep:42.94,  mat:0},
-  dryer:             {rem:0,     rep:33.11,  mat:0},
-  baseboard:         {rem:0,     rep:1.91,   mat:0},
-  ctr_granite:       {rem:0,     rep:13.55,  mat:0},
-  fl_float:          {rem:4.25,  rep:0,      mat:0},
-  fl_carpet:         {rem:1.31,  rep:0,      mat:0},
-  fl_pad:            {rem:0.84,  rep:0,      mat:0},
-  fl_vinyl:          {rem:2.21,  rep:0,      mat:0},
-  fl_tile:           {rem:5.61,  rep:0,      mat:0},
-  fl_wood:           {rem:5.68,  rep:0,      mat:0},
-  fl_under:          {rem:2.45,  rep:0,      mat:0},
-  fl_backer:         {rem:1.36,  rep:0,      mat:0},
-  fl_tackless:       {rem:1.93,  rep:0,      mat:0},
-  dw_lf_2:           {rem:10.76, rep:0,      mat:0},
-  dw_lf_4:           {rem:10.76, rep:0,      mat:0},
-  dw_sf:             {rem:2.73,  rep:0,      mat:0},
-  wall_tile:         {rem:4.52,  rep:0,      mat:0.20},
-  wall_insul:        {rem:1.45,  rep:0,      mat:0},
-  drill_hole:        {rem:0,     rep:0.86,   mat:0},
-  ceil_dw:           {rem:2.73,  rep:0,      mat:0},
-  ceil_tile:         {rem:0.63,  rep:0,      mat:0},
-  hepa_light:        {rem:0,     rep:0.75,   mat:0},
-  clean_walls:       {rem:0,     rep:1.53,   mat:0.20},
-  clean_floor:       {rem:0,     rep:0.74,   mat:0},
-  clean_ceil:        {rem:0,     rep:1.59,   mat:0},
-  antimicrobial:     {rem:0,     rep:0.41,   mat:0},
-  hepa_detailed:     {rem:0,     rep:1.46,   mat:0},
-  mold_stain:        {rem:0,     rep:1.02,   mat:0.20},
-  dehu_large:        {rem:0,     rep:115.15, mat:0},
-  dehu_xl:           {rem:0,     rep:115.15, mat:0},
-  air_mover:         {rem:0,     rep:26.50,  mat:0},
-  air_mover_axial:   {rem:0,     rep:26.50,  mat:0},
-  scrubber:          {rem:0,     rep:76.04,  mat:0},
-  scrubber_large:    {rem:0,     rep:120.00, mat:0},
-  hepa_neg:          {rem:0,     rep:215.18, mat:196.00},
-  hepa_canister:     {rem:0,     rep:103.42, mat:38.80},
-  carbon_16:         {rem:0,     rep:124.92, mat:99.00},
-  carbon_24:         {rem:0,     rep:249.00, mat:198.00},
-  wall_cavity:       {rem:0,     rep:141.00, mat:0},
-  wood_mat:          {rem:0,     rep:185.00, mat:0},
-  hydroxyl:          {rem:0,     rep:180.00, mat:0},
-  ducting:           {rem:0,     rep:0.50,   mat:0.60},
+  floor_cloth:       {rem:0.0,     rep:1.31,   mat:0.0},
+  floor_adhesive:    {rem:0.0,     rep:0.76,   mat:0.19},
+  ppe:               {rem:0.0,     rep:50.24,  mat:38.56},
+  gloves:            {rem:0.0,     rep:6.39,   mat:0.0},
+  resp_cart:         {rem:0.0,     rep:35.49,  mat:35.49},
+  resp_full:         {rem:0.0,     rep:11.64,  mat:0.0},
+  containment:       {rem:0.0,     rep:1.28,   mat:0.19},
+  tension_post:      {rem:0.0,     rep:3.25,   mat:0.0},
+  zipper:            {rem:0.0,     rep:17.79,  mat:12.22},
+  monitoring:        {rem:0.0,     rep:83.74,  mat:0.0},
+  decon:             {rem:0.0,     rep:47.64,  mat:5.76},
+  haul_debris:       {rem:209.27,rep:0.0,      mat:0.0},
+  emerg_call:        {rem:0.0,     rep:348.19, mat:0.0},
+  register:          {rem:0.0,     rep:6.3,   mat:1.21},
+  extract_carpet:    {rem:0.0,     rep:0.63,   mat:0.0},
+  extract_hard:      {rem:0.0,     rep:0.33,   mat:0.0},
+  muckout:           {rem:2.98,  rep:0.0,      mat:0.0},
+  door_slab:         {rem:0.0,     rep:9.94,  mat:0.0},
+  ceil_fan:          {rem:26.16, rep:0.0,      mat:0.0},
+  light_fix:         {rem:11.56, rep:0.0,      mat:0.0},
+  mirror:            {rem:0.4,  rep:0.0,      mat:0.0},
+  toilet:            {rem:0.0,     rep:74.89,  mat:0.78},
+  bathtub:           {rem:0.0,     rep:170.59, mat:0.0},
+  shower_tile:       {rem:4.38,  rep:0.0,      mat:0.19},
+  shower_door:       {rem:25.41, rep:0.0,      mat:0.0},
+  water_cap:         {rem:0.0,     rep:31.91,  mat:1.55},
+  water_detach:      {rem:6.93,  rep:0.0,      mat:0.0},
+  vanity:            {rem:0.0,     rep:25.89,  mat:0.0},
+  sink:              {rem:0.0,     rep:44.69,  mat:0.0},
+  garbage_disp:      {rem:34.65, rep:0.0,      mat:0.0},
+  dishwasher:        {rem:0.0,     rep:83.7,  mat:0.0},
+  range_elec:        {rem:0.0,     rep:32.29,  mat:0.0},
+  range_gas:         {rem:0.0,     rep:57.38,  mat:0.0},
+  fridge:            {rem:0.0,     rep:43.04,  mat:0.0},
+  range_hood:        {rem:17.44, rep:0.0,      mat:0.0},
+  cab_lower:         {rem:0.0,     rep:30.27,  mat:0.0},
+  cab_upper:         {rem:0.0,     rep:25.89,  mat:0.0},
+  washer:            {rem:0.0,     rep:41.65,  mat:0.0},
+  dryer:             {rem:0.0,     rep:32.12,  mat:0.0},
+  baseboard:         {rem:0.0,     rep:1.85,   mat:0.0},
+  ctr_granite:       {rem:0.0,     rep:13.14,  mat:0.0},
+  fl_float:          {rem:4.12,  rep:0.0,      mat:0.0},
+  fl_carpet:         {rem:1.27,  rep:0.0,      mat:0.0},
+  fl_pad:            {rem:0.81,  rep:0.0,      mat:0.0},
+  fl_vinyl:          {rem:2.14,  rep:0.0,      mat:0.0},
+  fl_tile:           {rem:5.44,  rep:0.0,      mat:0.0},
+  fl_wood:           {rem:5.51,  rep:0.0,      mat:0.0},
+  fl_under:          {rem:2.38,  rep:0.0,      mat:0.0},
+  fl_backer:         {rem:1.32,  rep:0.0,      mat:0.0},
+  fl_tackless:       {rem:1.87,  rep:0.0,      mat:0.0},
+  dw_lf_2:           {rem:10.44, rep:0.0,      mat:0.0},
+  dw_lf_4:           {rem:10.44, rep:0.0,      mat:0.0},
+  dw_sf:             {rem:2.65,  rep:0.0,      mat:0.0},
+  wall_tile:         {rem:4.38,  rep:0.0,      mat:0.19},
+  wall_insul:        {rem:1.41,  rep:0.0,      mat:0.0},
+  drill_hole:        {rem:0.0,     rep:0.83,   mat:0.0},
+  ceil_dw:           {rem:2.65,  rep:0.0,      mat:0.0},
+  ceil_tile:         {rem:0.61,  rep:0.0,      mat:0.0},
+  hepa_light:        {rem:0.0,     rep:0.73,   mat:0.0},
+  clean_walls:       {rem:0.0,     rep:1.48,   mat:0.19},
+  clean_floor:       {rem:0.0,     rep:0.72,   mat:0.0},
+  clean_ceil:        {rem:0.0,     rep:1.54,   mat:0.0},
+  antimicrobial:     {rem:0.0,     rep:0.4,   mat:0.0},
+  hepa_detailed:     {rem:0.0,     rep:1.42,   mat:0.0},
+  mold_stain:        {rem:0.0,     rep:0.99,   mat:0.19},
+  dehu_large:        {rem:0.0,     rep:111.7, mat:0.0},
+  dehu_xl:           {rem:0.0,     rep:111.7, mat:0.0},
+  air_mover:         {rem:0.0,     rep:25.7,  mat:0.0},
+  air_mover_axial:   {rem:0.0,     rep:25.7,  mat:0.0},
+  scrubber:          {rem:0.0,     rep:73.76,  mat:0.0},
+  scrubber_large:    {rem:0.0,     rep:116.4, mat:0.0},
+  hepa_neg:          {rem:0.0,     rep:208.72, mat:190.12},
+  hepa_canister:     {rem:0.0,     rep:100.32, mat:37.64},
+  carbon_16:         {rem:0.0,     rep:121.17, mat:96.03},
+  carbon_24:         {rem:0.0,     rep:241.53, mat:192.06},
+  wall_cavity:       {rem:0.0,     rep:136.77, mat:0.0},
+  wood_mat:          {rem:0.0,     rep:179.45, mat:0.0},
+  hydroxyl:          {rem:0.0,     rep:174.6, mat:0.0},
+  ducting:           {rem:0.0,     rep:0.48,   mat:0.58},
+  // Crawl space
+  crawl_soil:        {rem:0.0,     rep:0.0,      mat:0.0},     // level/grade soil — set price in market session
+  crawl_vapor:       {rem:0.0,     rep:0.19,   mat:0.0},     // vapor barrier
+  crawl_lime:        {rem:0.0,     rep:0.0,      mat:0.0},     // hydrated lime — set price in market session
+  crawl_insul_rem:   {rem:0.51,  rep:0.0,      mat:0.0},     // remove batt insulation
+  crawl_insul_inst:  {rem:0.0,     rep:2.46,   mat:2.13},  // install rigid foam board
   // Specialty framing treatment (searchable via Other Items)
-  sand_floor:        {rem:0,     rep:4.50,   mat:0},
-  sand_walls:        {rem:0,     rep:2.44,   mat:0},
-  blast_confined:    {rem:0,     rep:1.43,   mat:0},
-  dryice_light:      {rem:0,     rep:5.29,   mat:2.00},
-  dryice_heavy:      {rem:0,     rep:10.24,  mat:4.00},
-  dump_30:           {rem:640.88,rep:0,      mat:0},
-  dump_40:           {rem:875.15,rep:0,      mat:0},
+  sand_floor:        {rem:0.0,     rep:4.37,   mat:0.0},
+  sand_walls:        {rem:0.0,     rep:2.37,   mat:0.0},
+  blast_confined:    {rem:0.0,     rep:1.39,   mat:0.0},
+  dryice_light:      {rem:0.0,     rep:5.13,   mat:1.94},
+  dryice_heavy:      {rem:0.0,     rep:9.93,  mat:3.88},
+  dump_30:           {rem:621.65,rep:0.0,      mat:0.0},
+  dump_40:           {rem:848.9,rep:0.0,      mat:0.0},
   // Labor
-  tech_labor:        {rem:0,     rep:66.00,  mat:0},
-  supervisor:        {rem:0,     rep:86.33,  mat:0},
-  truck_mount:       {rem:0,     rep:86.33,  mat:0},
-  contents_manip:    {rem:0,     rep:46.49,  mat:0},
-  block_pad:         {rem:0,     rep:76.94,  mat:1.20},  // per piece (EA)
+  tech_labor:        {rem:0.0,     rep:64.02,  mat:0.0},
+  supervisor:        {rem:0.0,     rep:83.74,  mat:0.0},
+  truck_mount:       {rem:0.0,     rep:83.74,  mat:0.0},
+  contents_manip:    {rem:0.0,     rep:45.1,  mat:0.0},
+  block_pad:         {rem:0.0,     rep:74.63,  mat:1.16},  // per piece (EA)
   // Countertops
-  ctr_solid:         {rem:0,     rep:13.55,  mat:0},  // granite/solid surface detach
-  ctr_tile:          {rem:3.01,  rep:0,      mat:0},  // tile countertop tear out per SF
-  ctr_lam:           {rem:0,     rep:7.22,   mat:0},  // laminate detach
+  ctr_solid:         {rem:0.0,     rep:13.14,  mat:0.0},  // granite/solid surface detach
+  ctr_tile:          {rem:2.92,  rep:0.0,      mat:0.0},  // tile countertop tear out per SF
+  ctr_lam:           {rem:0.0,     rep:7.0,   mat:0.0},  // laminate detach
   // Mirrors
-  mirror_framed_sm:  {rem:0,     rep:18.43,  mat:0},  // framed, up to 24"
-  mirror_framed_md:  {rem:0,     rep:32.86,  mat:0},  // framed, 24–48"
-  mirror_framed_lg:  {rem:0,     rep:54.76,  mat:0},  // framed, 48"+
-  mirror_glued:      {rem:2.85,  rep:0,      mat:0},  // glued-on, per SF
+  mirror_framed_sm:  {rem:0.0,     rep:17.88,  mat:0.0},  // framed, up to 24"
+  mirror_framed_md:  {rem:0.0,     rep:31.87,  mat:0.0},  // framed, 24–48"
+  mirror_framed_lg:  {rem:0.0,     rep:53.12,  mat:0.0},  // framed, 48"+
+  mirror_glued:      {rem:2.76,  rep:0.0,      mat:0.0},  // glued-on, per SF
 };
 
 // ════════════════════════════════════════════════════════════
@@ -642,10 +655,10 @@ const CATALOG = [
   {k:'mirror_framed_md', d:'Remove mirror — framed (24–48")',    u:'EA', a:['mirror medium','medium mirror','mirror framed','vanity mirror','bathroom mirror']},
   {k:'mirror_framed_lg', d:'Remove mirror — framed (48"+)',      u:'EA', a:['mirror large','large mirror','big mirror','wall mirror','full length mirror']},
   {k:'mirror_glued',d:'Remove mirror — glued-on (SF)',    u:'SF',  a:['mirror glued','glued mirror','mirror sf','plate mirror','wall mirror glued']},
-  {k:'ctr_solid',  d:'Countertop granite/solid — Detach', u:'EA',  a:['granite countertop','solid surface','quartz counter','stone countertop','countertop detach','counter top']},
+  {k:'ctr_solid',  d:'Countertop granite/solid — Detach (LF)', u:'LF',  a:['granite countertop','solid surface','quartz counter','stone countertop','countertop detach','counter top']},
   {k:'ctr_tile',   d:'Tear out tile countertop (SF)',     u:'SF',  a:['tile countertop','countertop tile','tile counter','kitchen tile counter']},
-  {k:'ctr_lam',    d:'Countertop laminate — Detach',      u:'EA',  a:['laminate countertop','formica','laminate counter','plastic laminate counter']},
-  {k:'ctr_granite', d:'Countertop — Detach',              u:'EA',  a:['counter detach','countertop remove','remove counter']},
+  {k:'ctr_lam',    d:'Countertop laminate — Detach (LF)', u:'LF',  a:['laminate countertop','formica','laminate counter','plastic laminate counter']},
+  {k:'ctr_granite', d:'Countertop — Detach (LF)',         u:'LF',  a:['counter detach','countertop remove','remove counter']},
   // Cleaning
   {k:'clean_walls',d:'Clean walls — scrub & wipe',        u:'SF',  a:['clean walls','wall cleaning','scrub walls','wipe walls','wash walls','wall scrub']},
   {k:'clean_floor',d:'Clean floor — scrub & mop',         u:'SF',  a:['clean floor','floor cleaning','scrub floor','mop floor','floor scrub']},
@@ -840,6 +853,11 @@ const SUB_DEFS = [
 // ════════════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════════════
+// Versioning: SemVer MAJOR.MINOR.PATCH — bump PATCH for fixes, MINOR for new
+// features, MAJOR for changes that break old saved quotes. APP_DATE = build date
+// (ISO 8601, sorts cleanly). Update both each time the app is re-bundled.
+const APP_VERSION = '0.5.0';
+const APP_DATE = '2026-06-02';
 let currentPage = 1;
 const TOTAL_PAGES = 4;
 let LAST_EST = null;  // {total, lt} captured at estimate render, used by the Email button
@@ -851,6 +869,7 @@ const roomTypeCounts = {};
 // INIT
 // ════════════════════════════════════════════════════════════
 window.onload = function() {
+  var _v=document.getElementById('app-ver'); if(_v) _v.textContent='v'+APP_VERSION+' · '+APP_DATE;
   buildProgress();
   buildSubList();
   buildRoomDropdown();
@@ -1246,8 +1265,8 @@ function buildRoomBody(id,name,type) {
   // Crawl space
   if(isCrawl){
     html+='<div class="ss"><div class="ss-title">Crawl Space</div><div class="fr">'+
-      nfi_noev('soil_sf','Level Soil (SF)')+nfi_noev('vapor_sf','Vapor Barrier (SF)')+
-      nfi_noev('lime_sf','Hydrated Lime (SF)')+nfi_noev('insul_rem','Insulation Remove (SF)')+
+      nfi_noev('soil_sf','Level Soil (SF) — not priced')+nfi_noev('vapor_sf','Vapor Barrier (SF)')+
+      nfi_noev('lime_sf','Hydrated Lime (SF) — not priced')+nfi_noev('insul_rem','Insulation Remove (SF)')+
       nfi_noev('insul_inst','Insul. Board Install (SF)')+'</div></div>';
   }
 
@@ -1270,9 +1289,9 @@ function buildRoomBody(id,name,type) {
     // Countertops
     '<div style="margin-top:6px"><label style="display:block;margin-bottom:5px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase">Countertops</label>'+
     '<div class="fr">'+
-      '<div class="fg"><label>Granite / Solid Surface — Detach (EA)</label><input type="number" id="r'+id+'_ctr_sol" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Granite / Solid Surface — Detach (LF)</label><input type="number" id="r'+id+'_ctr_sol" placeholder="0" min="0" step="0.5"></div>'+
       '<div class="fg"><label>Tile — Tear Out (SF)</label><input type="number" id="r'+id+'_ctr_tile" placeholder="0" min="0" step="0.1"></div>'+
-      '<div class="fg"><label>Laminate — Detach (EA)</label><input type="number" id="r'+id+'_ctr_lam" placeholder="0" min="0"></div>'+
+      '<div class="fg"><label>Laminate — Detach (LF)</label><input type="number" id="r'+id+'_ctr_lam" placeholder="0" min="0" step="0.5"></div>'+
     '</div></div>'+
     '</div>';
 
@@ -1620,10 +1639,14 @@ function renderEstimate() {
   // Equipment outside containment
   const mainEqRes=getEquipRows('me',null,TAX,alt);
   tableBody+=mainEqRes.html; mPre+=mainEqRes.pre; mTax+=mainEqRes.tax;
+  addMain('m_ducting', parseFloat(document.getElementById('m_ducting').value)||0, 'Ducting - lay-flat - Large','ducting','LF','Lay-flat ducting outside containment or not room-specific.');
 
-  // Other job-level
-  const gl=parseFloat(document.getElementById('m_gl')?.value)||0;
-  if(gl>0){addMain('',gl,'General Labor','monitoring','HR','');}
+  // Labor & additional charges
+  addMain('m_tech_labor',  parseFloat(document.getElementById('m_tech_labor').value)||0,  'General labor - per hour','tech_labor','HR','');
+  addMain('m_super_labor', parseFloat(document.getElementById('m_super_labor').value)||0, 'Supervisor / project manager - per hour','supervisor','HR','');
+  addMain('m_tm',          parseFloat(document.getElementById('m_tm').value)||0,          'Truck mount extraction unit - per hour','truck_mount','HR','');
+  addMain('m_contents',    parseFloat(document.getElementById('m_contents').value)||0,    'Contents manipulation - per hour','contents_manip','HR','Moving and protecting contents.');
+  addMain('m_bp',          parseFloat(document.getElementById('m_bp').value)||0,          'Block and pad furniture - per piece','block_pad','EA','');
 
   // Other Items added via catalog search (Main)
   (otherSections['main']||[]).forEach(function(it){
@@ -1706,9 +1729,14 @@ function renderEstimate() {
     if(gn('dslab')>0){addR('Interior door slab only - Detach',gn('dslab'),'EA','door_slab','');}
     if(gn('cfan')>0){addR('Remove ceiling fan & light',gn('cfan'),'EA','ceil_fan','');}
     if(gn('lfix')>0){addR('Remove light fixture',gn('lfix'),'EA','light_fix','');}
-    if(gn('mirr')>0){addR('Remove mirror',gn('mirr'),'EA','mirror','');}
+    if(gn('mir_sm')>0){addR('Remove mirror - framed (up to 24")',gn('mir_sm'),'EA','mirror_framed_sm','');}
+    if(gn('mir_md')>0){addR('Remove mirror - framed (24-48")',gn('mir_md'),'EA','mirror_framed_md','');}
+    if(gn('mir_lg')>0){addR('Remove mirror - framed (48"+)',gn('mir_lg'),'EA','mirror_framed_lg','');}
+    if(gn('mir_sf')>0){addR('Remove mirror - glued-on',gn('mir_sf'),'SF','mirror_glued','');}
     if(gn('bboard')>0){addR('Baseboard - Detach',gn('bboard'),'LF','baseboard','');}
-    if(gn('ctr')>0){addR('Countertop - solid surface/granite - Detach',gn('ctr'),'EA','ctr_granite','');}
+    if(gn('ctr_sol')>0){addR('Countertop - solid surface/granite - Detach',gn('ctr_sol'),'LF','ctr_solid','');}
+    if(gn('ctr_tile')>0){addR('Tear out tile countertop & bag for disposal',gn('ctr_tile'),'SF','ctr_tile','');}
+    if(gn('ctr_lam')>0){addR('Countertop - laminate - Detach',gn('ctr_lam'),'LF','ctr_lam','');}
 
     // Flooring demo
     if(gn('fl_float')>0){addR('Tear out non-salv floating floor & bag for disposal',gn('fl_float'),'SF','fl_float','Laminate/vinyl plank floating floor.');}
@@ -1732,6 +1760,12 @@ function renderEstimate() {
     // Ceiling demo
     if(gn('ceil_dw')>0){addR('Remove wet acoustic & drywall and bag for disposal',gn('ceil_dw'),'SF','ceil_dw','');}
     if(gn('ceil_tile')>0){addR('Remove wet suspended ceiling tile and bag for disposal',gn('ceil_tile'),'SF','ceil_tile','');}
+
+    // Crawl space (fields only present on Crawl Space rooms)
+    // NOTE: level soil & hydrated lime are kept in the catalog but UNWIRED (no Xact price reference yet).
+    if(gn('insul_rem')>0){addR('Remove batt insulation - crawl space',gn('insul_rem'),'SF','crawl_insul_rem','');}
+    if(gn('vapor_sf')>0){addR('Install vapor barrier',gn('vapor_sf'),'SF','crawl_vapor','');}
+    if(gn('insul_inst')>0){addR('Install rigid foam insulation board',gn('insul_inst'),'SF','crawl_insul_inst','');}
 
     });
 
@@ -1797,7 +1831,7 @@ function renderEstimate() {
         '<span class="lbl">Operator:</span><span>'+operatorName+'</span>'+
         '<span class="lbl">Type of Estimate:</span><span>'+lossTypeDisp+'</span>'+
         '<span class="lbl">Date of Loss:</span><span>'+dateDisp+'</span>'+
-        '<span class="lbl">Price List:</span><span>DRYmedic Price List — May 2026</span>'+
+        '<span class="lbl">Price List:</span><span>Open Pricing Model — June 2026</span>'+
         '<span class="lbl">Estimate:</span><span>'+estId+'</span>'+
       '</div>'+
     '</div>'+
@@ -1813,7 +1847,7 @@ function renderEstimate() {
       '</tr></thead>'+
       '<tbody>'+tableBody+'</tbody>'+
     '</table>'+
-    '<div class="est-footer"><span>'+estId+'</span><span>'+today+'</span><span>Page: 1</span></div>'+
+    '<div class="est-footer"><span>'+estId+' · v'+APP_VERSION+'</span><span>'+today+'</span><span>Page: 1</span></div>'+
   '</div>'+
   '<div class="est-pg">'+
     '<div class="est-brand-bar" style="border-radius:0"><b>DRYmedic Restoration Services</b> <span class="sub" style="font-size:10px;opacity:.75">7334 S. Alton Way | 14F  •  Centennial, CO 80112  •  www.drymedicparkerco.com  •  Office 720-719-0034</span></div>'+
@@ -1824,7 +1858,7 @@ function renderEstimate() {
       '<div class="est-sum-row bold"><span>Replacement Cost Value</span><span>$'+fmt(gT)+'</span></div>'+
       '<div class="est-sum-row final"><span>Net Claim</span><span>$'+fmt(gT)+'</span></div>'+
     '</div>'+
-    '<div class="est-footer" style="padding:4px 14px"><span>'+estId+'</span><span>'+today+'</span><span>Page: 2</span></div>'+
+    '<div class="est-footer" style="padding:4px 14px"><span>'+estId+' · v'+APP_VERSION+'</span><span>'+today+'</span><span>Page: 2</span></div>'+
   '</div>'+
   '</div>';
 
@@ -1834,15 +1868,174 @@ function renderEstimate() {
 // ════════════════════════════════════════════════════════════
 // PDF EXPORT
 // ════════════════════════════════════════════════════════════
-function emailCustomer() {
-  if(!LAST_EST){ alert('Build the estimate first.'); return; }
+// ════════════════════════════════════════════════════════════
+// SAVE / LOAD QUOTE — JSON round-trip (create new or modify existing)
+// ════════════════════════════════════════════════════════════
+function collectFields() {
+  const out={};
+  document.querySelectorAll('#app input[id], #app select[id], #app textarea[id]').forEach(function(el){
+    if(el.type==='file') return;
+    const rec={};
+    if(el.type==='checkbox'||el.type==='radio') rec.c=el.checked;
+    rec.v=el.value;
+    if(el.dataset && el.dataset.raw!==undefined) rec.r=el.dataset.raw;
+    out[el.id]=rec;
+  });
+  return out;
+}
+function collectPosts() {
+  const out={};
+  document.querySelectorAll('#post-rows-m, [id$="_posts"]').forEach(function(c){
+    const rows=[];
+    c.querySelectorAll('.dyn-row').forEach(function(r){
+      const q=r.querySelector('.dyn-qty'), d=r.querySelector('.dyn-days');
+      rows.push({q:q?q.value:'', d:d?d.value:''});
+    });
+    out[c.id]=rows;
+  });
+  return out;
+}
+function saveQuote() {
+  const data={
+    app:'DRYscope', version:APP_VERSION, savedAt:new Date().toISOString(),
+    rooms: rooms.map(function(r){return {id:r.id,name:r.name,type:r.type};}),
+    roomTypeCounts: JSON.parse(JSON.stringify(roomTypeCounts)),
+    fields: collectFields(),
+    posts: collectPosts(),
+    other: JSON.parse(JSON.stringify(otherSections))
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=_quoteFilename('json');
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
+function loadQuoteFile(input) {
+  const file=input.files && input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    let data;
+    try{ data=JSON.parse(e.target.result); }
+    catch(err){ alert('That file is not a valid quote (.json).'); input.value=''; return; }
+    try{ loadQuote(data); }
+    catch(err){ alert('Could not load the quote: '+err.message); }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+function _idTrans(id, map) {
+  let m=id.match(/^re_(\d+)_(.*)$/);
+  if(m && map[m[1]]!=null) return 're_'+map[m[1]]+'_'+m[2];
+  m=id.match(/^r(\d+)_(.*)$/);
+  if(m && map[m[1]]!=null) return 'r'+map[m[1]]+'_'+m[2];
+  return id;
+}
+function addRoomFromData(name, type) {
+  const id=++roomCounter;
+  rooms.push({id:id, name:name, type:(type||'Other')});
+  document.getElementById('no-rooms').style.display='none';
+  renderRoomTabs();
+  buildRoomBody(id, name, (type||'Other'));
+  return id;
+}
+function loadQuote(data) {
+  if(!data || !data.fields){ alert('This file does not look like a saved quote.'); return; }
+  if(!confirm('Load this quote? It replaces whatever is currently entered.')) return;
+
+  // Reset dynamic state
+  document.getElementById('room-bodies').innerHTML='';
+  document.querySelectorAll('.rtab').forEach(function(t){t.remove();});
+  rooms.length=0; roomCounter=0;
+  for(var k in roomTypeCounts) delete roomTypeCounts[k];
+  document.getElementById('no-rooms').style.display='';
+  for(var s in otherSections) delete otherSections[s];
+  otherSections['main']=[];
+  document.getElementById('post-rows-m').innerHTML='';
+
+  // Rebuild rooms in order, mapping old id -> new id
+  const map={};
+  (data.rooms||[]).forEach(function(rm){
+    const newId=addRoomFromData(rm.name, rm.type);
+    map[rm.id]=newId;
+    var pc=document.getElementById('r'+newId+'_posts'); if(pc) pc.innerHTML='';
+    otherSections['r'+newId]=[];
+  });
+  if(data.roomTypeCounts && typeof data.roomTypeCounts==='object'){ for(var tk in data.roomTypeCounts) roomTypeCounts[tk]=data.roomTypeCounts[tk]; }
+
+  // Apply field values (with room-id translation)
+  Object.keys(data.fields).forEach(function(origId){
+    const el=document.getElementById(_idTrans(origId, map));
+    if(!el) return;
+    const rec=data.fields[origId];
+    if(el.type==='checkbox'||el.type==='radio'){ el.checked=!!rec.c; }
+    else if(rec.v!==undefined){ el.value=rec.v; }
+    if(rec.r!==undefined && el.dataset) el.dataset.raw=rec.r;
+  });
+
+  // Restore tension-post rows
+  const posts=data.posts||{};
+  Object.keys(posts).forEach(function(origC){
+    const cid=_idTrans(origC, map);
+    const c=document.getElementById(cid);
+    if(!c) return;
+    c.innerHTML='';
+    const prefix = cid==='post-rows-m' ? 'post-m' : ('rp'+cid.replace(/^r(\d+)_posts$/,'$1'));
+    posts[origC].forEach(function(row){
+      addDynRow(cid, prefix);
+      const last=c.querySelector('.dyn-row:last-child');
+      if(last){ var q=last.querySelector('.dyn-qty'), d=last.querySelector('.dyn-days'); if(q)q.value=row.q; if(d)d.value=row.d; }
+    });
+  });
+
+  // Restore catalog "Other Items"
+  const other=data.other||{};
+  Object.keys(other).forEach(function(origS){
+    const sid = origS==='main' ? 'main' : _idTrans(origS, map);
+    otherSections[sid]=other[origS]||[];
+    try{ renderOtherItems(sid); }catch(e){}
+  });
+
+  // Re-sync derived UI / handlers
+  try{ onLT(); }catch(e){}
+  try{ toggleEmg(); }catch(e){}
+  try{ onDumpster(); onDumpPricing(); }catch(e){}
+  try{ sfCalc('cloth'); sfCalc('adh'); }catch(e){}
+  ['iep_pre','iep_post','asb_ih','asb_3p','lead'].forEach(function(kk){ try{ testToggle(kk); }catch(e){} });
+  SUB_DEFS.forEach(function(sd){ try{ subToggle(sd.id); }catch(e){} });
+  EQUIP_DEFS.forEach(function(eq){ var key='me_'+eq.id; if(document.getElementById(key+'_chk')){ try{ toggleEq(key); }catch(e){} } });
+  var savedDecon = data.fields['m_decon'] ? data.fields['m_decon'].v : null;
+  try{ calcMon(); }catch(e){}
+  if(savedDecon!=null){ var dEl=document.getElementById('m_decon'); if(dEl) dEl.value=savedDecon; }
+  rooms.forEach(function(rm){
+    var id=rm.id;
+    EQUIP_DEFS.forEach(function(eq){ var key='re_'+id+'_'+eq.id; if(document.getElementById(key+'_chk')){ try{ toggleEq(key); }catch(e){} } });
+    var ms=document.getElementById('r'+id+'_mold_stain'); if(ms && parseFloat(ms.value)>0) ms.dataset.manual='1';
+    var cw=document.getElementById('r'+id+'_cl_w'); if(cw && cw.value) cw.dataset.manual='1';
+    var cf=document.getElementById('r'+id+'_cl_f'); if(cf && cf.value) cf.dataset.manual='1';
+    try{ toggleMoldStain(id); }catch(e){}
+    try{ recalcHepa(id); }catch(e){}
+    var my=document.getElementById('r'+id+'_muck_y'), mw=document.getElementById('r'+id+'_muck_sf_wrap');
+    if(my && mw) mw.style.display = my.checked ? '' : 'none';
+  });
+  if(rooms.length) activateRoom(0);
+  goPg(1);
+  alert('Quote loaded'+(data.version?(' (saved from v'+data.version+')'):'')+'. Review each page, then Build Estimate.');
+}
+
+function _quoteFilename(ext) {
+  const estId=(document.getElementById('job_number').value||'ESTIMATE').toUpperCase();
+  const parts=(document.getElementById('customer_name').value||'').trim().split(/\s+/).filter(Boolean);
+  const last=parts.length?parts[parts.length-1]:'Customer';
+  return last+'_'+estId+'_Estimate.'+ext;
+}
+function buildMessage() {
   const gv=function(id){return parseFloat(document.getElementById(id)?.value)||0;};
   const first=(document.getElementById('customer_name').value||'').trim().split(/\s+/)[0]||'there';
   const addr=(document.getElementById('address').value||'your property').trim();
   const to=(document.getElementById('customer_email').value||'').trim();
-  const total=LAST_EST.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const std=LAST_EST.lt==='mold'?'mold remediation':'water mitigation';
-  // Scope bullets from reliable job-level signals
+  const total=LAST_EST?LAST_EST.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'0.00';
+  const std=(LAST_EST&&LAST_EST.lt==='mold')?'mold remediation':'water mitigation';
   const b=[];
   if(['t_iep_pre','t_iep_post','t_asb_ih','t_asb_3p','t_lead'].some(function(id){return document.getElementById(id)?.checked;}))
     b.push('State of Colorado required testing as noted');
@@ -1864,7 +2057,47 @@ function emailCustomer() {
     'All the work being done is in accordance with standards set by the IICRC for '+std+'.\n'+
     'If you have any questions on the billing, we are completely transparent and will go over any questions you have.\n\n'+
     'Thanks,\nKeith\nDRYmedic Restoration Services of Parker\n720-798-5570';
-  window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  return {to:to, subject:subject, body:body};
+}
+function emailCustomer() {
+  if(!LAST_EST){ alert('Build the estimate first.'); return; }
+  const m=buildMessage();
+  window.location.href='mailto:'+encodeURIComponent(m.to)+'?subject='+encodeURIComponent(m.subject)+'&body='+encodeURIComponent(m.body);
+}
+// Send Estimate: build the PDF and hand it to the device's share menu with the PDF
+// ATTACHED (Outlook/Mail/Messages appear as choices). Mobile-first; on desktop it
+// falls back to downloading the PDF + opening an email draft to attach manually.
+function shareEstimate() {
+  const el=document.getElementById('est-content');
+  if(!el || !el.innerHTML.trim()){ alert('Build the estimate first.'); return; }
+  const m=buildMessage();
+  const btn=document.getElementById('btn-share');
+  const label=btn?btn.textContent:'';
+  if(btn){ btn.textContent='Preparing…'; btn.disabled=true; }
+  const restore=function(){ if(btn){ btn.textContent=label; btn.disabled=false; } };
+  ensureHtml2Pdf(function(ok){
+    if(!ok){ restore(); alert('Could not prepare the PDF (it needs internet the first time). Use Download PDF instead.'); return; }
+    const opt={margin:[0.3,0.3,0.45,0.3],image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'in',format:'letter',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy'],avoid:['tr','.sec-hdr','.subsec','.sub-total']}};
+    html2pdf().set(opt).from(el).toPdf().get('pdf').then(function(pdf){
+      const blob=pdf.output('blob');
+      const fname=_quoteFilename('pdf');
+      const file=new File([blob], fname, {type:'application/pdf'});
+      restore();
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], title:m.subject, text:m.body}).catch(function(){});
+      } else {
+        // Desktop / browsers without file-share: download the PDF + open an email draft
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=fname;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+        window.location.href='mailto:'+encodeURIComponent(m.to)+'?subject='+encodeURIComponent(m.subject)+'&body='+encodeURIComponent(m.body);
+      }
+    }, function(){ restore(); alert('PDF generation failed — try Download PDF.'); });
+  });
 }
 
 // html2pdf is loaded lazily — only when the user clicks Download PDF — so the
