@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "name": "DRYscope Tax Model",
+    "schema": "dryscope-tax-v1",
+    "version": "0.1.0",
+    "state": "CO",
+    "sourcing": "destination",
+    "tax_applies_to": "material",
+    "note": "Tax applies to the MATERIAL portion only; labor is never taxed. Per line: qty x material_per_unit x (rate/100). Rates below are jurisdiction-level approximations for fast selection. Where a ZIP spans more than one jurisdiction, confirm the exact rooftop rate at lookup_url.",
+    "authoritative_source": "Colorado Department of Revenue — Jurisdiction Codes & Rates spreadsheet (republished twice yearly, Jan & Jul)",
+    "source_file": "Colorado_Jurisdiction_Codes_Rates_Jan26-June2026.xlsx",
+    "source_url": "https://tax.colorado.gov/how-to-look-up-sales-use-tax-rates",
+    "lookup_url": "https://salestaxlookup.colorado.gov/",
+    "updated": "2026-06-02",
+    "review_cycle": "Re-download the CO DOR rate file each January and July; reconcile rates and re-publish.",
+    "status": "SEED — rates carried over from the app's prior RATES list and web research. NOT yet reconciled against the DOR source_file. Replace with authoritative values + build zip_candidates from that file.",
+    "transfer_note": "State-agnostic schema. For another state: set meta.state/sourcing/lookup_url, replace jurisdictions[] from that state's free rate source, and rebuild zip_candidates."
+  },
+  "jurisdictions": [
+    {
+      "id": "parker",
+      "name": "Parker (Town limits)",
+      "rate": 8.00,
+      "verified": true,
+      "components": { "state": 2.9, "county_douglas": 1.0, "rtd": 1.0, "scfd": 0.1, "town_parker": 3.0 },
+      "note": "Inside incorporated Town of Parker AND within RTD. A small number of Parker addresses outside RTD run ~7.0%."
+    },
+    {
+      "id": "uninc_douglas",
+      "name": "Unincorporated Douglas County",
+      "rate": 5.00,
+      "verified": true,
+      "components": { "state": 2.9, "county_douglas": 1.0, "rtd": 1.0, "scfd": 0.1 },
+      "note": "No town tax. Covers Stonegate and much of Highlands Ranch. Parcels outside RTD run ~4.0%."
+    },
+    {
+      "id": "highlands_ranch",
+      "name": "Highlands Ranch (unincorporated)",
+      "rate": 5.00,
+      "verified": false,
+      "components": { "state": 2.9, "county_douglas": 1.0, "rtd": 1.0, "scfd": 0.1 },
+      "note": "Unincorporated Douglas. ~5.0% inside RTD, ~4.0% outside; certain retail centers add a PIF at the register. Confirm by address."
+    },
+    {
+      "id": "lone_tree",
+      "name": "Lone Tree",
+      "rate": 8.43,
+      "verified": false,
+      "components": { "state": 2.9, "county_douglas": 1.0, "rtd": 1.0, "scfd": 0.1, "city_lone_tree": 2.4625 },
+      "note": "Home-rule city. Some Lone Tree zones carry additional improvement-district fees."
+    },
+    {
+      "id": "castle_rock",
+      "name": "Castle Rock",
+      "rate": 7.90,
+      "verified": false,
+      "components": { "state": 2.9, "county_douglas": 1.0, "scfd": 0.0, "city_castle_rock": 4.0 },
+      "note": "Home-rule city. NOT in RTD/SCFD. Confirm component split against DOR file."
+    },
+    {
+      "id": "castle_pines",
+      "name": "Castle Pines",
+      "rate": 7.75,
+      "verified": false,
+      "components": { "state": 2.9, "county_douglas": 1.0, "city_castle_pines": 3.75 },
+      "note": "Home-rule city. Confirm RTD/SCFD inclusion and split against DOR file."
+    },
+    {
+      "id": "centennial",
+      "name": "Centennial",
+      "rate": 6.75,
+      "verified": false,
+      "components": { "state": 2.9, "county_arapahoe": 0.25, "rtd": 1.0, "scfd": 0.1, "city_centennial": 2.5 },
+      "note": "Arapahoe County. Confirm split against DOR file."
+    },
+    {
+      "id": "greenwood_village",
+      "name": "Greenwood Village",
+      "rate": 7.25,
+      "verified": false,
+      "components": { "state": 2.9, "county_arapahoe": 0.25, "rtd": 1.0, "scfd": 0.1, "city_greenwood_village": 3.0 },
+      "note": "Arapahoe County home-rule city. Confirm split against DOR file."
+    },
+    {
+      "id": "littleton",
+      "name": "Littleton",
+      "rate": 8.00,
+      "verified": false,
+      "components": { "state": 2.9, "county": 0.25, "rtd": 1.0, "scfd": 0.1, "city_littleton": 3.75 },
+      "note": "Spans Arapahoe, Douglas, and Jefferson counties — county portion varies by parcel. Confirm by address."
+    },
+    {
+      "id": "englewood",
+      "name": "Englewood",
+      "rate": 7.75,
+      "verified": false,
+      "components": { "state": 2.9, "county_arapahoe": 0.25, "rtd": 1.0, "scfd": 0.1, "city_englewood": 3.5 },
+      "note": "Arapahoe County home-rule city. Confirm split against DOR file."
+    },
+    {
+      "id": "aurora",
+      "name": "Aurora",
+      "rate": 8.50,
+      "verified": false,
+      "components": { "state": 2.9, "county_arapahoe": 0.25, "rtd": 1.0, "scfd": 0.1, "city_aurora": 3.75 },
+      "note": "Home-rule city spanning Arapahoe, Adams, and Douglas counties — county portion varies. North-Parker service area. Confirm by address."
+    },
+    {
+      "id": "denver",
+      "name": "Denver",
+      "rate": 8.81,
+      "verified": false,
+      "components": { "state": 2.9, "city_county_denver": 4.81, "rtd": 1.0, "scfd": 0.1 },
+      "note": "Consolidated city-county, home-rule. Confirm split against DOR file."
+    }
+  ],
+  "zip_candidates": {
+    "_note": "Maps a service-area ZIP to the jurisdiction ids that occur within it, so the picker can show ONLY that ZIP's real options. SKELETON — verify/complete from the DOR file + GIS locator. A single ZIP commonly spans 2+ jurisdictions.",
+    "80134": ["parker", "uninc_douglas", "highlands_ranch"],
+    "80138": ["parker", "uninc_douglas"],
+    "80104": ["castle_rock", "uninc_douglas"],
+    "80108": ["castle_rock", "castle_pines", "uninc_douglas"],
+    "80109": ["castle_rock", "uninc_douglas"],
+    "80124": ["lone_tree", "uninc_douglas"],
+    "80126": ["highlands_ranch", "uninc_douglas"],
+    "80129": ["highlands_ranch", "uninc_douglas"],
+    "80130": ["highlands_ranch", "uninc_douglas"],
+    "80112": ["centennial", "greenwood_village", "lone_tree", "uninc_douglas"],
+    "80111": ["greenwood_village", "centennial"],
+    "80122": ["centennial", "littleton"],
+    "80120": ["littleton"],
+    "80121": ["littleton", "greenwood_village"],
+    "80110": ["englewood"],
+    "80113": ["englewood", "littleton"],
+    "80015": ["aurora", "centennial"],
+    "80016": ["aurora", "centennial", "uninc_douglas"],
+    "80018": ["aurora"]
+  }
+}
