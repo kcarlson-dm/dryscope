@@ -18,7 +18,7 @@ Tax setup is required for everyone (estimates can't compute without it) and is i
 - **DRYscope Estimator** — [`index.html`](index.html): a free, self-contained estimating app (no server, works offline). Live at **https://kcarlson-dm.github.io/dryscope/**
 - **[`model.json`](model.json)** — the live pricing model (an ODAPM instance).
 - **[`tax.json`](tax.json)** — jurisdiction tax rates.
-- **[ODAPM](https://getodapm.github.io)** — the **Open Data AI Pricing Model**: an open standard + methodology + prompt-driven workflow that lets *anyone* build their own market-derived model with an AI assistant, no coding. Canonical home: [getodapm.github.io](https://getodapm.github.io) · [repo](https://github.com/getodapm/getodapm.github.io). A pinned snapshot ships in [`odapm/`](odapm/).
+- **[ODAPM](https://getodapm.github.io)** — the **Open Data AI Pricing Model**: an open standard + methodology + prompt-driven workflow that lets *anyone* build their own market-derived model with an AI assistant, no coding. Lives at [getodapm.github.io](https://getodapm.github.io) · [repo](https://github.com/getodapm/getodapm.github.io).
 - **[`starter/`](starter/)** — a kit another restoration owner can download to stand up their own DRYscope estimator.
 
 ## Principles
@@ -28,12 +28,12 @@ Tax setup is required for everyone (estimates can't compute without it) and is i
 3. **One honest price, coverage-agnostic** — same numbers whether insurance pays in full, partially, or the homeowner self-pays.
 4. **Treat homeowners as people, not claims.**
 
-See [`odapm/MANIFESTO.md`](odapm/MANIFESTO.md) for the full thesis.
+See the [ODAPM Manifesto](https://github.com/getodapm/getodapm.github.io/blob/main/MANIFESTO.md) for the full thesis.
 
 ## License
 
-App and tools: **MIT** ([LICENSE](LICENSE)). The ODAPM spec, methodology, and data: **CC-BY-4.0** ([odapm/LICENSE-DATA](odapm/LICENSE-DATA)). **This project contains zero proprietary or third-party pricing data** — all pricing is independently derived from cited open public sources.
+App and tools: **MIT** ([LICENSE](LICENSE)). The ODAPM spec, methodology, and data: **CC-BY-4.0** ([license](https://github.com/getodapm/getodapm.github.io/blob/main/LICENSE-DATA)). **This project contains zero proprietary or third-party pricing data** — all pricing is independently derived from cited open public sources.
 
 ## Status
 
-DRYscope Estimator **v0.8.0** — 92 line items, fully reconciled pricing, unified across all entry paths. ODAPM spec `odapm/v1` (project 0.1.0, early).
+DRYscope Estimator **v0.17.2** — 94-item catalog, fully reconciled pricing, unified across all entry paths. ODAPM spec `odapm/v1` — canonical home [getodapm.github.io](https://getodapm.github.io).

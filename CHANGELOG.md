@@ -2,6 +2,18 @@
 
 Version scheme: SemVer (MAJOR.MINOR.PATCH) with build date. MAJOR breaks saved quotes or the estimate format; MINOR adds features; PATCH is fixes/wording/pricing.
 
+## v0.19.0 — 🚀 RELEASE (2026-06-04)
+- **Equipment bug fixed (the $956 one):** a checked equipment box with blank Units/Days now bills at the placeholder default (1 × 1) instead of silently dropping off the estimate.
+- **Baseboard** gets Detach Only ($1.95, default — matches accepted estimates) / Remove & Reinstall ($2.93) / Dispose ($0.55).
+- **Stud walls & joists join the HEPA sandwich:** their SF feeds HEPA Light and antimicrobial, and when present they *replace* the Detailed pass quantity (detailed vacuum targets exposed framing).
+- Backlog applied: duplicate-flag now checks the field exists in *this* room; film labeled per-SF; quote **MIGRATIONS scaffold** (versioned upgrades for saved quotes); model schema tagged `odapm/v1`; starter kit regenerated; "Requires Claude Pro" note in kit + ODAPM prompts.
+
+## v0.18.0 — 🚀 RELEASE (2026-06-04) — Munie reconciliation
+- **Fixture tiers re-anchored to an accepted estimate** (MUNIE-WTR): the flat **detach** price is now the Only/Dispose tier (tub $176.20, vanity $28.39/LF, appliances $85, toilet $77, sink $49.50, cabinets, countertops…); **Reinstall = detach × 1.5** (detach + reset labor). The old dispose seeds had under-billed detach work by 60–70%.
+- **Water-category cleaning rates fixed:** Cat 1/2 HEPA Light 0.52/0.56, Detailed 1.02/1.09, wall clean 1.20/1.28 (Cat 3 keeps mold rates). Drywall flood-cut 2' corrected to 5.46/LF (the 10.75 was the 4' rate); insulation 1.10/SF.
+- **Antimicrobial no longer doubles:** auto-quantity = actual affected area (floor + joists), not the walls+floor sum, per QC rule and accepted practice.
+
+
 ## v0.16.0 — 🚀 RELEASE (2026-06-03)
 - Lead testing row aligned (hint moved below the boxes, like asbestos). Lay-flat ducting inputs width-capped.
 - **~30 room-field tooltips added** via a data-driven pass that runs on every room build — Safety, Stabilization, Demo, Cleaning, and Equipment fields all carry ? bubbles now.

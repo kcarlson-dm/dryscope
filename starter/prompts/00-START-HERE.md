@@ -2,6 +2,10 @@
 
 This kit becomes **your** estimating app. You don't write any code — Claude does the editing; you answer questions.
 
+## What you need
+
+**A Claude Pro subscription (about $17/month).** The free plan can't edit files in a folder, which this kit relies on. Pro includes everything needed: Cowork (file editing), web research, and enough usage if you run the steps one at a time.
+
 ## Get set up with Claude (one time)
 
 1. **Download this kit:** on the [DRYscope GitHub page](https://github.com/kcarlson-dm/dryscope), click the green **Code** button → **Download ZIP** → unzip it. The kit is the `starter` folder inside.

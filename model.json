@@ -2,8 +2,8 @@
   "meta": {
     "model_name": "Open Data AI Pricing Model",
     "short_name": "Open Pricing Model",
-    "schema": "dryscope-model-v1",
-    "version": "0.17.2",
+    "schema": "odapm/v1",
+    "version": "0.19.0",
     "currency": "USD",
     "note": "Standalone DRYscope pricing model. No third-party data. Prices null until set by the cost model. Price shape = {rem,rep,mat}.",
     "actions": {
@@ -58,13 +58,13 @@
           },
           {
             "id": "adhesive",
-            "label": "Self-adhesive film (per LF)",
+            "label": "Self-adhesive film (per SF)",
             "price": {
               "rem": 0.0,
               "rep": 0.8,
               "mat": 0.2
             },
-            "desc": "Self-stick film for carpeted paths, per LF."
+            "desc": "Self-stick film for carpeted paths, per SF."
           }
         ]
       }
@@ -349,7 +349,7 @@
             "id": "cut2",
             "label": "Flood cut 2'",
             "price": {
-              "rem": 10.75,
+              "rem": 5.46,
               "rep": 0.0,
               "mat": 0.0
             },
@@ -435,7 +435,7 @@
       "unit": "SF",
       "desc": "Tear out and bag wet insulation (walls or crawl).",
       "price": {
-        "rem": 1.45,
+        "rem": 1.1,
         "rep": 0.0,
         "mat": 0.0
       },
@@ -571,7 +571,7 @@
             "label": "Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 77.0,
+              "rep": 115.5,
               "mat": 0.0
             }
           },
@@ -579,7 +579,7 @@
             "id": "dispose",
             "label": "Dispose",
             "price": {
-              "rem": 27.5,
+              "rem": 77.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -592,7 +592,7 @@
       "group": "fixtures",
       "name": "Bathtub",
       "unit": "EA",
-      "desc": "Detach the tub for access/drying; reinstall or dispose.",
+      "desc": "Tub pulled for access/drying. Basis: accepted-estimate anchor — flat detach $176.20; reinstall = detach + reset (1.5x).",
       "pick": {
         "label": "Action",
         "options": [
@@ -601,7 +601,7 @@
             "label": "Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 176.0,
+              "rep": 264.3,
               "mat": 0.0
             }
           },
@@ -609,7 +609,7 @@
             "id": "dispose",
             "label": "Dispose",
             "price": {
-              "rem": 66.0,
+              "rem": 176.2,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -631,7 +631,7 @@
             "label": "Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 49.5,
+              "rep": 74.25,
               "mat": 0.0
             }
           },
@@ -639,7 +639,7 @@
             "id": "dispose",
             "label": "Dispose",
             "price": {
-              "rem": 27.5,
+              "rem": 49.5,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -661,7 +661,7 @@
             "label": "Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 49.5,
+              "rep": 74.25,
               "mat": 0.0
             }
           },
@@ -669,7 +669,7 @@
             "id": "dispose",
             "label": "Dispose",
             "price": {
-              "rem": 22.0,
+              "rem": 49.5,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -682,7 +682,7 @@
       "group": "fixtures",
       "name": "Vanity",
       "unit": "LF",
-      "desc": "Remove the bathroom vanity cabinet; reinstall or dispose.",
+      "desc": "Vanity cabinet. Basis: accepted-estimate anchor — flat detach $28.39/LF; reinstall = 1.5x.",
       "pick": {
         "label": "Action",
         "options": [
@@ -691,7 +691,7 @@
             "label": "Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 22.0,
+              "rep": 42.59,
               "mat": 0.0
             }
           },
@@ -699,7 +699,7 @@
             "id": "dispose",
             "label": "Dispose",
             "price": {
-              "rem": 8.8,
+              "rem": 28.39,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -721,7 +721,7 @@
             "label": "Upper — Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 24.2,
+              "rep": 36.3,
               "mat": 0.0
             }
           },
@@ -729,7 +729,7 @@
             "id": "up_dp",
             "label": "Upper — Dispose",
             "price": {
-              "rem": 11.0,
+              "rem": 24.2,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -739,7 +739,7 @@
             "label": "Lower — Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 28.6,
+              "rep": 42.9,
               "mat": 0.0
             }
           },
@@ -747,7 +747,7 @@
             "id": "lo_dp",
             "label": "Lower — Dispose",
             "price": {
-              "rem": 13.2,
+              "rem": 28.6,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -769,7 +769,7 @@
             "label": "Solid / Stone — Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 13.2,
+              "rep": 19.8,
               "mat": 0.0
             },
             "unit": "LF"
@@ -778,7 +778,7 @@
             "id": "solid_dp",
             "label": "Solid / Stone — Dispose",
             "price": {
-              "rem": 6.6,
+              "rem": 13.2,
               "rep": 0.0,
               "mat": 0.0
             },
@@ -789,7 +789,7 @@
             "label": "Laminate — Remove & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 9.9,
+              "rep": 14.85,
               "mat": 0.0
             },
             "unit": "LF"
@@ -798,7 +798,7 @@
             "id": "lam_dp",
             "label": "Laminate — Dispose",
             "price": {
-              "rem": 5.5,
+              "rem": 9.9,
               "rep": 0.0,
               "mat": 0.0
             },
@@ -831,7 +831,7 @@
             "label": "Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 38.5,
+              "rep": 57.75,
               "mat": 0.0
             }
           },
@@ -839,7 +839,7 @@
             "id": "dispose",
             "label": "Disconnect Only",
             "price": {
-              "rem": 16.5,
+              "rem": 38.5,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -861,7 +861,7 @@
             "label": "Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -869,7 +869,7 @@
             "id": "dispose",
             "label": "Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -891,7 +891,7 @@
             "label": "Electric — Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -899,7 +899,7 @@
             "id": "elec_dp",
             "label": "Electric — Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -909,7 +909,7 @@
             "label": "Gas — Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -917,7 +917,7 @@
             "id": "gas_dp",
             "label": "Gas — Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -939,7 +939,7 @@
             "label": "Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -947,7 +947,7 @@
             "id": "dispose",
             "label": "Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -969,7 +969,7 @@
             "label": "Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 38.5,
+              "rep": 57.75,
               "mat": 0.0
             }
           },
@@ -977,7 +977,7 @@
             "id": "dispose",
             "label": "Disconnect Only",
             "price": {
-              "rem": 16.5,
+              "rem": 38.5,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -999,7 +999,7 @@
             "label": "Washer — Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -1007,7 +1007,7 @@
             "id": "wash_dp",
             "label": "Washer — Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -1017,7 +1017,7 @@
             "label": "Dryer — Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 85.0,
+              "rep": 127.5,
               "mat": 0.0
             }
           },
@@ -1025,7 +1025,7 @@
             "id": "dry_dp",
             "label": "Dryer — Disconnect Only",
             "price": {
-              "rem": 42.5,
+              "rem": 85.0,
               "rep": 0.0,
               "mat": 0.0
             }
@@ -1201,13 +1201,24 @@
         "label": "Action",
         "options": [
           {
-            "id": "reinstall",
-            "label": "Detach",
+            "id": "only",
+            "label": "Detach Only",
             "price": {
               "rem": 0.0,
               "rep": 1.95,
               "mat": 0.0
-            }
+            },
+            "desc": "Careful pull for reuse; reinstalled by others or later."
+          },
+          {
+            "id": "reinstall",
+            "label": "Remove & Reinstall",
+            "price": {
+              "rem": 0.0,
+              "rep": 2.93,
+              "mat": 0.0
+            },
+            "desc": "Detach plus reinstallation after drying (1.5x detach)."
           },
           {
             "id": "dispose",
@@ -1216,7 +1227,8 @@
               "rem": 0.55,
               "rep": 0.0,
               "mat": 0.0
-            }
+            },
+            "desc": "Fast tear-off of non-salvageable trim."
           }
         ]
       }
@@ -1231,12 +1243,12 @@
       "price": {
         "cat1": {
           "rem": 0.0,
-          "rep": 0.69,
+          "rep": 0.52,
           "mat": 0.0
         },
         "cat2": {
           "rem": 0.0,
-          "rep": 0.75,
+          "rep": 0.56,
           "mat": 0.0
         },
         "cat3": {
@@ -1262,12 +1274,12 @@
             "price": {
               "cat1": {
                 "rem": 0.0,
-                "rep": 1.41,
+                "rep": 1.2,
                 "mat": 0.0
               },
               "cat2": {
                 "rem": 0.0,
-                "rep": 1.53,
+                "rep": 1.28,
                 "mat": 0.0
               },
               "cat3": {
@@ -1335,12 +1347,12 @@
       "price": {
         "cat1": {
           "rem": 0.0,
-          "rep": 1.34,
+          "rep": 1.02,
           "mat": 0.0
         },
         "cat2": {
           "rem": 0.0,
-          "rep": 1.46,
+          "rep": 1.09,
           "mat": 0.0
         },
         "cat3": {
@@ -2106,7 +2118,7 @@
             "label": "Disconnect & Reinstall",
             "price": {
               "rem": 0.0,
-              "rep": 66.0,
+              "rep": 99.0,
               "mat": 0.0
             }
           },
@@ -2114,7 +2126,7 @@
             "id": "dispose",
             "label": "Disconnect Only",
             "price": {
-              "rem": 30.0,
+              "rem": 66.0,
               "rep": 0.0,
               "mat": 0.0
             }
