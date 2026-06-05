@@ -1,3 +1,7 @@
+## v0.21.0 — 2026-06-04
+- Synced to DRYscope v0.21.0 (config-driven sections, model-derived pricing, P-Trap fields).
+- Template model rebuilt: full 97-item catalog, all prices null until set by your pricing pass.
+
 # Starter Kit — Changelog
 
 ## v0.17.2 — 2026-06-03

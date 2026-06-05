@@ -3,7 +3,7 @@
     "model_name": "Open Data AI Pricing Model",
     "short_name": "Open Pricing Model",
     "schema": "odapm/v1",
-    "version": "0.19.0",
+    "version": "0.20.0",
     "currency": "USD",
     "note": "Standalone DRYscope pricing model. No third-party data. Prices null until set by the cost model. Price shape = {rem,rep,mat}.",
     "actions": {
@@ -576,6 +576,16 @@
             }
           },
           {
+            "id": "only",
+            "label": "Disconnect Only",
+            "price": {
+              "rem": 77.0,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
+          },
+          {
             "id": "dispose",
             "label": "Dispose",
             "price": {
@@ -604,6 +614,16 @@
               "rep": 264.3,
               "mat": 0.0
             }
+          },
+          {
+            "id": "only",
+            "label": "Remove Only",
+            "price": {
+              "rem": 176.2,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
           },
           {
             "id": "dispose",
@@ -636,6 +656,16 @@
             }
           },
           {
+            "id": "only",
+            "label": "Remove Only",
+            "price": {
+              "rem": 49.5,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
+          },
+          {
             "id": "dispose",
             "label": "Dispose",
             "price": {
@@ -664,6 +694,16 @@
               "rep": 74.25,
               "mat": 0.0
             }
+          },
+          {
+            "id": "only",
+            "label": "Disconnect Only",
+            "price": {
+              "rem": 49.5,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
           },
           {
             "id": "dispose",
@@ -696,6 +736,16 @@
             }
           },
           {
+            "id": "only",
+            "label": "Remove Only",
+            "price": {
+              "rem": 28.39,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
+          },
+          {
             "id": "dispose",
             "label": "Dispose",
             "price": {
@@ -726,6 +776,16 @@
             }
           },
           {
+            "id": "up_only",
+            "label": "Upper — Remove Only",
+            "price": {
+              "rem": 24.2,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
+          },
+          {
             "id": "up_dp",
             "label": "Upper — Dispose",
             "price": {
@@ -742,6 +802,16 @@
               "rep": 42.9,
               "mat": 0.0
             }
+          },
+          {
+            "id": "lo_only",
+            "label": "Lower — Remove Only",
+            "price": {
+              "rem": 28.6,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
           },
           {
             "id": "lo_dp",
@@ -775,6 +845,16 @@
             "unit": "LF"
           },
           {
+            "id": "solid_only",
+            "label": "Solid / Stone — Remove Only",
+            "price": {
+              "rem": 13.2,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
+          },
+          {
             "id": "solid_dp",
             "label": "Solid / Stone — Dispose",
             "price": {
@@ -793,6 +873,16 @@
               "mat": 0.0
             },
             "unit": "LF"
+          },
+          {
+            "id": "lam_only",
+            "label": "Laminate — Remove Only",
+            "price": {
+              "rem": 9.9,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Detach without reinstall — same flat detach rate; disposal billed via haul."
           },
           {
             "id": "lam_dp",
@@ -2174,6 +2264,63 @@
             "desc": "Remove the flexible supply line only."
           }
         ]
+      }
+    },
+    {
+      "id": "p_trap",
+      "group": "fixtures",
+      "name": "P-Trap",
+      "unit": "EA",
+      "desc": "Sink drain trap disconnected for access or supply-line work.",
+      "pick": {
+        "label": "Action",
+        "options": [
+          {
+            "id": "reinstall",
+            "label": "Disconnect & Reinstall",
+            "price": {
+              "rem": 0.0,
+              "rep": 25.5,
+              "mat": 0.0
+            },
+            "desc": "Disconnect and reassemble after work (~25 min)."
+          },
+          {
+            "id": "only",
+            "label": "Disconnect Only",
+            "price": {
+              "rem": 17.0,
+              "rep": 0.0,
+              "mat": 0.0
+            },
+            "desc": "Disconnect and leave for plumber/recon (~15 min)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "shower_bench",
+      "group": "demo",
+      "name": "Shower Bench",
+      "unit": "SF",
+      "desc": "Tiled bench structure demoed to framing, per SF of bench surface.",
+      "price": {
+        "rem": 6.5,
+        "rep": 0.0,
+        "mat": 0.0
+      },
+      "estVerb": "Remove"
+    },
+    {
+      "id": "window_treatment",
+      "group": "fixtures",
+      "name": "Window Treatment",
+      "unit": "EA",
+      "desc": "Blinds/curtains/drapes taken down and set aside. Never disposed; rehung by owner or reconstruction — detach only.",
+      "price": {
+        "rem": 12.0,
+        "rep": 0.0,
+        "mat": 0.0
       }
     }
   ],

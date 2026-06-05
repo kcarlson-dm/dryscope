@@ -2,6 +2,17 @@
 
 Version scheme: SemVer (MAJOR.MINOR.PATCH) with build date. MAJOR breaks saved quotes or the estimate format; MINOR adds features; PATCH is fixes/wording/pricing.
 
+## v0.21.0 — 🚀 RELEASE (2026-06-04) — architecture pass
+- **One SECTIONS table now drives both the room form and the estimate render.** New room order: Safety → Stabilization → **Appliances → Fixtures → Detach & Salvage** → Demo → Cleaning → Equipment → Other. Appliances get their own section; doors/lights/window treatments/baseboard live under Detach & Salvage. **No field IDs changed — saved quotes load with no migration.**
+- **Every price is now derived from the pricing model at load** (P_MAP → model × market factor). The second hand-maintained price table is gone, so app prices can never drift from the model again.
+- **Fixed: during-business-hours emergency calls** were billing the after-hours rate; now bill the correct during-hours rate.
+- **Fixed: Cat 1/2/3 cleaning rates reprice live** when the category changes (were frozen at Cat 2). Five rates corrected +$0.01 (truncation → proper rounding).
+- **Headless smoke test added** (`dryscope_smoke_test.mjs`) — synthetic 4-room job touching every section and action, asserting the total after every edit (49 checks). `npm install jsdom`, then `node dryscope_smoke_test.mjs`. Gates every release.
+- **Starter kit synced to v0.21:** same architecture, template model rebuilt to the full 97-item catalog (all prices null until you set them), P-Trap rooms added.
+
+## v0.20.0 — (2026-06-03) — internal bump
+- Version alignment during the 6/3 session; shipped changes are listed under v0.19.0 below.
+
 ## v0.19.0 — 🚀 RELEASE (2026-06-04)
 - **Equipment bug fixed (the $956 one):** a checked equipment box with blank Units/Days now bills at the placeholder default (1 × 1) instead of silently dropping off the estimate.
 - **Baseboard** gets Detach Only ($1.95, default — matches accepted estimates) / Remove & Reinstall ($2.93) / Dispose ($0.55).

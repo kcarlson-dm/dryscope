@@ -485,282 +485,15 @@ hr.dv{border:none;border-top:1px solid var(--light);margin:10px 0;}
 
 <script>
 // ════════════════════════════════════════════════════════════
-// PRICING DATA
+// PRICING — MODEL (below) is the single source of truth.
+// P (legacy form price keys) is DERIVED from MODEL at load via P_MAP /
+// buildP(), right after the MODEL definition. Never hand-edit a price
+// in this file outside MODEL. (v0.21 — kills the P-vs-MODEL drift.)
 // ════════════════════════════════════════════════════════════
-const P = {
-  floor_cloth: {rem:0,rep:0,mat:0},
-  floor_adhesive: {rem:0,rep:0,mat:0},
-  ppe: {rem:0,rep:0,mat:0},
-  gloves: {rem:0,rep:0,mat:0},
-  resp_cart: {rem:0,rep:0,mat:0},
-  resp_full: {rem:0,rep:0,mat:0},
-  containment: {rem:0,rep:0,mat:0},
-  tension_post: {rem:0,rep:0,mat:0},
-  zipper: {rem:0,rep:0,mat:0},
-  monitoring: {rem:0,rep:0,mat:0},
-  decon: {rem:0,rep:0,mat:0},
-  haul_debris: {rem:0,rep:0,mat:0},
-  emerg_call: {rem:0,rep:0,mat:0},
-  register: {rem:0,rep:0,mat:0},
-  extract_carpet: {rem:0,rep:0,mat:0},
-  extract_hard: {rem:0,rep:0,mat:0},
-  muckout: {rem:0,rep:0,mat:0},
-  sub_note: {rem:0,rep:0,mat:0},
-  door_slab: {rem:0,rep:0,mat:0},
-  ped: {rem:0,rep:0,mat:0},
-  ped_dp: {rem:0,rep:0,mat:0},
-  sup_cap: {rem:0,rep:0,mat:0},
-  sup_cutcap: {rem:0,rep:0,mat:0},
-  ctr_solid_dp: {rem:0,rep:0,mat:0},
-  ctr_lam_dp: {rem:0,rep:0,mat:0},
-  toilet_dp: {rem:0,rep:0,mat:0},
-  bathtub_dp: {rem:0,rep:0,mat:0},
-  shower_door_re: {rem:0,rep:0,mat:0},
-  vanity_dp: {rem:0,rep:0,mat:0},
-  sink_dp: {rem:0,rep:0,mat:0},
-  garbage_disp_re: {rem:0,rep:0,mat:0},
-  dishwasher_dp: {rem:0,rep:0,mat:0},
-  range_elec_dp: {rem:0,rep:0,mat:0},
-  range_gas_dp: {rem:0,rep:0,mat:0},
-  fridge_dp: {rem:0,rep:0,mat:0},
-  range_hood_re: {rem:0,rep:0,mat:0},
-  cab_lower_dp: {rem:0,rep:0,mat:0},
-  cab_upper_dp: {rem:0,rep:0,mat:0},
-  washer_dp: {rem:0,rep:0,mat:0},
-  dryer_dp: {rem:0,rep:0,mat:0},
-  fl_memb: {rem:0,rep:0,mat:0},
-  door_slab_d: {rem:0,rep:0,mat:0},
-  recessed_d: {rem:0,rep:0,mat:0},
-  ceil_fan_d: {rem:0,rep:0,mat:0},
-  light_fix_d: {rem:0,rep:0,mat:0},
-  door_slab_dp: {rem:0,rep:0,mat:0},
-  recessed_re: {rem:0,rep:0,mat:0},
-  recessed_dp: {rem:0,rep:0,mat:0},
-  ceil_fan_re: {rem:0,rep:0,mat:0},
-  light_fix_re: {rem:0,rep:0,mat:0},
-  fl_sub: {rem:0,rep:0,mat:0},
-  ceil_fan: {rem:0,rep:0,mat:0},
-  light_fix: {rem:0,rep:0,mat:0},
-  mirror: {rem:0,rep:0,mat:0},
-  toilet: {rem:0,rep:0,mat:0},
-  bathtub: {rem:0,rep:0,mat:0},
-  shower_tile: {rem:0,rep:0,mat:0},
-  shower_door: {rem:0,rep:0,mat:0},
-  water_cap: {rem:0,rep:0,mat:0},
-  water_detach: {rem:0,rep:0,mat:0},
-  vanity: {rem:0,rep:0,mat:0},
-  sink: {rem:0,rep:0,mat:0},
-  garbage_disp: {rem:0,rep:0,mat:0},
-  dishwasher: {rem:0,rep:0,mat:0},
-  range_elec: {rem:0,rep:0,mat:0},
-  range_gas: {rem:0,rep:0,mat:0},
-  fridge: {rem:0,rep:0,mat:0},
-  range_hood: {rem:0,rep:0,mat:0},
-  cab_lower: {rem:0,rep:0,mat:0},
-  cab_upper: {rem:0,rep:0,mat:0},
-  washer: {rem:0,rep:0,mat:0},
-  dryer: {rem:0,rep:0,mat:0},
-  baseboard: {rem:0,rep:0,mat:0},
-  baseboard_re: {rem:0,rep:0,mat:0},
-  baseboard_dispose: {rem:0,rep:0,mat:0},
-  ctr_granite: {rem:0,rep:0,mat:0},
-  fl_float: {rem:0,rep:0,mat:0},
-  fl_carpet: {rem:0,rep:0,mat:0},
-  fl_pad: {rem:0,rep:0,mat:0},
-  fl_vinyl: {rem:0,rep:0,mat:0},
-  fl_tile: {rem:0,rep:0,mat:0},
-  fl_wood: {rem:0,rep:0,mat:0},
-  fl_under: {rem:0,rep:0,mat:0},
-  fl_backer: {rem:0,rep:0,mat:0},
-  fl_tackless: {rem:0,rep:0,mat:0},
-  dw_lf_2: {rem:0,rep:0,mat:0},
-  dw_lf_4: {rem:0,rep:0,mat:0},
-  dw_sf: {rem:0,rep:0,mat:0},
-  wall_tile: {rem:0,rep:0,mat:0},
-  wall_insul: {rem:0,rep:0,mat:0},
-  drill_hole: {rem:0,rep:0,mat:0},
-  ceil_dw: {rem:0,rep:0,mat:0},
-  ceil_tile: {rem:0,rep:0,mat:0},
-  hepa_light: {rem:0,rep:0,mat:0},
-  clean_walls: {rem:0,rep:0,mat:0},
-  clean_floor: {rem:0,rep:0,mat:0},
-  clean_ceil: {rem:0,rep:0,mat:0},
-  antimicrobial: {rem:0,rep:0,mat:0},
-  hepa_detailed: {rem:0,rep:0,mat:0},
-  mold_stain: {rem:0,rep:0,mat:0},
-  dehu_large: {rem:0,rep:0,mat:0},
-  dehu_xl: {rem:0,rep:0,mat:0},
-  air_mover: {rem:0,rep:0,mat:0},
-  air_mover_axial: {rem:0,rep:0,mat:0},
-  scrubber: {rem:0,rep:0,mat:0},
-  scrubber_large: {rem:0,rep:0,mat:0},
-  hepa_neg: {rem:0,rep:0,mat:0},
-  hepa_canister: {rem:0,rep:0,mat:0},
-  carbon_16: {rem:0,rep:0,mat:0},
-  carbon_24: {rem:0,rep:0,mat:0},
-  wall_cavity: {rem:0,rep:0,mat:0},
-  wood_mat: {rem:0,rep:0,mat:0},
-  hydroxyl: {rem:0,rep:0,mat:0},
-  ducting: {rem:0,rep:0,mat:0},
-  crawl_soil: {rem:0,rep:0,mat:0},
-  crawl_vapor: {rem:0,rep:0,mat:0},
-  crawl_lime: {rem:0,rep:0,mat:0},
-  crawl_insul_rem: {rem:0,rep:0,mat:0},
-  crawl_insul_inst: {rem:0,rep:0,mat:0},
-  sand_floor: {rem:0,rep:0,mat:0},
-  sand_walls: {rem:0,rep:0,mat:0},
-  blast_confined: {rem:0,rep:0,mat:0},
-  dryice_light: {rem:0,rep:0,mat:0},
-  dryice_heavy: {rem:0,rep:0,mat:0},
-  dump_30: {rem:0,rep:0,mat:0},
-  dump_40: {rem:0,rep:0,mat:0},
-  tech_labor: {rem:0,rep:0,mat:0},
-  supervisor: {rem:0,rep:0,mat:0},
-  truck_mount: {rem:0,rep:0,mat:0},
-  contents_manip: {rem:0,rep:0,mat:0},
-  block_pad: {rem:0,rep:0,mat:0},
-  ctr_solid: {rem:0,rep:0,mat:0},
-  ctr_tile: {rem:0,rep:0,mat:0},
-  ctr_lam: {rem:0,rep:0,mat:0},
-  mirror_framed_sm: {rem:0,rep:0,mat:0},
-  mirror_framed_md: {rem:0,rep:0,mat:0},
-  mirror_framed_lg: {rem:0,rep:0,mat:0},
-  mirror_glued: {rem:2.76,rep:0.0,mat:0.0}
-};
-
-// ════════════════════════════════════════════════════════════
-// CATALOG — full searchable item list with aliases
-// ════════════════════════════════════════════════════════════
-const CATALOG = [
-  // Flooring demo
-  {k:'fl_float',   d:'Tear out floating/laminate floor',  u:'SF',  a:['laminate','lvp','vinyl plank','floating floor','floor demo','floor tear','vinyl plank flooring']},
-  {k:'fl_carpet',  d:'Tear out wet carpet',               u:'SF',  a:['carpet','rug','carpet tear','carpet remove','wet carpet','carpet demo']},
-  {k:'fl_pad',     d:'Tear out carpet pad',               u:'SF',  a:['pad','carpet pad','cushion']},
-  {k:'fl_vinyl',   d:'Tear out vinyl flooring',           u:'SF',  a:['vinyl','sheet vinyl','vct','vinyl tile','vinyl floor','lino','linoleum']},
-  {k:'fl_tile',    d:'Tear out floor tile',               u:'SF',  a:['floor tile','ceramic','porcelain floor','tile floor','floor ceramic']},
-  {k:'fl_wood',    d:'Tear out hardwood floor',           u:'SF',  a:['hardwood','wood floor','engineered wood','solid wood','oak floor']},
-  {k:'fl_under',   d:'Tear out underlayment',             u:'SF',  a:['underlayment','underlay','subfloor paper','rosin paper']},
-  {k:'fl_backer',  d:'Remove cement backer board',        u:'SF',  a:['backer board','cement board','cbu','durock','wonderboard','hardiebacker']},
-  {k:'fl_tackless',d:'Tear out tackless strip',           u:'LF',  a:['tack strip','tackless','carpet tack','tack strip remove']},
-  // Walls demo
-  {k:'dw_lf_2',    d:"Drywall flood cut — 2' high",      u:'LF',  a:['drywall 2','flood cut 2','2 foot drywall','drywall 2ft','drywall cut','flood cut linear']},
-  {k:'dw_lf_4',    d:"Drywall flood cut — 4' high",      u:'LF',  a:['drywall 4','flood cut 4','4 foot drywall','drywall 4ft']},
-  {k:'dw_sf',      d:'Tear out drywall (SF)',             u:'SF',  a:['drywall','sheetrock','gypsum board','drywall sf','drywall square','wall board','wallboard']},
-  {k:'wall_tile',  d:'Tear out wall tile',                u:'SF',  a:['wall tile','ceramic wall','backsplash','tile wall','shower tile surround','tile demo']},
-  {k:'wall_insul', d:'Tear out wall insulation',          u:'SF',  a:['insulation','batt insulation','fiberglass batt','pink insulation','wall insul']},
-  {k:'baseboard',  d:'Baseboard — Detach',                u:'LF',  a:['baseboard','base board','baseboard demo','base molding','base trim','trim detach','basebord','base molding detach']},
-  {k:'drill_hole', d:'Drill holes — cavity drying',       u:'EA',  a:['drill','wall holes','cavity holes','drying holes','drill wall']},
-  // Ceiling demo
-  {k:'ceil_dw',    d:'Tear out ceiling drywall',          u:'SF',  a:['ceiling drywall','ceiling demo','ceiling sheetrock','drywall ceiling']},
-  {k:'ceil_tile',  d:'Remove suspended ceiling tile',     u:'SF',  a:['drop ceiling','ceiling tile','suspended ceiling','grid ceiling','acoustic tile']},
-  // Containment / protection
-  {k:'containment',d:'Containment barrier (SF)',          u:'SF',  a:['containment','plastic sheeting','poly sheeting','barrier','6 mil','containment wall']},
-  {k:'tension_post',d:'Containment tension post',         u:'DA',  a:['tension post','post','containment post','pole']},
-  {k:'zipper',     d:'Peel & seal zipper',                u:'EA',  a:['zipper','peel seal','containment zipper','zip door','access door']},
-  {k:'ducting',    d:'Lay-flat ducting (LF)',              u:'LF',  a:['ducting','duct','layflat','lay flat','flex duct','negative air duct','exhaust duct']},
-  {k:'register',   d:'Mask/cover register',               u:'EA',  a:['register','vent','air vent','hvac vent','cover vent','mask vent','air register']},
-  // Bathroom fixtures
-  {k:'toilet',     d:'Toilet — Detach',                   u:'EA',  a:['toilet','toilett','tolet','commode','john','wc','water closet','throne']},
-  {k:'bathtub',    d:'Bathtub — Detach',                  u:'EA',  a:['tub','bathtub','bath tub','tub detach','bathtup','soaking tub']},
-  {k:'shower_tile',d:'Tear out shower/tub tile surround', u:'SF',  a:['shower tile','tub tile','tub surround','shower surround','tile shower','wall tile shower']},
-  {k:'shower_door',d:'Remove shower door',                u:'EA',  a:['shower door','glass door','shower enclosure','frameless door']},
-  {k:'water_cap',  d:'Water line cap/plug',               u:'EA',  a:['cap line','water cap','cap pipe','plumbing cap','shut off','line cap']},
-  {k:'water_detach',d:'Remove supply line',               u:'EA',  a:['supply line','water line','supply detach','fixture supply','flex line']},
-  {k:'vanity',     d:'Vanity — Remove &amp; Reinstall (LF)',              u:'LF',  a:['vanity','bath cabinet','bathroom cabinet','vanity cabinet','vanity detach']},
-  {k:'sink',       d:'Sink — Detach',                     u:'EA',  a:['sink','kitchen sink','bath sink','sink detach','basin']},
-  {k:'garbage_disp',d:'Remove garbage disposal',         u:'EA',  a:['garbage disposal','disposal','garburator','insinkerator']},
-  {k:'dishwasher', d:'Dishwasher — Detach',               u:'EA',  a:['dishwasher','dish washer','dw detach']},
-  {k:'range_elec', d:'Range electric — Disconnect & Reinstall',   u:'EA',  a:['electric range','electric stove','range elec','stove electric','cooktop electric']},
-  {k:'range_gas',  d:'Range gas — Disconnect & Reinstall',        u:'EA',  a:['gas range','gas stove','range gas','stove gas','cooktop gas']},
-  {k:'fridge',     d:'Refrigerator — Move & Reset',       u:'EA',  a:['fridge','refrigerator','refer','icebox','refridgerator','fridgerator']},
-  {k:'range_hood', d:'Remove range hood',                  u:'EA',  a:['hood','range hood','exhaust hood','over range microwave','microwave hood']},
-  {k:'cab_lower',  d:'Cabinets lower — Detach (LF)',      u:'LF',  a:['lower cabinets','base cabinets','lower cabs','kitchen base','cabinet lower','base cabinet']},
-  {k:'cab_upper',  d:'Cabinets upper — Detach (LF)',      u:'LF',  a:['upper cabinets','wall cabinets','upper cabs','kitchen upper','cabinet upper','wall cabinet']},
-  {k:'washer',     d:'Washing machine — Detach',          u:'EA',  a:['washer','washing machine','laundry washer']},
-  {k:'dryer',      d:'Dryer — Detach',                    u:'EA',  a:['dryer','clothes dryer','laundry dryer']},
-  // General fixtures
-  {k:'door_slab',  d:'Interior door slab — Detach',       u:'EA',  a:['door','interior door','door detach','door demo','door slab','door remove']},
-  {k:'ceil_fan',   d:'Remove ceiling fan',                 u:'EA',  a:['ceiling fan','fan remove','fan detach','fan light']},
-  {k:'light_fix',  d:'Remove light fixture',               u:'EA',  a:['light fixture','light remove','fixture remove','light demo','electrical fixture','light fix']},
-  {k:'mirror_framed_sm', d:'Remove mirror — framed (up to 24")', u:'EA', a:['mirror small','small mirror','mirror framed small','bathroom mirror small']},
-  {k:'mirror_framed_md', d:'Remove mirror — framed (24–48")',    u:'EA', a:['mirror medium','medium mirror','mirror framed','vanity mirror','bathroom mirror']},
-  {k:'mirror_framed_lg', d:'Remove mirror — framed (48"+)',      u:'EA', a:['mirror large','large mirror','big mirror','wall mirror','full length mirror']},
-  {k:'mirror_glued',d:'Remove mirror — glued-on (SF)',    u:'SF',  a:['mirror glued','glued mirror','mirror sf','plate mirror','wall mirror glued']},
-  {k:'ctr_solid',  d:'Countertop granite/solid — Detach (LF)', u:'LF',  a:['granite countertop','solid surface','quartz counter','stone countertop','countertop detach','counter top']},
-  {k:'ctr_tile',   d:'Tear out tile countertop (SF)',     u:'SF',  a:['tile countertop','countertop tile','tile counter','kitchen tile counter']},
-  {k:'ctr_lam',    d:'Countertop laminate — Detach (LF)', u:'LF',  a:['laminate countertop','formica','laminate counter','plastic laminate counter']},
-  {k:'ctr_granite', d:'Countertop — Detach (LF)',         u:'LF',  a:['counter detach','countertop remove','remove counter']},
-  // Cleaning
-  {k:'clean_walls',d:'Clean walls — scrub & wipe',        u:'SF',  a:['clean walls','wall cleaning','scrub walls','wipe walls','wash walls','wall scrub']},
-  {k:'clean_floor',d:'Clean floor — scrub & mop',         u:'SF',  a:['clean floor','floor cleaning','scrub floor','mop floor','floor scrub']},
-  {k:'clean_ceil', d:'Clean ceiling/joists',              u:'SF',  a:['clean ceiling','ceiling cleaning','clean joists','joist clean','beam clean']},
-  {k:'hepa_light', d:'HEPA Vacuuming — Light',            u:'SF',  a:['hepa vac','hepa light','hepa vacuum','hepa vac area','hepa vacuuming light']},
-  {k:'hepa_detailed',d:'HEPA Vacuuming — Detailed',       u:'SF',  a:['hepa detailed','hepa detail','hepa vac detail','hepa vacuuming detail']},
-  {k:'antimicrobial',d:'Apply antimicrobial agent',       u:'SF',  a:['antimicrobial','anti microbial','biocide','disinfect','mold treatment','microbial','antimicro']},
-  {k:'mold_stain', d:'Apply mold stain remover',          u:'SF',  a:['mold stain','stain remover','encapsulant','mold remover','bleach treatment','mold stain remover']},
-  {k:'muckout',    d:'Muck-out / flood cleanup',          u:'SF',  a:['muck out','muckout','flood cleanup','mud out','sewage cleanup','muck']},
-  // Equipment
-  {k:'dehu_large', d:'Dehumidifier — Large',              u:'DA',  a:['dehu','dehumidifier','drying','dehum','lg dehu','dehumid','humidity']},
-  {k:'dehu_xl',    d:'Dehumidifier — XLarge',             u:'DA',  a:['dehu xl','xlarge dehu','xl dehu','large dehu','big dehu','xtra dehu']},
-  {k:'air_mover',  d:'Air mover',                         u:'DA',  a:['air mover','fan','blower','drying fan','snail fan','centrifugal fan']},
-  {k:'air_mover_axial',d:'Air mover — axial',             u:'DA',  a:['axial','axial fan','axial air mover','floor fan']},
-  {k:'scrubber',   d:'Air scrubber (regular)',             u:'DA',  a:['air scrubber','scrubber','hepa scrubber','neg air','negative air fan']},
-  {k:'scrubber_large',d:'Air scrubber (large)',            u:'DA',  a:['large scrubber','big scrubber','xl scrubber','neg air large']},
-  {k:'hepa_neg',   d:'HEPA filter — neg air fan',         u:'EA',  a:['hepa filter','neg air filter','scrubber filter','air filter neg','hepa neg']},
-  {k:'hepa_canister',d:'HEPA filter — canister vac',      u:'EA',  a:['canister filter','vac filter','hepa canister','backpack filter','vacuum filter']},
-  {k:'carbon_16',  d:'Carbon vapor filter 16"×16"',       u:'EA',  a:['carbon filter','charcoal filter','vapor filter','carbon 16','carbon vapor']},
-  {k:'carbon_24',  d:'Carbon vapor filter 24"×24"',       u:'EA',  a:['carbon 24','carbon filter 24','big carbon','large carbon filter']},
-  {k:'wall_cavity',d:'Wall cavity drying injection',       u:'DA',  a:['cavity drying','wall drying','inject dry','wall cavity drying','injectidry']},
-  {k:'wood_mat',   d:'Wood floor drying mat',              u:'DA',  a:['wood mat','floor mat','hardwood mat','drying mat','floor drying']},
-  // Specialty framing treatment
-  {k:'sand_floor', d:'Sand exposed framing — floor',       u:'SF',  a:['sand floor','sanding floor','sand framing floor','sand subfloor','sanding']},
-  {k:'sand_walls', d:'Sand exposed framing — walls',       u:'SF',  a:['sand walls','sanding walls','sand framing walls','sand studs','sanding']},
-  {k:'blast_confined',d:'Confined space blasting — add-on',u:'SF',  a:['confined space blasting','blasting add on','confined blast','tight space blast']},
-  {k:'dryice_light',d:'Dry ice blasting — framing (standard)',u:'SF',a:['dry ice blasting','dry ice','ice blasting','co2 blasting','media blasting','soda blasting']},
-  {k:'dryice_heavy',d:'Dry ice blasting — framing (heavy)',u:'SF',  a:['dry ice blast heavy','heavy dry ice','ice blasting heavy','heavy blasting']},
-  // Extraction
-  {k:'extract_carpet',d:'Water extraction — carpet',      u:'SF',  a:['extract carpet','carpet extraction','vacuum water','wet vac carpet','extraction carpet']},
-  {k:'extract_hard',d:'Water extraction — hard surface',  u:'SF',  a:['extract hard','hard surface extraction','wet vac floor','extraction hard','vacuum water floor']},
-  // Labor
-  {k:'tech_labor', d:'Tech labor (hourly)',                u:'HR',  a:['tech labor','labor','tech hours','technician','field tech','tech hour']},
-  {k:'supervisor', d:'Supervisor hours',                   u:'HR',  a:['supervisor','super','project manager','pm hours','lead tech']},
-  {k:'monitoring', d:'Equipment monitoring',               u:'HR',  a:['monitoring','monitor','equip monitoring','setup teardown']},
-  {k:'decon',      d:'Equipment decontamination',          u:'EA',  a:['decon','equipment decon','decontamination','equip clean','decontaminate']},
-  {k:'contents_manip',d:'Contents manipulation',          u:'HR',  a:['contents','content manipulation','moving contents','pack out','move furniture','contents hr']},
-  {k:'block_pad',  d:'Block & pad furniture',              u:'HR',  a:['block pad','furniture block','block and pad','pad furniture']},
-  {k:'haul_debris',d:'Haul debris (truck load)',           u:'EA',  a:['haul','haul debris','trash hauling','dump run','debris removal','dump load']},
-];
-
-// Fuzzy search: matches if every query word appears in item text (with 1-char tolerance for long words)
-function fuzzySearch(query) {
-  if(!query || query.length < 2) return [];
-  const normalize = s => s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-  const q = normalize(query);
-  const qWords = q.split(' ').filter(w => w.length >= 2);
-  if(!qWords.length) return [];
-
-  return CATALOG.filter(function(item) {
-    const text = normalize(item.d + ' ' + item.a.join(' '));
-    return qWords.every(function(qw) {
-      if(text.includes(qw)) return true;
-      // 1-char typo tolerance for words 4+ chars
-      if(qw.length >= 4) {
-        return text.split(' ').some(function(tw) {
-          if(Math.abs(tw.length - qw.length) > 2) return false;
-          const len = Math.min(tw.length, qw.length);
-          let diff = Math.abs(tw.length - qw.length);
-          for(let i = 0; i < len && diff <= 1; i++) if(tw[i] !== qw[i]) diff++;
-          return diff <= 1;
-        });
-      }
-      return false;
-    });
-  }).slice(0, 10);
-}
 
 // ── Other Items (free-add from catalog) ──────────────────────────────
 // ── MODEL (Open Data AI Pricing Model) + smart search ──
-const MODEL = {"meta":{"model_name":"Your Pricing Model (unbuilt)","short_name":"Open Pricing Model","schema":"odapm/v1","version":"0.19.0","currency":"USD","note":"Standalone DRYscope pricing model. No third-party data. Prices null until set by the cost model. Price shape = {rem,rep,mat}.","actions":{"detach":"Detach","dispose":"Dispose"},"pricing_note":"STARTER KIT \u2014 every price is zero. Build yours with the prompts: enter your own rates, or derive them with ODAPM (getodapm.github.io).","est_desc_rule":"estimate line = (estVerb+' ' if present)+name+(' \u2014 '+option label if option)"},"settings":{"perRoomCategory":true,"categories":["cat1","cat2","cat3"],"conditions":["cond1","cond2","cond3"]},"items":[{"id":"floor_protection","group":"setup","name":"Floor Protection","unit":"LF","desc":"Protect floors and walkways from the entry to the work area.","pick":{"label":"Type","options":[{"id":"cloth24","label":"Cloth, skid-resistant \u2014 24\" wide (per LF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"24-inch skid-resistant runner, per LF."},{"id":"cloth30","label":"Cloth, skid-resistant \u2014 30\" wide (per LF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"30-inch skid-resistant runner, per LF."},{"id":"adhesive","label":"Self-adhesive film (per SF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Self-stick film for carpeted paths, per SF."}]}},{"id":"containment","group":"setup","name":"Containment Barrier","unit":"SF","desc":"Poly barrier to control dust and cross-contamination; choose sheeting thickness.","pick":{"label":"Thickness","options":[{"id":"4mil","label":"4-mil","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard 4-mil poly for dust control."},{"id":"6mil","label":"6-mil","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Heavier 6-mil poly \u2014 mold and Cat 3 jobs."}]}},{"id":"cover_plastic","group":"setup","name":"Cover & Protect with Plastic","unit":"SF","desc":"Mask and cover surfaces, cabinets, or contents with plastic sheeting (distinct from a containment wall).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"tension_post","group":"setup","name":"Tension Posts","unit":"DA","desc":"Spring poles that hold the containment barrier, priced per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"zipper","group":"setup","name":"Zipper Door","unit":"EA","desc":"Heavy-duty zippered access built into the containment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"register_mask","group":"setup","name":"Register / Vent Mask","unit":"EA","desc":"Cover an HVAC register/return to prevent cross-contamination.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"ducting","group":"setup","name":"Lay-Flat Ducting","unit":"LF","desc":"Flexible duct to exhaust the negative-air machine.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"ppe","group":"setup","name":"Personal Protective Equipment","unit":"EA","desc":"Heavy-duty PPE set for the crew.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gloves","group":"setup","name":"Gloves","unit":"PR","desc":"Disposable protective gloves.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"respirator_cartridge","group":"setup","name":"Respirator Cartridge","unit":"EA","desc":"HEPA / vapor / gas respirator cartridges (per pair).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"respirator_full","group":"setup","name":"Respirator \u2014 Full Face","unit":"EA","desc":"Full-face multi-purpose respirator (per day).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"flooring","group":"demo","name":"Flooring","unit":"SF","desc":"Remove and bag non-salvageable floor covering; add another entry for a second material in the same room.","repeatable":true,"pick":{"label":"Material","options":[{"id":"lvp","label":"Laminate / LVP","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Click-lock laminate or LVP lifted and bagged."},{"id":"carpet","label":"Carpet","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Wet carpet cut into strips, rolled, and bagged."},{"id":"pad","label":"Carpet pad","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Foam pad beneath the carpet."},{"id":"vinyl","label":"Sheet vinyl","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Glued sheet vinyl scraped from the substrate."},{"id":"tile","label":"Floor tile","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Ceramic/porcelain demoed to the substrate."},{"id":"wood","label":"Hardwood","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Nailed or glued hardwood pried up and bagged."},{"id":"under","label":"Underlayment","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Plywood/luan underlayment unscrewed and removed."},{"id":"backer","label":"Cement backer board","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Cement backer board beneath tile."},{"id":"subfloor","label":"Subfloor","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Structural decking removed to expose joists."},{"id":"membrane","label":"Uncoupling Membrane","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Uncoupling membrane scraped from the substrate."}]},"estVerb":"Remove"},{"id":"tackless","group":"demo","name":"Tackless Strip","unit":"LF","desc":"Pull and dispose the carpet tack strip around the perimeter.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"drywall","group":"demo","name":"Drywall","unit":"LF","desc":"Cut and remove wet drywall; flood cuts price per linear foot at the chosen height, full tear-out per square foot.","pick":{"label":"Method","options":[{"id":"cut2","label":"Flood cut 2'","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF","desc":"Flood cut at 24 in \u2014 standard for Cat 1/2 wicking."},{"id":"cut4","label":"Flood cut 4'","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF","desc":"Flood cut at 48 in \u2014 heavier saturation."},{"id":"full","label":"Full removal","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF","desc":"Entire sheet removed, per SF."}]},"estVerb":"Remove"},{"id":"ceiling","group":"demo","name":"Ceiling","unit":"SF","desc":"Remove wet ceiling material and bag for disposal.","pick":{"label":"Type","options":[{"id":"drywall","label":"Drywall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Wet ceiling board dropped and bagged."},{"id":"suspended","label":"Suspended tile","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Drop-in tiles removed; the grid stays."}]},"estVerb":"Remove"},{"id":"wall_tile","group":"demo","name":"Wall Tile","unit":"SF","desc":"Remove non-salvageable wall tile to expose the substrate.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"insulation","group":"demo","name":"Insulation","unit":"SF","desc":"Tear out and bag wet insulation (walls or crawl).","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"cavity_holes","group":"demo","name":"Cavity Drying Holes","unit":"EA","desc":"Drill access holes for in-wall cavity drying.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"shower_surround","group":"demo","name":"Shower / Tub Tile Surround","unit":"SF","desc":"Remove non-salvageable tile surround to expose the wall.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"sand_framing","group":"demo","name":"Sand Exposed Framing","unit":"SF","desc":"Sand exposed framing after demolition.","pick":{"label":"Surface","options":[{"id":"floor","label":"Floor","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"walls","label":"Walls","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]},"estVerb":"Remove"},{"id":"dryice","group":"demo","name":"Dry-Ice Blasting","unit":"SF","desc":"Dry-ice blast cleaning of exposed framing.","pick":{"label":"Intensity","options":[{"id":"standard","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard-intensity dry-ice blasting of framing."},{"id":"heavy","label":"Heavy","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Heavy blast for deep char/soot."}]},"estVerb":"Remove"},{"id":"confined_blast","group":"demo","name":"Confined-Space Blasting \u2014 Add-On","unit":"SF","desc":"Add-on for blasting in tight/confined spaces.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"muckout","group":"demo","name":"Muck-Out / Bulk Debris","unit":"SF","desc":"Remove standing debris and sludge from a flood loss.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"toilet","group":"fixtures","name":"Toilet","unit":"EA","desc":"Disconnect and remove the toilet; reinstall after drying or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"bathtub","group":"fixtures","name":"Bathtub","unit":"EA","desc":"Tub pulled for access/drying. Basis: accepted-estimate anchor \u2014 flat detach $176.20; reinstall = detach + reset (1.5x).","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"shower_door","group":"fixtures","name":"Shower Door","unit":"EA","desc":"Remove the shower door/enclosure; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"sink","group":"fixtures","name":"Sink","unit":"EA","desc":"Disconnect and remove the sink; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"vanity","group":"fixtures","name":"Vanity","unit":"LF","desc":"Vanity cabinet. Basis: accepted-estimate anchor \u2014 flat detach $28.39/LF; reinstall = 1.5x.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"cabinets","group":"fixtures","name":"Cabinets","unit":"LF","desc":"Detach cabinets for drying; reinstall or dispose.","pick":{"label":"Location & Action","options":[{"id":"up_re","label":"Upper \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"up_dp","label":"Upper \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lo_re","label":"Lower \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lo_dp","label":"Lower \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"countertop","group":"fixtures","name":"Countertop","unit":"LF","desc":"Detach or tear out countertop; tile prices per square foot.","pick":{"label":"Material & Action","options":[{"id":"solid_re","label":"Solid / Stone \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"solid_dp","label":"Solid / Stone \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"lam_re","label":"Laminate \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"lam_dp","label":"Laminate \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"tile_dp","label":"Tile \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF"}]}},{"id":"garbage_disposal","group":"fixtures","name":"Garbage Disposal","unit":"EA","desc":"Disconnect the disposal unit; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"dishwasher","group":"fixtures","name":"Dishwasher","unit":"EA","desc":"Pull and disconnect the dishwasher; reinstall or dispose. Basis: anchored to calibrated utility-detach rate (WTR.UTIL $85); dispose = 50%.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"range","group":"fixtures","name":"Range / Stove","unit":"EA","desc":"Move and disconnect the range; reinstall or dispose. Basis: anchored to calibrated utility-detach rate (WTR.UTIL $85); dispose = 50%.","pick":{"label":"Fuel & Action","options":[{"id":"elec_re","label":"Electric \u2014 Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"elec_dp","label":"Electric \u2014 Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gas_re","label":"Gas \u2014 Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gas_dp","label":"Gas \u2014 Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"refrigerator","group":"fixtures","name":"Refrigerator","unit":"EA","desc":"Move the fridge for access; reinstall in place or dispose. Basis: anchored to calibrated utility-detach rate (WTR.UTIL $85); dispose = 50%.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"range_hood","group":"fixtures","name":"Range Hood / OTR Microwave","unit":"EA","desc":"Remove the vent hood or over-range microwave; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"laundry","group":"fixtures","name":"Laundry Appliance","unit":"EA","desc":"Disconnect and move the washer or dryer; reinstall or dispose. Basis: anchored to calibrated utility-detach rate (WTR.UTIL $85); dispose = 50%.","pick":{"label":"Type & Action","options":[{"id":"wash_re","label":"Washer \u2014 Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"wash_dp","label":"Washer \u2014 Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dry_re","label":"Dryer \u2014 Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dry_dp","label":"Dryer \u2014 Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"interior_door","group":"fixtures","name":"Interior Door","unit":"EA","desc":"Remove the door slab for access/drying; rehang or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"remove_only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"light_fan","group":"fixtures","name":"Light Fixture / Ceiling Fan","unit":"EA","desc":"Remove the fixture; reinstall or dispose.","pick":{"label":"Type & Action","options":[{"id":"light_re","label":"Light \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"light_dp","label":"Light \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_re","label":"Ceiling fan \u2014 Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_dp","label":"Ceiling fan \u2014 Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"light_only","label":"Light \u2014 Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_only","label":"Ceiling fan \u2014 Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"mirror","group":"fixtures","name":"Mirror","unit":"EA","desc":"Remove the mirror; framed priced each by size, glued per square foot.","pick":{"label":"Type / Size","options":[{"id":"fr_s","label":"Framed \u2014 up to 24\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror up to 24 inches."},{"id":"fr_m","label":"Framed \u2014 24\u201348\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror 24\u201348 inches."},{"id":"fr_l","label":"Framed \u2014 48\"+","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror over 48 inches."},{"id":"glued","label":"Glued-on","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF","desc":"Mastic-glued mirror chipped off, per SF."}]}},{"id":"baseboard","group":"fixtures","name":"Baseboard","unit":"LF","desc":"Pull the baseboard trim; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"only","label":"Detach Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Careful pull for reuse; reinstalled by others or later."},{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach plus reinstallation after drying (1.5x detach)."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Fast tear-off of non-salvageable trim."}]}},{"id":"hepa_light","group":"cleaning","name":"HEPA Vacuum \u2014 Light","unit":"SF","desc":"Initial HEPA vacuum pass across demo'd surfaces.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"surface_clean","group":"cleaning","name":"Surface Clean","unit":"SF","desc":"Scrub and wipe the affected surface with cleaning agent.","categoryPriced":true,"pick":{"label":"Surface","options":[{"id":"walls","label":"Walls","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Mechanical scrub of wall surfaces/framing."},{"id":"floor","label":"Floor","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Scrub and mop of the exposed floor."},{"id":"ceiling","label":"Ceiling / joists","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Cleaning of exposed ceiling joists/structure."}]}},{"id":"hepa_detailed","group":"cleaning","name":"HEPA Vacuum \u2014 Detailed","unit":"SF","desc":"Final detailed HEPA pass to complete the cleaning sequence.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"antimicrobial","group":"cleaning","name":"Antimicrobial Application","unit":"SF","desc":"Apply EPA-registered antimicrobial to affected surfaces.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"mold_stain","group":"cleaning","name":"Mold Stain Treatment","unit":"SF","desc":"Treat visible mold/mildew staining where present.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dehumidifier","group":"equipment","name":"Dehumidifier","unit":"DA","desc":"Refrigerant/LGR dehumidifier, priced per day.","pick":{"label":"Size","options":[{"id":"std","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"LGR refrigerant unit, ~70\u2013100 pint/day."},{"id":"xl","label":"XL","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"XL/desiccant unit for large losses."}]}},{"id":"air_mover","group":"equipment","name":"Air Mover","unit":"DA","desc":"Drying fan, priced per day.","pick":{"label":"Type","options":[{"id":"centrifugal","label":"Centrifugal","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard snail-type drying fan."},{"id":"axial","label":"Axial","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"High-CFM directional fan."}]}},{"id":"afd","group":"equipment","name":"Air Filtration Device (AFD)","unit":"DA","desc":"HEPA air filtration device / negative-air machine, per day.","pick":{"label":"Size","options":[{"id":"std","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"HEPA air filtration device, standard size."},{"id":"large","label":"Large","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Large negative-air machine."}]}},{"id":"afd_filter","group":"equipment","name":"Negative-Air HEPA Filter","unit":"EA","desc":"Replacement HEPA filter for the negative-air machine.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"vac_filter","group":"equipment","name":"Canister / Backpack HEPA Filter","unit":"EA","desc":"Replacement filter for the HEPA vacuum (Base Charges only).","mainOnly":true,"price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"carbon_filter","group":"equipment","name":"Carbon / Odor Filter","unit":"EA","desc":"Activated-carbon filter for odor control.","pick":{"label":"Size","options":[{"id":"16","label":"16\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"16-inch activated-carbon odor stage."},{"id":"24","label":"24\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"24-inch activated-carbon odor stage."}]}},{"id":"cavity_drying","group":"equipment","name":"Wall-Cavity Drying","unit":"DA","desc":"In-wall injection drying system, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"floor_mat","group":"equipment","name":"Hardwood Floor Drying Mat","unit":"DA","desc":"Floor drying mat system for hardwood, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"extraction","group":"extraction","name":"Water Extraction","unit":"SF","desc":"Extract standing water, priced by surface; add multiple entries if a room has both.","repeatable":true,"pick":{"label":"Surface","options":[{"id":"carpet","label":"Carpet","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Weighted extraction pulling water through carpet and pad."},{"id":"hard","label":"Hard surface","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Squeegee/vacuum extraction of standing water."}]}},{"id":"emergency_call","group":"service","name":"Emergency Service Call","unit":"EA","desc":"Emergency response/trip charge.","pick":{"label":"Timing","options":[{"id":"during","label":"During business hours","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Response during business hours."},{"id":"after","label":"After hours","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"After-hours emergency response rate."}]}},{"id":"monitoring","group":"service","name":"Equipment Setup & Monitoring","unit":"HR","desc":"Setup, daily monitoring, and takedown labor.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"decon","group":"service","name":"Equipment Decontamination","unit":"EA","desc":"Clean equipment between jobs, per piece.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"haul","group":"service","name":"Haul Debris","unit":"EA","desc":"Per pickup-truck load including dump fees.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"tech_labor","group":"service","name":"General Labor","unit":"HR","desc":"General field labor, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"supervisor","group":"service","name":"Supervisor","unit":"HR","desc":"Supervisor / project manager, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"truck_mount","group":"service","name":"Truck-Mount Extraction","unit":"HR","desc":"Truck-mounted extraction unit, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"contents","group":"service","name":"Contents Manipulation","unit":"HR","desc":"Moving and protecting contents, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"block_pad","group":"service","name":"Block & Pad Furniture","unit":"EA","desc":"Block and pad furniture, per piece.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_demo","group":"demo","name":"Fire Demo \u2014 Soot-Contaminated","unit":"SF","desc":"HMR-rate demo of soot-contaminated materials.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"fire_preclean","group":"cleaning","name":"Fire Pre-Clean \u2014 Dry Soot / HEPA Source Removal","unit":"SF","desc":"Dry-soil removal / HEPA source removal pass.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_wetclean","group":"cleaning","name":"Fire Wet Clean \u2014 Degreaser","unit":"SF","desc":"Degreaser wet cleaning, multiple passes.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_mech","group":"cleaning","name":"Mechanical Cleaning \u2014 Wires/Pipes/Exposed","unit":"HR","desc":"Detail cleaning of wires, pipes, exposed items.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_hmr","group":"service","name":"HMR Labor \u2014 Soot Premium","unit":"HR","desc":"Heavy-materials/soot premium labor rate.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"deodor_gas","group":"equipment","name":"Gas Deodorization (ProKleen G)","unit":"DA","desc":"Gas-phase deodorization treatment, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"hydroxyl","group":"equipment","name":"Hydroxyl Generator","unit":"DA","desc":"Hydroxyl deodorization, per day (fire/odor).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"thermal_fog","group":"equipment","name":"Thermal Fog Deodorization","unit":"DA","desc":"Thermal fogging deodorization, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_scrubber","group":"equipment","name":"Air Scrubber \u2014 Fire","unit":"DA","desc":"Air scrubber for fire/smoke jobs, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_contents","group":"cleaning","name":"Contents Cleaning \u2014 Smoke/Soot/Nicotine","unit":"HR","desc":"Hand-clean contents, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_kitclean","group":"cleaning","name":"Kitchen Fire Cleaning","unit":"EA","desc":"Full kitchen fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_bathclean","group":"cleaning","name":"Bathroom Fire Cleaning","unit":"EA","desc":"Full bathroom fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_laundryclean","group":"cleaning","name":"Laundry Room Fire Cleaning","unit":"EA","desc":"Full laundry-room fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"nicotine","group":"cleaning","name":"Nicotine Residue & Odor \u2014 Full Process","unit":"EA","desc":"Full nicotine residue & odor process (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"trauma","group":"cleaning","name":"Trauma / Crime Scene Cleanup","unit":"EA","desc":"Biohazard/trauma cleanup (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"asbestos_test","group":"service","name":"Asbestos Sampling + Lab + Inspector","unit":"EA","desc":"State-required asbestos testing (sampling, lab, inspector).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"mold_pre","group":"service","name":"Pre-Remediation Assessment (3rd Party)","unit":"EA","desc":"Independent industrial-hygienist pre-assessment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"mold_post","group":"service","name":"Post-Remediation Verification (3rd Party)","unit":"EA","desc":"Independent clearance / post-verification.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"soot_test","group":"service","name":"3rd-Party Soot/Char/Ash Testing","unit":"EA","desc":"Independent soot/char/ash lab testing.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"regulated_waste","group":"service","name":"Regulated Waste Disposal Container","unit":"EA","desc":"Dumpster / regulated-waste container.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lock_box","group":"setup","name":"Lock Box for Access","unit":"EA","desc":"Lock box placed for crew access.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"temp_power","group":"equipment","name":"Temporary Power / Lights / HVAC","unit":"DA","desc":"Temporary utilities, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"power_box","group":"equipment","name":"Portable Power Distribution Box","unit":"DA","desc":"Portable power distribution box, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"exit_chamber","group":"setup","name":"Exit Chamber / Decon Setup","unit":"EA","desc":"Decon/exit chamber build for containment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"photo_doc","group":"service","name":"Photo Documentation & Site Inspection","unit":"HR","desc":"Documentation/inspection labor, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"final_clean","group":"service","name":"General Job-Site Final Cleaning","unit":"HR","desc":"Final job-site cleaning, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"invoice_fee","group":"service","name":"Invoice / Lab / 3rd-Party Handling Fee","unit":"EA","desc":"Handling fee for lab/3rd-party invoices.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"heat_drying","group":"equipment","name":"Heat Drying System (E-Tes / FireBird / PDS)","unit":"DA","desc":"Direct-heat drying system, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"recessed_light","group":"fixtures","name":"Recessed Light / Can","unit":"EA","desc":"Recessed can light: detach & reset for drying access, or remove & dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"remove_only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"pedestal_sink","group":"fixtures","name":"Pedestal Sink","unit":"EA","desc":"Two-piece pedestal sink. Basis: ~1.0 hr tech disconnect+reinstall; dispose ~0.45 hr.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"supply_line","group":"fixtures","name":"Supply Line","unit":"EA","desc":"Per supply line. Cap: disconnect, thread-seal tape + cap fitting (~10 min + fitting). Cut & cap: shut off and drain house water, cut and permanently cap (~35 min + fitting).","pick":{"label":"Action","options":[{"id":"cap","label":"Cap \u2014 tape & fitting","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Disconnect the line; thread-seal tape and cap fitting (~10 min)."},{"id":"cutcap","label":"Cut & Cap","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"House water shut off and drained; line cut and permanently capped (~35 min)."},{"id":"remove","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Remove the flexible supply line only."}]}}],"autoInclude":{"cat3":["respirator_cartridge","afd_filter","hepa_light","surface_clean","antimicrobial","hepa_detailed","ppe"],"cond3":["mold_stain"]}};
+const MODEL = {"meta":{"model_name":"Your Pricing Model (unbuilt)","short_name":"Open Pricing Model","schema":"odapm/v1","version":"0.21.0","currency":"USD","note":"Standalone DRYscope pricing model. No third-party data. Prices null until set by the cost model. Price shape = {rem,rep,mat}.","actions":{"detach":"Detach","dispose":"Dispose"},"pricing_note":"STARTER KIT — every price is zero. Build yours with the prompts: enter your own rates, or derive them with ODAPM (getodapm.github.io).","est_desc_rule":"estimate line = (estVerb+' ' if present)+name+(' — '+option label if option)"},"settings":{"perRoomCategory":true,"categories":["cat1","cat2","cat3"],"conditions":["cond1","cond2","cond3"]},"items":[{"id":"floor_protection","group":"setup","name":"Floor Protection","unit":"LF","desc":"Protect floors and walkways from the entry to the work area.","pick":{"label":"Type","options":[{"id":"cloth24","label":"Cloth, skid-resistant — 24\" wide (per LF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"24-inch skid-resistant runner, per LF."},{"id":"cloth30","label":"Cloth, skid-resistant — 30\" wide (per LF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"30-inch skid-resistant runner, per LF."},{"id":"adhesive","label":"Self-adhesive film (per SF)","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Self-stick film for carpeted paths, per SF."}]}},{"id":"containment","group":"setup","name":"Containment Barrier","unit":"SF","desc":"Poly barrier to control dust and cross-contamination; choose sheeting thickness.","pick":{"label":"Thickness","options":[{"id":"4mil","label":"4-mil","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard 4-mil poly for dust control."},{"id":"6mil","label":"6-mil","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Heavier 6-mil poly — mold and Cat 3 jobs."}]}},{"id":"cover_plastic","group":"setup","name":"Cover & Protect with Plastic","unit":"SF","desc":"Mask and cover surfaces, cabinets, or contents with plastic sheeting (distinct from a containment wall).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"tension_post","group":"setup","name":"Tension Posts","unit":"DA","desc":"Spring poles that hold the containment barrier, priced per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"zipper","group":"setup","name":"Zipper Door","unit":"EA","desc":"Heavy-duty zippered access built into the containment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"register_mask","group":"setup","name":"Register / Vent Mask","unit":"EA","desc":"Cover an HVAC register/return to prevent cross-contamination.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"ducting","group":"setup","name":"Lay-Flat Ducting","unit":"LF","desc":"Flexible duct to exhaust the negative-air machine.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"ppe","group":"setup","name":"Personal Protective Equipment","unit":"EA","desc":"Heavy-duty PPE set for the crew.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gloves","group":"setup","name":"Gloves","unit":"PR","desc":"Disposable protective gloves.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"respirator_cartridge","group":"setup","name":"Respirator Cartridge","unit":"EA","desc":"HEPA / vapor / gas respirator cartridges (per pair).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"respirator_full","group":"setup","name":"Respirator — Full Face","unit":"EA","desc":"Full-face multi-purpose respirator (per day).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"flooring","group":"demo","name":"Flooring","unit":"SF","desc":"Remove and bag non-salvageable floor covering; add another entry for a second material in the same room.","repeatable":true,"pick":{"label":"Material","options":[{"id":"lvp","label":"Laminate / LVP","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Click-lock laminate or LVP lifted and bagged."},{"id":"carpet","label":"Carpet","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Wet carpet cut into strips, rolled, and bagged."},{"id":"pad","label":"Carpet pad","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Foam pad beneath the carpet."},{"id":"vinyl","label":"Sheet vinyl","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Glued sheet vinyl scraped from the substrate."},{"id":"tile","label":"Floor tile","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Ceramic/porcelain demoed to the substrate."},{"id":"wood","label":"Hardwood","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Nailed or glued hardwood pried up and bagged."},{"id":"under","label":"Underlayment","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Plywood/luan underlayment unscrewed and removed."},{"id":"backer","label":"Cement backer board","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Cement backer board beneath tile."},{"id":"subfloor","label":"Subfloor","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Structural decking removed to expose joists."},{"id":"membrane","label":"Uncoupling Membrane","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Uncoupling membrane scraped from the substrate."}]},"estVerb":"Remove"},{"id":"tackless","group":"demo","name":"Tackless Strip","unit":"LF","desc":"Pull and dispose the carpet tack strip around the perimeter.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"drywall","group":"demo","name":"Drywall","unit":"LF","desc":"Cut and remove wet drywall; flood cuts price per linear foot at the chosen height, full tear-out per square foot.","pick":{"label":"Method","options":[{"id":"cut2","label":"Flood cut 2'","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF","desc":"Flood cut at 24 in — standard for Cat 1/2 wicking."},{"id":"cut4","label":"Flood cut 4'","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF","desc":"Flood cut at 48 in — heavier saturation."},{"id":"full","label":"Full removal","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF","desc":"Entire sheet removed, per SF."}]},"estVerb":"Remove"},{"id":"ceiling","group":"demo","name":"Ceiling","unit":"SF","desc":"Remove wet ceiling material and bag for disposal.","pick":{"label":"Type","options":[{"id":"drywall","label":"Drywall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Wet ceiling board dropped and bagged."},{"id":"suspended","label":"Suspended tile","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Drop-in tiles removed; the grid stays."}]},"estVerb":"Remove"},{"id":"wall_tile","group":"demo","name":"Wall Tile","unit":"SF","desc":"Remove non-salvageable wall tile to expose the substrate.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"insulation","group":"demo","name":"Insulation","unit":"SF","desc":"Tear out and bag wet insulation (walls or crawl).","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"cavity_holes","group":"demo","name":"Cavity Drying Holes","unit":"EA","desc":"Drill access holes for in-wall cavity drying.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"shower_surround","group":"demo","name":"Shower / Tub Tile Surround","unit":"SF","desc":"Remove non-salvageable tile surround to expose the wall.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"sand_framing","group":"demo","name":"Sand Exposed Framing","unit":"SF","desc":"Sand exposed framing after demolition.","pick":{"label":"Surface","options":[{"id":"floor","label":"Floor","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"walls","label":"Walls","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]},"estVerb":"Remove"},{"id":"dryice","group":"demo","name":"Dry-Ice Blasting","unit":"SF","desc":"Dry-ice blast cleaning of exposed framing.","pick":{"label":"Intensity","options":[{"id":"standard","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard-intensity dry-ice blasting of framing."},{"id":"heavy","label":"Heavy","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Heavy blast for deep char/soot."}]},"estVerb":"Remove"},{"id":"confined_blast","group":"demo","name":"Confined-Space Blasting — Add-On","unit":"SF","desc":"Add-on for blasting in tight/confined spaces.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"muckout","group":"demo","name":"Muck-Out / Bulk Debris","unit":"SF","desc":"Remove standing debris and sludge from a flood loss.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"toilet","group":"fixtures","name":"Toilet","unit":"EA","desc":"Disconnect and remove the toilet; reinstall after drying or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"only","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"bathtub","group":"fixtures","name":"Bathtub","unit":"EA","desc":"Tub pulled for access/drying.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"shower_door","group":"fixtures","name":"Shower Door","unit":"EA","desc":"Remove the shower door/enclosure; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"sink","group":"fixtures","name":"Sink","unit":"EA","desc":"Disconnect and remove the sink; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"only","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"vanity","group":"fixtures","name":"Vanity","unit":"LF","desc":"Vanity cabinet.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"cabinets","group":"fixtures","name":"Cabinets","unit":"LF","desc":"Detach cabinets for drying; reinstall or dispose.","pick":{"label":"Location & Action","options":[{"id":"up_re","label":"Upper — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"up_only","label":"Upper — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"up_dp","label":"Upper — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lo_re","label":"Lower — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lo_only","label":"Lower — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"lo_dp","label":"Lower — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"countertop","group":"fixtures","name":"Countertop","unit":"LF","desc":"Detach or tear out countertop; tile prices per square foot.","pick":{"label":"Material & Action","options":[{"id":"solid_re","label":"Solid / Stone — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"solid_only","label":"Solid / Stone — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"solid_dp","label":"Solid / Stone — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"lam_re","label":"Laminate — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"lam_only","label":"Laminate — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach without reinstall — same flat detach rate; disposal billed via haul."},{"id":"lam_dp","label":"Laminate — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"LF"},{"id":"tile_dp","label":"Tile — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF"}]}},{"id":"garbage_disposal","group":"fixtures","name":"Garbage Disposal","unit":"EA","desc":"Disconnect the disposal unit; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"dishwasher","group":"fixtures","name":"Dishwasher","unit":"EA","desc":"Pull and disconnect the dishwasher; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"range","group":"fixtures","name":"Range / Stove","unit":"EA","desc":"Move and disconnect the range; reinstall or dispose.","pick":{"label":"Fuel & Action","options":[{"id":"elec_re","label":"Electric — Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"elec_dp","label":"Electric — Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gas_re","label":"Gas — Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"gas_dp","label":"Gas — Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"refrigerator","group":"fixtures","name":"Refrigerator","unit":"EA","desc":"Move the fridge for access; reinstall in place or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"range_hood","group":"fixtures","name":"Range Hood / OTR Microwave","unit":"EA","desc":"Remove the vent hood or over-range microwave; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"laundry","group":"fixtures","name":"Laundry Appliance","unit":"EA","desc":"Disconnect and move the washer or dryer; reinstall or dispose.","pick":{"label":"Type & Action","options":[{"id":"wash_re","label":"Washer — Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"wash_dp","label":"Washer — Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dry_re","label":"Dryer — Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dry_dp","label":"Dryer — Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"interior_door","group":"fixtures","name":"Interior Door","unit":"EA","desc":"Remove the door slab for access/drying; rehang or dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"remove_only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"light_fan","group":"fixtures","name":"Light Fixture / Ceiling Fan","unit":"EA","desc":"Remove the fixture; reinstall or dispose.","pick":{"label":"Type & Action","options":[{"id":"light_re","label":"Light — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"light_dp","label":"Light — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_re","label":"Ceiling fan — Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_dp","label":"Ceiling fan — Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"light_only","label":"Light — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fan_only","label":"Ceiling fan — Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"mirror","group":"fixtures","name":"Mirror","unit":"EA","desc":"Remove the mirror; framed priced each by size, glued per square foot.","pick":{"label":"Type / Size","options":[{"id":"fr_s","label":"Framed — up to 24\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror up to 24 inches."},{"id":"fr_m","label":"Framed — 24–48\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror 24–48 inches."},{"id":"fr_l","label":"Framed — 48\"+","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Framed mirror over 48 inches."},{"id":"glued","label":"Glued-on","price":{"rem":0.0,"rep":0.0,"mat":0.0},"unit":"SF","desc":"Mastic-glued mirror chipped off, per SF."}]}},{"id":"baseboard","group":"fixtures","name":"Baseboard","unit":"LF","desc":"Pull the baseboard trim; reinstall or dispose.","pick":{"label":"Action","options":[{"id":"only","label":"Detach Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Careful pull for reuse; reinstalled by others or later."},{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Detach plus reinstallation after drying (1.5x detach)."},{"id":"dispose","label":"Dispose","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Fast tear-off of non-salvageable trim."}]}},{"id":"hepa_light","group":"cleaning","name":"HEPA Vacuum — Light","unit":"SF","desc":"Initial HEPA vacuum pass across demo'd surfaces.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"surface_clean","group":"cleaning","name":"Surface Clean","unit":"SF","desc":"Scrub and wipe the affected surface with cleaning agent.","categoryPriced":true,"pick":{"label":"Surface","options":[{"id":"walls","label":"Walls","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Mechanical scrub of wall surfaces/framing."},{"id":"floor","label":"Floor","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Scrub and mop of the exposed floor."},{"id":"ceiling","label":"Ceiling / joists","price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}},"desc":"Cleaning of exposed ceiling joists/structure."}]}},{"id":"hepa_detailed","group":"cleaning","name":"HEPA Vacuum — Detailed","unit":"SF","desc":"Final detailed HEPA pass to complete the cleaning sequence.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"antimicrobial","group":"cleaning","name":"Antimicrobial Application","unit":"SF","desc":"Apply EPA-registered antimicrobial to affected surfaces.","categoryPriced":true,"price":{"cat1":{"rem":0.0,"rep":0.0,"mat":0.0},"cat2":{"rem":0.0,"rep":0.0,"mat":0.0},"cat3":{"rem":0.0,"rep":0.0,"mat":0.0}}},{"id":"mold_stain","group":"cleaning","name":"Mold Stain Treatment","unit":"SF","desc":"Treat visible mold/mildew staining where present.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dehumidifier","group":"equipment","name":"Dehumidifier","unit":"DA","desc":"Refrigerant/LGR dehumidifier, priced per day.","pick":{"label":"Size","options":[{"id":"std","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"LGR refrigerant unit, ~70–100 pint/day."},{"id":"xl","label":"XL","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"XL/desiccant unit for large losses."}]}},{"id":"air_mover","group":"equipment","name":"Air Mover","unit":"DA","desc":"Drying fan, priced per day.","pick":{"label":"Type","options":[{"id":"centrifugal","label":"Centrifugal","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Standard snail-type drying fan."},{"id":"axial","label":"Axial","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"High-CFM directional fan."}]}},{"id":"afd","group":"equipment","name":"Air Filtration Device (AFD)","unit":"DA","desc":"HEPA air filtration device / negative-air machine, per day.","pick":{"label":"Size","options":[{"id":"std","label":"Standard","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"HEPA air filtration device, standard size."},{"id":"large","label":"Large","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Large negative-air machine."}]}},{"id":"afd_filter","group":"equipment","name":"Negative-Air HEPA Filter","unit":"EA","desc":"Replacement HEPA filter for the negative-air machine.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"vac_filter","group":"equipment","name":"Canister / Backpack HEPA Filter","unit":"EA","desc":"Replacement filter for the HEPA vacuum (Base Charges only).","mainOnly":true,"price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"carbon_filter","group":"equipment","name":"Carbon / Odor Filter","unit":"EA","desc":"Activated-carbon filter for odor control.","pick":{"label":"Size","options":[{"id":"16","label":"16\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"16-inch activated-carbon odor stage."},{"id":"24","label":"24\"","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"24-inch activated-carbon odor stage."}]}},{"id":"cavity_drying","group":"equipment","name":"Wall-Cavity Drying","unit":"DA","desc":"In-wall injection drying system, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"floor_mat","group":"equipment","name":"Hardwood Floor Drying Mat","unit":"DA","desc":"Floor drying mat system for hardwood, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"extraction","group":"extraction","name":"Water Extraction","unit":"SF","desc":"Extract standing water, priced by surface; add multiple entries if a room has both.","repeatable":true,"pick":{"label":"Surface","options":[{"id":"carpet","label":"Carpet","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Weighted extraction pulling water through carpet and pad."},{"id":"hard","label":"Hard surface","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Squeegee/vacuum extraction of standing water."}]}},{"id":"emergency_call","group":"service","name":"Emergency Service Call","unit":"EA","desc":"Emergency response/trip charge.","pick":{"label":"Timing","options":[{"id":"during","label":"During business hours","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Response during business hours."},{"id":"after","label":"After hours","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"After-hours emergency response rate."}]}},{"id":"monitoring","group":"service","name":"Equipment Setup & Monitoring","unit":"HR","desc":"Setup, daily monitoring, and takedown labor.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"decon","group":"service","name":"Equipment Decontamination","unit":"EA","desc":"Clean equipment between jobs, per piece.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"haul","group":"service","name":"Haul Debris","unit":"EA","desc":"Per pickup-truck load including dump fees.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"tech_labor","group":"service","name":"General Labor","unit":"HR","desc":"General field labor, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"supervisor","group":"service","name":"Supervisor","unit":"HR","desc":"Supervisor / project manager, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"truck_mount","group":"service","name":"Truck-Mount Extraction","unit":"HR","desc":"Truck-mounted extraction unit, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"contents","group":"service","name":"Contents Manipulation","unit":"HR","desc":"Moving and protecting contents, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"block_pad","group":"service","name":"Block & Pad Furniture","unit":"EA","desc":"Block and pad furniture, per piece.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_demo","group":"demo","name":"Fire Demo — Soot-Contaminated","unit":"SF","desc":"HMR-rate demo of soot-contaminated materials.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"fire_preclean","group":"cleaning","name":"Fire Pre-Clean — Dry Soot / HEPA Source Removal","unit":"SF","desc":"Dry-soil removal / HEPA source removal pass.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_wetclean","group":"cleaning","name":"Fire Wet Clean — Degreaser","unit":"SF","desc":"Degreaser wet cleaning, multiple passes.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_mech","group":"cleaning","name":"Mechanical Cleaning — Wires/Pipes/Exposed","unit":"HR","desc":"Detail cleaning of wires, pipes, exposed items.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_hmr","group":"service","name":"HMR Labor — Soot Premium","unit":"HR","desc":"Heavy-materials/soot premium labor rate.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"deodor_gas","group":"equipment","name":"Gas Deodorization (ProKleen G)","unit":"DA","desc":"Gas-phase deodorization treatment, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"hydroxyl","group":"equipment","name":"Hydroxyl Generator","unit":"DA","desc":"Hydroxyl deodorization, per day (fire/odor).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"thermal_fog","group":"equipment","name":"Thermal Fog Deodorization","unit":"DA","desc":"Thermal fogging deodorization, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_scrubber","group":"equipment","name":"Air Scrubber — Fire","unit":"DA","desc":"Air scrubber for fire/smoke jobs, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_contents","group":"cleaning","name":"Contents Cleaning — Smoke/Soot/Nicotine","unit":"HR","desc":"Hand-clean contents, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_kitclean","group":"cleaning","name":"Kitchen Fire Cleaning","unit":"EA","desc":"Full kitchen fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_bathclean","group":"cleaning","name":"Bathroom Fire Cleaning","unit":"EA","desc":"Full bathroom fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"fire_laundryclean","group":"cleaning","name":"Laundry Room Fire Cleaning","unit":"EA","desc":"Full laundry-room fire/soot cleaning (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"nicotine","group":"cleaning","name":"Nicotine Residue & Odor — Full Process","unit":"EA","desc":"Full nicotine residue & odor process (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"trauma","group":"cleaning","name":"Trauma / Crime Scene Cleanup","unit":"EA","desc":"Biohazard/trauma cleanup (lump sum).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"asbestos_test","group":"service","name":"Asbestos Sampling + Lab + Inspector","unit":"EA","desc":"State-required asbestos testing (sampling, lab, inspector).","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"mold_pre","group":"service","name":"Pre-Remediation Assessment (3rd Party)","unit":"EA","desc":"Independent industrial-hygienist pre-assessment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"mold_post","group":"service","name":"Post-Remediation Verification (3rd Party)","unit":"EA","desc":"Independent clearance / post-verification.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"soot_test","group":"service","name":"3rd-Party Soot/Char/Ash Testing","unit":"EA","desc":"Independent soot/char/ash lab testing.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"regulated_waste","group":"service","name":"Regulated Waste Disposal Container","unit":"EA","desc":"Dumpster / regulated-waste container.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"lock_box","group":"setup","name":"Lock Box for Access","unit":"EA","desc":"Lock box placed for crew access.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"temp_power","group":"equipment","name":"Temporary Power / Lights / HVAC","unit":"DA","desc":"Temporary utilities, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"power_box","group":"equipment","name":"Portable Power Distribution Box","unit":"DA","desc":"Portable power distribution box, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"exit_chamber","group":"setup","name":"Exit Chamber / Decon Setup","unit":"EA","desc":"Decon/exit chamber build for containment.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"photo_doc","group":"service","name":"Photo Documentation & Site Inspection","unit":"HR","desc":"Documentation/inspection labor, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"final_clean","group":"service","name":"General Job-Site Final Cleaning","unit":"HR","desc":"Final job-site cleaning, per hour.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"invoice_fee","group":"service","name":"Invoice / Lab / 3rd-Party Handling Fee","unit":"EA","desc":"Handling fee for lab/3rd-party invoices.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"heat_drying","group":"equipment","name":"Heat Drying System (E-Tes / FireBird / PDS)","unit":"DA","desc":"Direct-heat drying system, per day.","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"recessed_light","group":"fixtures","name":"Recessed Light / Can","unit":"EA","desc":"Recessed can light: detach & reset for drying access, or remove & dispose.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Remove & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"remove_only","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"pedestal_sink","group":"fixtures","name":"Pedestal Sink","unit":"EA","desc":"Two-piece pedestal sink.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0}},{"id":"dispose","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0}}]}},{"id":"supply_line","group":"fixtures","name":"Supply Line","unit":"EA","desc":"Per supply line. Cap: disconnect, thread-seal tape + cap fitting (~10 min + fitting). Cut & cap: shut off and drain house water, cut and permanently cap (~35 min + fitting).","pick":{"label":"Action","options":[{"id":"cap","label":"Cap — tape & fitting","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Disconnect the line; thread-seal tape and cap fitting (~10 min)."},{"id":"cutcap","label":"Cut & Cap","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"House water shut off and drained; line cut and permanently capped (~35 min)."},{"id":"remove","label":"Remove Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Remove the flexible supply line only."}]}},{"id":"p_trap","group":"fixtures","name":"P-Trap","unit":"EA","desc":"Sink drain trap disconnected for access or supply-line work.","pick":{"label":"Action","options":[{"id":"reinstall","label":"Disconnect & Reinstall","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Disconnect and reassemble after work (~25 min)."},{"id":"only","label":"Disconnect Only","price":{"rem":0.0,"rep":0.0,"mat":0.0},"desc":"Disconnect and leave for plumber/recon (~15 min)."}]}},{"id":"shower_bench","group":"demo","name":"Shower Bench","unit":"SF","desc":"Tiled bench structure demoed to framing, per SF of bench surface.","price":{"rem":0.0,"rep":0.0,"mat":0.0},"estVerb":"Remove"},{"id":"window_treatment","group":"fixtures","name":"Window Treatment","unit":"EA","desc":"Blinds/curtains/drapes taken down and set aside. Never disposed; rehung by owner or reconstruction — detach only.","price":{"rem":0.0,"rep":0.0,"mat":0.0}}],"autoInclude":{"cat3":["respirator_cartridge","afd_filter","hepa_light","surface_clean","antimicrobial","hepa_detailed","ppe"],"cond3":["mold_stain"]}};
 const MITEMS={}; MODEL.items.forEach(function(i){MITEMS[i.id]=i;});
 const MARKET_FACTOR=0.97;
 const _SYN={d:' dispose remove tear out demo discard',a:' detach disconnect set aside reinstall reset rehang'};
@@ -772,6 +505,99 @@ function modelSearch(q){q=(q||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').trim(
 function jobCatTier(){var lt=(document.querySelector('input[name=lt]:checked')||{}).value;if(lt==='mold'){var c=(document.querySelector('input[name=mc]:checked')||{}).value;return c==='3'?'cat3':c==='1'?'cat1':'cat2';}var k=(document.querySelector('input[name=cat]:checked')||{}).value;return k==='3'?'cat3':k==='1'?'cat1':'cat2';}
 function modelOpt(it,optId){if(!it.pick)return null;return it.pick.options.find(function(o){return o.id===optId;})||it.pick.options[0];}
 function modelLine(entry){var it=MITEMS[entry.id];if(!it)return null;var opt=modelOpt(it,entry.optId);var p=(opt&&opt.price)?opt.price:it.price;if(p&&(p.cat1||p.cat2||p.cat3))p=p[jobCatTier()]||p.cat2;p=p||{rem:0,rep:0,mat:0};var f=MARKET_FACTOR;p={rem:(p.rem||0)*f,rep:(p.rep||0)*f,mat:(p.mat||0)*f};var unit=(opt&&opt.unit)?opt.unit:it.unit;var label=((it.estVerb?it.estVerb+' ':'')+it.name)+(opt?(' — '+opt.label):'');return {price:p,unit:unit,label:label,item:it,opt:opt};}
+
+// ── P derived from MODEL (v0.21) ─────────────────────────────────────
+// P_MAP: legacy form key -> [modelItemId, optionId|null, {scale}].
+// Price = MODEL price x MARKET_FACTOR (x scale), rounded to cents.
+// Category-priced items resolve the Cat 1/2/3 (or mold condition) tier
+// LIVE at render time — same behavior as catalog-added lines.
+const P_MAP={
+  floor_cloth:['floor_protection','cloth24',{scale:0.5}], // model is per-LF of 24" runner; the form bills per SF
+  floor_adhesive:['floor_protection','adhesive'],
+  ppe:['ppe'], gloves:['gloves'], resp_cart:['respirator_cartridge'], resp_full:['respirator_full'],
+  containment:['containment','6mil'], tension_post:['tension_post'], zipper:['zipper'], register:['register_mask'],
+  ducting:['ducting'], monitoring:['monitoring'], decon:['decon'], haul_debris:['haul'],
+  emerg_call_during:['emergency_call','during'], emerg_call_after:['emergency_call','after'],
+  extract_carpet:['extraction','carpet'], extract_hard:['extraction','hard'], muckout:['muckout'],
+  door_slab:['interior_door','reinstall'], door_slab_d:['interior_door','remove_only'], door_slab_dp:['interior_door','dispose'],
+  ped:['pedestal_sink','reinstall'], ped_dp:['pedestal_sink','dispose'],
+  sup_cap:['supply_line','cap'], sup_cutcap:['supply_line','cutcap'],
+  water_cap:['supply_line','cap'], water_detach:['supply_line','remove'],
+  ctr_solid:['countertop','solid_re'], ctr_solid_dp:['countertop','solid_dp'],
+  ctr_lam:['countertop','lam_re'], ctr_lam_dp:['countertop','lam_dp'],
+  ctr_tile:['countertop','tile_dp'], ctr_granite:['countertop','solid_re'],
+  toilet:['toilet','reinstall'], toilet_dp:['toilet','dispose'],
+  bathtub:['bathtub','reinstall'], bathtub_dp:['bathtub','dispose'],
+  shower_door_re:['shower_door','reinstall'], shower_door:['shower_door','dispose'],
+  vanity:['vanity','reinstall'], vanity_dp:['vanity','dispose'],
+  sink:['sink','reinstall'], sink_dp:['sink','dispose'],
+  garbage_disp_re:['garbage_disposal','reinstall'], garbage_disp:['garbage_disposal','dispose'],
+  dishwasher:['dishwasher','reinstall'], dishwasher_dp:['dishwasher','dispose'],
+  range_elec:['range','elec_re'], range_elec_dp:['range','elec_dp'],
+  range_gas:['range','gas_re'], range_gas_dp:['range','gas_dp'],
+  fridge:['refrigerator','reinstall'], fridge_dp:['refrigerator','dispose'],
+  range_hood_re:['range_hood','reinstall'], range_hood:['range_hood','dispose'],
+  cab_lower:['cabinets','lo_re'], cab_lower_dp:['cabinets','lo_dp'],
+  cab_upper:['cabinets','up_re'], cab_upper_dp:['cabinets','up_dp'],
+  washer:['laundry','wash_re'], washer_dp:['laundry','wash_dp'],
+  dryer:['laundry','dry_re'], dryer_dp:['laundry','dry_dp'],
+  recessed_re:['recessed_light','reinstall'], recessed_d:['recessed_light','remove_only'], recessed_dp:['recessed_light','remove_only'],
+  ceil_fan_re:['light_fan','fan_re'], ceil_fan_d:['light_fan','fan_only'], ceil_fan:['light_fan','fan_dp'],
+  light_fix_re:['light_fan','light_re'], light_fix_d:['light_fan','light_only'], light_fix:['light_fan','light_dp'],
+  mirror_framed_sm:['mirror','fr_s'], mirror_framed_md:['mirror','fr_m'], mirror_framed_lg:['mirror','fr_l'], mirror_glued:['mirror','glued'],
+  baseboard:['baseboard','only'], baseboard_re:['baseboard','reinstall'], baseboard_dispose:['baseboard','dispose'],
+  fl_float:['flooring','lvp'], fl_carpet:['flooring','carpet'], fl_pad:['flooring','pad'],
+  fl_vinyl:['flooring','vinyl'], fl_tile:['flooring','tile'], fl_wood:['flooring','wood'],
+  fl_under:['flooring','under'], fl_backer:['flooring','backer'], fl_sub:['flooring','subfloor'],
+  fl_memb:['flooring','membrane'], fl_tackless:['tackless'],
+  dw_lf_2:['drywall','cut2'], dw_lf_4:['drywall','cut4'], dw_sf:['drywall','full'],
+  wall_tile:['wall_tile'], wall_insul:['insulation'], drill_hole:['cavity_holes'],
+  ceil_dw:['ceiling','drywall'], ceil_tile:['ceiling','suspended'],
+  shower_tile:['shower_surround'], shower_bench:['shower_bench'], window_treat:['window_treatment'],
+  hepa_light:['hepa_light'], clean_walls:['surface_clean','walls'], clean_floor:['surface_clean','floor'],
+  clean_ceil:['surface_clean','ceiling'], antimicrobial:['antimicrobial'], hepa_detailed:['hepa_detailed'],
+  mold_stain:['mold_stain'],
+  dehu_large:['dehumidifier','std'], dehu_xl:['dehumidifier','xl'],
+  air_mover:['air_mover','centrifugal'], air_mover_axial:['air_mover','axial'],
+  scrubber:['afd','std'], scrubber_large:['afd','large'],
+  hepa_neg:['afd_filter'], hepa_canister:['vac_filter'], carbon_16:['carbon_filter','16'], carbon_24:['carbon_filter','24'],
+  wall_cavity:['cavity_drying'], wood_mat:['floor_mat'], hydroxyl:['hydroxyl'],
+  sand_floor:['sand_framing','floor'], sand_walls:['sand_framing','walls'], blast_confined:['confined_blast'],
+  dryice_light:['dryice','standard'], dryice_heavy:['dryice','heavy'],
+  ptrap:['p_trap','reinstall'], ptrap_dp:['p_trap','only'],
+  tech_labor:['tech_labor'], supervisor:['supervisor'], truck_mount:['truck_mount'],
+  contents_manip:['contents'], block_pad:['block_pad']
+};
+// Rates with no MODEL item yet — flagged for promotion into the catalog.
+const P_LOCAL={
+  sub_note:{rem:0,rep:0,mat:0},
+  dump_12:{rem:0,rep:0,mat:0}, dump_30:{rem:0,rep:0,mat:0}, dump_40:{rem:0,rep:0,mat:0},
+  crawl_soil:{rem:0,rep:0,mat:0}, crawl_vapor:{rem:0,rep:0,mat:0}, crawl_lime:{rem:0,rep:0,mat:0},
+  crawl_insul_rem:{rem:0,rep:0,mat:0}, crawl_insul_inst:{rem:0,rep:0,mat:0}
+};
+function _r2(x){return Math.round(parseFloat((x*100).toFixed(6)))/100;}
+function _pResolve(m){
+  var it=MITEMS[m[0]]; if(!it) return {rem:0,rep:0,mat:0};
+  var p=it.price;
+  if(m[1]&&it.pick){var o=it.pick.options.find(function(x){return x.id===m[1];}); if(o&&o.price)p=o.price;}
+  if(p&&(p.cat1||p.cat2||p.cat3)) p=p[jobCatTier()]||p.cat2;
+  p=p||{rem:0,rep:0,mat:0};
+  var s=(m[2]&&m[2].scale)||1;
+  return {rem:_r2((p.rem||0)*MARKET_FACTOR*s), rep:_r2((p.rep||0)*MARKET_FACTOR*s), mat:_r2((p.mat||0)*MARKET_FACTOR*s)};
+}
+const P={};
+(function buildP(){
+  Object.keys(P_MAP).forEach(function(k){
+    Object.defineProperty(P,k,{enumerable:true,get:function(){return _pResolve(P_MAP[k]);}});
+  });
+  Object.keys(P_LOCAL).forEach(function(k){ P[k]=P_LOCAL[k]; });
+  var bad=Object.keys(P_MAP).filter(function(k){
+    var m=P_MAP[k]; if(!MITEMS[m[0]]) return true;
+    if(m[1]&&MITEMS[m[0]].pick&&!MITEMS[m[0]].pick.options.some(function(o){return o.id===m[1];})) return true;
+    return false;
+  });
+  if(bad.length) console.warn('P_MAP entries not found in MODEL:',bad);
+})();
 
 // ── Other Items (model-driven search) ──
 const otherSections = {}; // sectionId → [{id, optId, qty}]
@@ -804,10 +630,10 @@ function runCatalogSearch(sectionId){
     return '<div title="'+(it.desc||'').replace(/"/g,'&quot;')+'" onclick="addOtherItem(\''+sectionId+'\',\''+r.id+'\',\''+(r.optId||'')+'\')" style="padding:7px 12px;cursor:pointer;border-bottom:1px solid var(--light);font-size:12px;display:flex;justify-content:space-between" onmouseenter="this.style.background=\'var(--alt)\'" onmouseleave="this.style.background=\'\'"><span>'+it.name+'</span><span style="color:var(--muted);font-size:11px">'+it.unit+'</span></div>';
   }).join('');
 }
-const FORM_HINTS={flooring:'Flooring Demo',tackless:'Flooring Demo',drywall:'Walls Demo',wall_tile:'Walls Demo',insulation:'Walls Demo',cavity_holes:'Walls Demo',ceiling:'Ceiling Demo',baseboard:'Doors, Lighting & Trim',interior_door:'Doors, Lighting & Trim',light_fan:'Doors, Lighting & Trim',recessed_light:'Doors, Lighting & Trim',mirror:'Mirrors (Bathroom rooms)',toilet:'Room Fixtures',bathtub:'Room Fixtures',shower_door:'Room Fixtures',shower_surround:'Room Fixtures',sink:'Room Fixtures',vanity:'Room Fixtures',garbage_disposal:'Room Fixtures',dishwasher:'Room Fixtures',range:'Room Fixtures',refrigerator:'Room Fixtures',range_hood:'Room Fixtures',laundry:'Room Fixtures',cabinets:'Room Fixtures',supply_line:'Fixtures (supply-line dropdown)',countertop:'Fixtures (Bathroom/Kitchen)',extraction:'Extraction',muckout:'Extraction',containment:'Containment & Registers',zipper:'Containment & Registers',register_mask:'Containment & Registers',tension_post:'Containment & Registers',hepa_light:'Clean-Up',surface_clean:'Clean-Up',antimicrobial:'Clean-Up',hepa_detailed:'Clean-Up',mold_stain:'Clean-Up',air_mover:'Equipment in This Room',dehumidifier:'Equipment in This Room',afd:'Equipment in This Room',cavity_drying:'Equipment in This Room',floor_mat:'Equipment in This Room',ducting:'Equipment in This Room'};
+const FORM_HINTS={flooring:'Demo',tackless:'Demo',drywall:'Demo',wall_tile:'Demo',insulation:'Demo',cavity_holes:'Demo',ceiling:'Demo',shower_surround:'Demo (Bathroom)',baseboard:'Detach & Salvage',interior_door:'Detach & Salvage',light_fan:'Detach & Salvage',recessed_light:'Detach & Salvage',window_treatment:'Detach & Salvage',mirror:'Fixtures (Bathroom)',toilet:'Fixtures',bathtub:'Fixtures',shower_door:'Fixtures',sink:'Fixtures',vanity:'Fixtures',cabinets:'Fixtures',countertop:'Fixtures (Bathroom/Kitchen)',supply_line:'Fixtures (supply-line dropdown)',garbage_disposal:'Appliances',dishwasher:'Appliances',range:'Appliances',refrigerator:'Appliances',range_hood:'Appliances',laundry:'Appliances',extraction:'Stabilization',muckout:'Stabilization',block_pad:'Stabilization',contents:'Stabilization',containment:'Safety',zipper:'Safety',register_mask:'Safety',tension_post:'Safety',hepa_light:'Cleaning',surface_clean:'Cleaning',antimicrobial:'Cleaning',hepa_detailed:'Cleaning',mold_stain:'Cleaning',air_mover:'Equipment in This Room',dehumidifier:'Equipment in This Room',afd:'Equipment in This Room',cavity_drying:'Equipment in This Room',floor_mat:'Equipment in This Room',ducting:'Equipment in This Room'};
 function addOtherItem(sectionId,id,optId){
   otherSections[sectionId]=otherSections[sectionId]||[];
-  var FORM_FIELD={countertop:'ctr_sol',toilet:'toilet',bathtub:'tub',shower_door:'sh_door',shower_surround:'sh_tile',sink:'sink',vanity:'van',garbage_disposal:'gdisp',dishwasher:'dw',range:'re',refrigerator:'frid',range_hood:'rhood',laundry:'wash',cabinets:'cabl',mirror:'mir_t',supply_line:'toilet'};
+  var FORM_FIELD={window_treatment:'wtreat',block_pad:'blockpad',contents:'contents',extraction:'ext_carp',countertop:'ctr_sol',toilet:'toilet',bathtub:'tub',shower_door:'sh_door',shower_surround:'sh_tile',sink:'sink',vanity:'van',garbage_disposal:'gdisp',dishwasher:'dw',range:'re',refrigerator:'frid',range_hood:'rhood',laundry:'wash',cabinets:'cabl',mirror:'mir_t',supply_line:'toilet'};
   var _has=true;
   if(sectionId!=='main'&&FORM_FIELD[id]){ _has=!!document.getElementById(sectionId.replace('r','r')+'_'+FORM_FIELD[id]) || !!document.getElementById(sectionId+'_'+FORM_FIELD[id]); _has=!!document.getElementById(sectionId+'_'+FORM_FIELD[id]); }
   if(sectionId!=='main'&&FORM_HINTS[id]&&_has){
@@ -893,9 +719,9 @@ const ROOM_OPTIONS = [
 ];
 
 const ROOM_SPECIALS = {
-  Bathroom: ['toilet','pedestal','bathtub','shower_tile','shower_door','water_detach','vanity','exhaust_fan','mirrors','countertop'],
-  Kitchen:  ['sink','garbage_disp','dishwasher','range_elec','range_gas','fridge','range_hood','cab_lower','cab_upper','countertop'],
-  'Laundry Room': ['washer','dryer','wh_furnace'],
+  Bathroom: ['toilet','pedestal','bathtub','shower_tile','shower_door','water_detach','vanity','exhaust_fan','mirrors','countertop','ptrap'],
+  Kitchen:  ['sink','garbage_disp','dishwasher','range_elec','range_gas','fridge','range_hood','cab_lower','cab_upper','countertop','ptrap'],
+  'Laundry Room': ['washer','dryer','wh_furnace','ptrap'],
   Basement: ['washer','dryer','wh_furnace'],
   'Crawl Space':  ['crawl'],
 };
@@ -916,8 +742,8 @@ const SUB_DEFS = [
 // Versioning: SemVer MAJOR.MINOR.PATCH — bump PATCH for fixes, MINOR for new
 // features, MAJOR for changes that break old saved quotes. APP_DATE = build date
 // (ISO 8601, sorts cleanly). Update both each time the app is re-bundled.
-const APP_VERSION = '0.19.0';
-const APP_DATE = '2026-06-03';
+const APP_VERSION = '0.21.0';
+const APP_DATE = '2026-06-04';
 let currentPage = 1;
 const TOTAL_PAGES = 4;
 let LAST_EST = null;  // {total, lt} captured at estimate render, used by the Email button
@@ -1253,194 +1079,353 @@ function removeRoom(idx) {
 }
 
 // ════════════════════════════════════════════════════════════
-// BUILD ROOM BODY
+// ROOM SECTIONS — config-driven (v0.21)
+// One SECTIONS table drives BOTH the room form (buildRoomBody) and the
+// estimate renderer (renderEstimate). The order here IS the order
+// everywhere. form(c) returns the section's inner HTML ('' hides the
+// section for that room); lines(c) emits the section's estimate rows.
+// Form ctx: {id,type,sp,isCrawl}. Render ctx adds {gn,sv,addR,addRow,
+// fact,actOf,TAX,alt,appendRaw}. Radios stay everywhere.
+// ════════════════════════════════════════════════════════════
+function _qb(t){return t?'<span class="qb" data-tip="'+t.replace(/"/g,'&quot;')+'">?</span>':'';}
+const _FXGRID='display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px 16px;align-items:start;margin-bottom:6px';
+const APPL_SP=['garbage_disp','dishwasher','range_elec','range_gas','fridge','range_hood','washer','dryer','wh_furnace'];
+const FIX_SP=['toilet','pedestal','sink','bathtub','shower_door','vanity','cab_lower','cab_upper','exhaust_fan','countertop','ptrap','water_detach','mirrors'];
+function _nfi(c,fid,lbl,hint){
+  return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+c.id+'_'+fid+'" placeholder="0" min="0" step="0.1" oninput="suggestClean('+c.id+')">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
+}
+function _nfiNoev(c,fid,lbl,hint){
+  return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+c.id+'_'+fid+'" placeholder="0" min="0" step="0.1">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
+}
+// Fixture/appliance form block: qty + action radios (+ optional supply-line dropdown)
+function _fx(c,spKey,fid,lbl,verb,unit,supLines,desc,nd){
+  if(!c.sp.includes(spKey)) return '';
+  var id=c.id;
+  var h='<div class="fg"><label>'+lbl+' ('+unit+')'+_qb(desc)+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0"'+(unit==='LF'?' step="0.5"':'')+' style="max-width:110px">'+
+    '<div class="rg sm" style="margin-top:4px">'+
+    '<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_o" value="only"><label for="r'+id+'_'+fid+'_o">'+verb+' Only</label></div>'+
+    '<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_re" value="reset" checked><label for="r'+id+'_'+fid+'_re">'+verb+' &amp; Reinstall</label></div>'+
+    (nd?'':'<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_dp" value="dispose"><label for="r'+id+'_'+fid+'_dp">Dispose</label></div>')+
+    '</div>';
+  if(supLines){h+='<select id="r'+id+'_'+fid+'_sup" style="margin-top:4px;font-size:11px;max-width:210px" title="Cap: disconnect, thread-seal tape and cap fitting. Cut &amp; cap: house water shut off and drained, line cut and permanently capped."><option value="cap" selected>Cap supply line'+(supLines>1?'s':'')+' ('+supLines+'×)</option><option value="cutcap">Cut &amp; Cap ('+supLines+'×)</option></select>';}
+  return h+'</div>';
+}
+// Fixture/appliance estimate line (+ supply-line add-ons)
+function _lineFx(c,spKey,fid,base,verb,resetKey,dpKey,unit,note,supLines){
+  if(!c.sp.includes(spKey)) return; var q=c.gn(fid); if(q<=0) return;
+  var a=c.fact(fid);
+  var d=a==='dispose'?base+' — Dispose':(a==='only'?base+' — '+verb+' Only':base+' — '+verb+' & Reinstall');
+  c.addR(d,q,unit||'EA',a==='reset'?resetKey:dpKey,note||'');
+  if(supLines){
+    var s=(document.getElementById('r'+c.id+'_'+fid+'_sup')||{}).value||'cap';
+    if(s==='cap'){c.addR('Supply line — cap (tape & fitting)',q*supLines,'EA','sup_cap','Supply line disconnected; thread-seal tape and cap fitting installed.');}
+    if(s==='cutcap'){c.addR('Supply line — cut & cap',q*supLines,'EA','sup_cutcap','House water shut off and lines drained; supply line cut and permanently capped.');}
+  }
+}
+function _lineAct(c,fid,base,keys){var q=c.gn(fid);if(q<=0)return;var a=c.fact(fid);
+  if(a==='reset'&&!keys.detachDefault){} var d=a==='detach'?base+' — Remove Only':(a==='dispose'?base+' — Dispose':base+' — Remove & Reinstall');
+  c.addR(d,q,'EA',keys[a]||keys.reset,'');}
+
+const SECTIONS=[
+{key:'safety',title:'Safety',est:'Safety',
+ form:function(c){var id=c.id;return ''+
+  '<div class="fr">'+
+   '<div class="fg"><label>Containment Barrier (SF)</label><input type="number" id="r'+id+'_cont_sf" placeholder="0" min="0"></div>'+
+   '<div class="fg"><label>Peel &amp; Seal Zipper (EA)</label><input type="number" id="r'+id+'_zip" placeholder="0" min="0"></div>'+
+  '</div>'+
+  '<div class="fr" style="margin-top:6px;align-items:flex-start">'+
+   '<div class="fg" style="flex:2"><label>Tension Posts</label>'+
+    '<div id="r'+id+'_posts"></div>'+
+    '<button class="btn-add" onclick="addDynRow(\'r'+id+'_posts\',\'rp'+id+'\')">+ Add Post Period</button>'+
+   '</div>'+
+   '<div class="fg"><label>Mask/Cover Register (EA)</label><input type="number" id="r'+id+'_reg" placeholder="0" min="0"></div>'+
+  '</div>';},
+ lines:function(c){
+  if(c.gn('cont_sf')>0){c.addR('Containment Barrier/Airlock/Decon. Chamber',c.gn('cont_sf'),'SF','containment','');}
+  var da=0;
+  document.querySelectorAll('#r'+c.id+'_posts .dyn-row').forEach(function(r){
+    var q=parseFloat(r.querySelector('.dyn-qty').value)||0;
+    var d=parseFloat(r.querySelector('.dyn-days').value)||0;
+    da+=q*d;
+  });
+  if(da>0){c.addR('Containment Barrier - tension post (per day)',da,'DA','tension_post','');}
+  if(c.gn('zip')>0){c.addR('Peel & seal zipper - heavy duty',c.gn('zip'),'EA','zipper','');}
+  if(c.gn('reg')>0){c.addR('Mask and cover register / air return',c.gn('reg'),'EA','register','');}
+ }},
+{key:'stab',title:'Stabilization',est:'Stabilization',
+ form:function(c){var id=c.id;return ''+
+  '<div class="fr">'+
+   '<div class="fg"><label>Carpet Extraction (SF)</label><input type="number" id="r'+id+'_ext_carp" placeholder="0" min="0" oninput="extDis('+id+')"></div>'+
+   '<div class="fg"><label>Hard Surface Extraction (SF)</label><input type="number" id="r'+id+'_ext_hard" placeholder="0" min="0" oninput="extDis('+id+')"></div>'+
+  '</div>'+
+  '<div class="fr">'+
+   '<div class="fg"><label>Muck-Out</label>'+
+    '<div class="rg sm">'+
+     '<div class="rb gy"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_n" value="no" checked><label for="r'+id+'_muck_n">No</label></div>'+
+     '<div class="rb g"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_y" value="yes"><label for="r'+id+'_muck_y">Yes</label></div>'+
+    '</div>'+
+   '</div>'+
+   '<div class="fg" id="r'+id+'_muck_sf_wrap" style="display:none"><label>Muck-Out Area (SF)</label><input type="number" id="r'+id+'_muck_sf" placeholder="0" min="0"><div class="hint">Removal &amp; disposal of standing debris/sludge</div></div>'+
+  '</div>'+
+  '<div class="fr">'+
+   '<div class="fg"><label>Disinfect Extracted Areas (SF) <span class="qb" data-tip="Disinfectant sprayed on every extracted surface. Auto-fills from the extraction SF above; type to override.">?</span></label><input type="number" id="r'+id+'_ext_dis" placeholder="0" min="0" step="0.1" oninput="this.dataset.manual=1"></div>'+
+   '<div class="fg"><label>Block &amp; Pad Furniture (EA)</label><input type="number" id="r'+id+'_blockpad" placeholder="0" min="0"></div>'+
+   '<div class="fg"><label>Contents Manipulation (HR)</label><input type="number" id="r'+id+'_contents" placeholder="0" min="0" step="0.5"></div>'+
+  '</div>';},
+ lines:function(c){
+  if(c.gn('ext_carp')>0){c.addR('Water extraction from carpeted floor',c.gn('ext_carp'),'SF','extract_carpet','');}
+  if(c.gn('ext_hard')>0){c.addR('Water extraction from hard surface floor',c.gn('ext_hard'),'SF','extract_hard','');}
+  if(document.getElementById('r'+c.id+'_muck_y')?.checked&&c.gn('muck_sf')>0){c.addR('Muck-out/Flood loss cleanup',c.gn('muck_sf'),'SF','muckout','');}
+  if(c.gn('ext_dis')>0){c.addR('Apply disinfectant to extracted areas',c.gn('ext_dis'),'SF','antimicrobial','EPA-registered disinfectant applied to all extracted surfaces.');}
+  if(c.gn('blockpad')>0){c.addR('Block & pad furniture',c.gn('blockpad'),'EA','block_pad','Furniture blocked and padded to prevent secondary damage during drying.');}
+  if(c.gn('contents')>0){c.addR('Contents manipulation',c.gn('contents'),'HR','contents_manip','Moving and protecting contents in the work area.');}
+ }},
+{key:'appl',title:'Appliances',est:'Appliances',
+ form:function(c){
+  if(c.isCrawl||!c.sp.some(function(k){return APPL_SP.indexOf(k)>=0;})) return '';
+  var html='<div style="'+_FXGRID+'">'+
+   _fx(c,'garbage_disp','gdisp','Garbage Disposal','Disconnect','EA',0,'Electrical disconnect; drains through the sink — no supply line.',1)+
+   _fx(c,'dishwasher','dw','Dishwasher','Disconnect','EA',1,'Pulled from the cabinet run; single water supply.',1)+
+   _fx(c,'range_elec','re','Range — Electric','Disconnect','EA',0,'Unplugged and moved; no water supply.',1)+
+   _fx(c,'range_gas','rg','Range — Gas','Disconnect','EA',0,'Gas line work is by a licensed plumber — add a subcontractor if the line must be capped.',1)+
+   _fx(c,'fridge','frid','Refrigerator','Disconnect','EA',1,'Moved for access; ice-maker line is the single supply.',1)+
+   _fx(c,'range_hood','rhood','Range Hood','Disconnect','EA',0,'Electrical disconnect and removal from cabinet/wall.',1)+
+   _fx(c,'washer','wash','Washer','Disconnect','EA',2,'Hot and cold hoses disconnected at the box.',1)+
+   _fx(c,'dryer','dryr','Dryer','Disconnect','EA',0,'Electrical/vent disconnect; gas dryers need a plumber for the gas line.',1)+
+   '</div>';
+  if(c.sp.includes('wh_furnace')){
+   html+='<div style="margin-top:4px"><label style="text-transform:none">Professional Disconnects '+_qb('We do not disconnect gas appliances or sealed systems. Checking these adds a flagged line so the estimate documents the requirement.')+'</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-weight:400;text-transform:none;margin-top:3px"><input type="checkbox" id="r'+c.id+'_wh_chk" style="width:15px;height:15px"> Water heater disconnect needed — licensed sub, separate estimate</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-weight:400;text-transform:none;margin-top:3px"><input type="checkbox" id="r'+c.id+'_furn_chk" style="width:15px;height:15px"> Furnace/HVAC disconnect needed — licensed sub, separate estimate</label></div>';
+  }
+  return html;
+ },
+ lines:function(c){
+  _lineFx(c,'garbage_disp','gdisp','Garbage disposal','Disconnect','garbage_disp_re','garbage_disp');
+  _lineFx(c,'dishwasher','dw','Dishwasher','Disconnect','dishwasher','dishwasher_dp','EA','',1);
+  _lineFx(c,'range_elec','re','Range, electric','Disconnect','range_elec','range_elec_dp');
+  _lineFx(c,'range_gas','rg','Range, gas','Disconnect','range_gas','range_gas_dp');
+  _lineFx(c,'fridge','frid','Refrigerator','Disconnect','fridge','fridge_dp','EA','',1);
+  _lineFx(c,'range_hood','rhood','Range hood','Disconnect','range_hood_re','range_hood');
+  _lineFx(c,'washer','wash','Washer','Disconnect','washer','washer_dp','EA','',2);
+  _lineFx(c,'dryer','dryr','Dryer','Disconnect','dryer','dryer_dp');
+  if(c.sp.includes('wh_furnace')){
+   if(document.getElementById('r'+c.id+'_wh_chk')?.checked){c.addR('⚠ WATER HEATER disconnect/reconnect — licensed sub — SEPARATE ESTIMATE REQUIRED',1,'EA','sub_note','Professional disconnection required before mitigation can proceed; quoted separately.');}
+   if(document.getElementById('r'+c.id+'_furn_chk')?.checked){c.addR('⚠ FURNACE/HVAC disconnect/reconnect — licensed sub — SEPARATE ESTIMATE REQUIRED',1,'EA','sub_note','Professional disconnection required before mitigation can proceed; quoted separately.');}
+  }
+ }},
+{key:'fix',title:'Fixtures',est:'Fixtures',
+ form:function(c){
+  if(c.isCrawl||!c.sp.some(function(k){return FIX_SP.indexOf(k)>=0;})) return '';
+  var id=c.id;
+  var html='<div style="'+_FXGRID+'">'+
+   _fx(c,'toilet','toilet','Toilet','Disconnect','EA',1,'Disconnect at the supply line; pulled and reset on a new wax ring when reinstalled.')+
+   _fx(c,'pedestal','ped','Pedestal Sink','Disconnect','EA',2,'Two-piece pedestal sink; basin and pedestal removed for access.',1)+
+   _fx(c,'sink','sink','Sink','Disconnect','EA',2,'Drop-in or undermount sink; hot and cold lines disconnected.')+
+   _fx(c,'bathtub','tub','Bathtub','Remove','EA',2,'Tub pulled for access and drying; hot and cold lines at the valve.')+
+   _fx(c,'shower_door','sh_door','Shower Door','Remove','EA',0,'Glass door and frame removed; no supply lines.')+
+   _fx(c,'vanity','van','Vanity','Remove','LF',0,'Vanity cabinet only — enter the sink separately for its supply lines.')+
+   _fx(c,'cab_lower','cabl','Cabinets — Lower','Remove','LF',0,'Base cabinet run, priced per linear foot.')+
+   _fx(c,'cab_upper','cabu','Cabinets — Upper','Remove','LF',0,'Wall cabinet run, priced per linear foot.')+
+   _fx(c,'exhaust_fan','exfan','Exhaust Fan','Disconnect','EA',0,'Ceiling exhaust fan; electrical disconnect.')+
+   _fx(c,'countertop','ctr_sol','Countertop — Solid/Granite','Remove','LF',0,'Solid surface or stone top lifted off the run.')+
+   _fx(c,'countertop','ctr_lam','Countertop — Laminate','Remove','LF',0,'Laminate top removed from the run.')+
+   _fx(c,'ptrap','ptrap','P-Trap','Disconnect','EA',0,'Sink drain trap disconnected for access or supply-line work.',1)+
+   '</div><div style="'+_FXGRID+'">';
+  if(c.sp.includes('countertop')) html+='<div class="fg"><label>Countertop — Tile — Dispose (SF)'+_qb('Tile and substrate broken out and disposed.')+'</label><input type="number" id="r'+id+'_ctr_tile" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>';
+  if(c.sp.includes('water_detach')) html+='<div class="fg"><label>Supply Line — Remove (EA)'+_qb('Remove a fixture supply line on its own.')+'</label><input type="number" id="r'+id+'_wdet" placeholder="0" min="0" style="max-width:110px"></div>';
+  if(c.sp.includes('mirrors')){
+   html+='<div class="fg"><label>Mirror — Dispose'+_qb('Framed mirrors priced each by size; glued-on mirrors per SF.')+'</label><select id="r'+id+'_mir_t" style="margin-bottom:4px"><option value="">— type —</option><option value="sm">Framed — up to 24" (EA)</option><option value="md">Framed — 24–48" (EA)</option><option value="lg">Framed — 48"+ (EA)</option><option value="glued">Glued-on (SF)</option></select>'+
+    '<input type="number" id="r'+id+'_mir_q" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>';
+  }
+  return html+'</div>';
+ },
+ lines:function(c){
+  _lineFx(c,'toilet','toilet','Toilet','Disconnect','toilet','toilet_dp','EA','Detached for flood cut and subfloor access.',1);
+  _lineFx(c,'pedestal','ped','Pedestal sink','Disconnect','ped','ped_dp','EA','Two-piece pedestal sink.',2);
+  _lineFx(c,'sink','sink','Sink','Disconnect','sink','sink_dp','EA','',2);
+  _lineFx(c,'bathtub','tub','Bathtub','Remove','bathtub','bathtub_dp','EA','',2);
+  _lineFx(c,'shower_door','sh_door','Shower door','Remove','shower_door_re','shower_door');
+  _lineFx(c,'vanity','van','Vanity','Remove','vanity','vanity_dp','LF');
+  _lineFx(c,'cab_lower','cabl','Cabinets, lower','Remove','cab_lower','cab_lower_dp','LF');
+  _lineFx(c,'cab_upper','cabu','Cabinets, upper','Remove','cab_upper','cab_upper_dp','LF');
+  _lineFx(c,'exhaust_fan','exfan','Exhaust fan','Disconnect','light_fix_re','light_fix');
+  _lineFx(c,'countertop','ctr_sol','Countertop, solid/granite','Remove','ctr_solid','ctr_solid_dp','LF');
+  _lineFx(c,'countertop','ctr_lam','Countertop, laminate','Remove','ctr_lam','ctr_lam_dp','LF');
+  _lineFx(c,'ptrap','ptrap','P-trap','Disconnect','ptrap','ptrap_dp');
+  if(c.sp.includes('countertop')&&c.gn('ctr_tile')>0){c.addR('Countertop, tile — Dispose',c.gn('ctr_tile'),'SF','ctr_tile','');}
+  if(c.sp.includes('water_detach')&&c.gn('wdet')>0){c.addR('Plumbing fixture supply line — Remove',c.gn('wdet'),'EA','water_detach','');}
+  if(c.sp.includes('mirrors')){
+   var mtEl=document.getElementById('r'+c.id+'_mir_t'); var mt=mtEl?mtEl.value:''; var mq=c.gn('mir_q');
+   var MIR={sm:['mirror_framed_sm','Mirror, framed (up to 24") — Dispose','EA'],md:['mirror_framed_md','Mirror, framed (24–48") — Dispose','EA'],lg:['mirror_framed_lg','Mirror, framed (48"+) — Dispose','EA'],glued:['mirror_glued','Mirror, glued-on — Dispose','SF']};
+   if(mt&&mq>0&&MIR[mt]){c.addR(MIR[mt][1],mq,MIR[mt][2],MIR[mt][0],'');}
+  }
+ }},
+{key:'salvage',title:'Detach &amp; Salvage',est:'Detach & Salvage',
+ form:function(c){var id=c.id;return ''+
+  '<div class="fr">'+
+   '<div class="fg"><label>Interior Door Slab (EA)</label><input type="number" id="r'+id+'_dslab" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_d" value="detach"><label for="r'+id+'_dslab_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_re" value="reset" checked><label for="r'+id+'_dslab_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_dp" value="dispose"><label for="r'+id+'_dslab_dp">Dispose</label></div>'+'</div></div>'+
+   '<div class="fg"><label>Recessed Light / Can (EA)</label><input type="number" id="r'+id+'_rlight" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_rlight_act" id="r'+id+'_rlight_d" value="detach"><label for="r'+id+'_rlight_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_rlight_act" id="r'+id+'_rlight_re" value="reset" checked><label for="r'+id+'_rlight_re">Remove &amp; Reinstall</label></div>'+'</div></div>'+
+  '</div><div class="fr">'+
+   '<div class="fg"><label>Ceiling Fan (EA)</label><input type="number" id="r'+id+'_cfan" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_d" value="detach"><label for="r'+id+'_cfan_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_re" value="reset" checked><label for="r'+id+'_cfan_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_dp" value="dispose"><label for="r'+id+'_cfan_dp">Dispose</label></div>'+'</div></div>'+
+   '<div class="fg"><label>Light Fixture (EA)</label><input type="number" id="r'+id+'_lfix" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_d" value="detach"><label for="r'+id+'_lfix_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_re" value="reset" checked><label for="r'+id+'_lfix_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_dp" value="dispose"><label for="r'+id+'_lfix_dp">Dispose</label></div>'+'</div></div>'+
+  '</div><div class="fr">'+
+   '<div class="fg"><label>Window Treatment — Detach (EA) <span class="qb" data-tip="Blinds/curtains taken down and set aside. Never disposed; rehung by owner or reconstruction.">?</span></label><input type="number" id="r'+id+'_wtreat" placeholder="0" min="0" style="max-width:110px"></div>'+
+   '<div class="fg"><label>Baseboard (LF)</label><input type="number" id="r'+id+'_bboard" placeholder="0" min="0" step="0.5" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px"><div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_o" value="only" checked><label for="r'+id+'_bboard_o">Detach Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_re" value="reinstall"><label for="r'+id+'_bboard_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_dp" value="dispose"><label for="r'+id+'_bboard_dp">Dispose</label></div></div></div>'+
+  '</div>';},
+ lines:function(c){
+  if(c.gn('wtreat')>0){c.addR('Window treatment — Detach only',c.gn('wtreat'),'EA','window_treat','Taken down and set aside; rehung by owner or reconstruction — never disposed.');}
+  _lineAct(c,'dslab','Interior door slab',{detach:'door_slab_d',reset:'door_slab',dispose:'door_slab_dp'});
+  _lineAct(c,'rlight','Recessed light / can',{detach:'recessed_d',reset:'recessed_re',dispose:'recessed_dp'});
+  _lineAct(c,'cfan','Ceiling fan & light',{detach:'ceil_fan_d',reset:'ceil_fan_re',dispose:'ceil_fan'});
+  _lineAct(c,'lfix','Light fixture',{detach:'light_fix_d',reset:'light_fix_re',dispose:'light_fix'});
+  if(c.gn('bboard')>0){
+   var a=(document.querySelector('input[name="r'+c.id+'_bboard_act"]:checked')||{}).value||'only';
+   c.addR(a==='dispose'?'Baseboard — Dispose':(a==='reinstall'?'Baseboard — Remove & Reinstall':'Baseboard — Detach Only'),c.gn('bboard'),'LF',a==='dispose'?'baseboard_dispose':(a==='reinstall'?'baseboard_re':'baseboard'),'');
+  }
+ }},
+{key:'demo',title:'Demo',est:'Demolition',
+ form:function(c){var id=c.id;var html='';
+  if(c.isCrawl){
+   html+='<div class="sl">Crawl Space</div><div class="fr">'+
+    _nfiNoev(c,'vapor_sf','Vapor Barrier (SF)')+_nfiNoev(c,'insul_rem','Insulation Remove (SF)')+
+    _nfiNoev(c,'insul_inst','Insul. Board Install (SF)')+'</div>';
+  }
+  html+='<div class="sl">Flooring</div>'+
+   '<div class="fr" id="r'+id+'_flrowA">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flA_t" onchange="flUnder('+id+',\'A\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flA_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flA_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flA_u"></select></div>'+'<div style="display:flex;align-items:flex-end"><button type="button" class="btn-rm" title="Clear this row" onclick="clrFl('+id+',\'A\')">×</button></div>'+'</div>'+
+   '<div class="fr" id="r'+id+'_flrowB" style="display:none">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flB_t" onchange="flUnder('+id+',\'B\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flB_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flB_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flB_u"></select></div>'+'<div style="display:flex;align-items:flex-end"><button type="button" class="btn-rm" title="Clear this row" onclick="clrFl('+id+',\'B\')">×</button></div>'+'</div>'+
+   '<div class="fr" id="r'+id+'_flrowC" style="display:none">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flC_t" onchange="flUnder('+id+',\'C\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flC_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flC_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flC_u"></select></div>'+'<div style="display:flex;align-items:flex-end"><button type="button" class="btn-rm" title="Clear this row" onclick="clrFl('+id+',\'C\')">×</button></div>'+'</div>'+
+   '<button class="btn-add" type="button" onclick="showNextFl('+id+')">+ Add Additional Flooring</button>'+
+   '<div class="fr" style="margin-top:8px"><div class="fg"><label>Tackless Strip — Dispose (LF)</label><input type="number" id="r'+id+'_fl_tack" placeholder="0" min="0" step="0.5" oninput="suggestClean('+id+')"></div></div>';
+  html+='<div class="sl">Walls</div>'+
+   '<div class="fr" id="r'+id+'_dwrowA">'+'<div class="fg"><label>Drywall Demo</label><select id="r'+id+'_dwA_t" onchange="suggestClean('+id+')">'+'<option value="">— none —</option><option value="cut2">Flood Cut 2&#39; (per LF)</option><option value="cut4">Flood Cut 4&#39; (per LF)</option><option value="full">Full Tear Out (per SF)</option>'+'</select></div>'+'<div class="fg"><label>Quantity (LF or SF)</label><input type="number" id="r'+id+'_dwA_q" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div style="display:flex;align-items:flex-end"><button type="button" class="btn-rm" title="Clear this row" onclick="clrDw('+id+',\'A\')">×</button></div>'+'</div>'+
+   '<div class="fr" id="r'+id+'_dwrowB" style="display:none">'+'<div class="fg"><label>Drywall Demo</label><select id="r'+id+'_dwB_t" onchange="suggestClean('+id+')">'+'<option value="">— none —</option><option value="cut2">Flood Cut 2&#39; (per LF)</option><option value="cut4">Flood Cut 4&#39; (per LF)</option><option value="full">Full Tear Out (per SF)</option>'+'</select></div>'+'<div class="fg"><label>Quantity (LF or SF)</label><input type="number" id="r'+id+'_dwB_q" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div style="display:flex;align-items:flex-end"><button type="button" class="btn-rm" title="Clear this row" onclick="clrDw('+id+',\'B\')">×</button></div>'+'</div>'+
+   '<button class="btn-add" type="button" onclick="showNextDw('+id+')">+ Add Additional Drywall</button>'+
+   '<div class="fr" style="margin-top:8px">'+_nfi(c,'wall_tile','Wall Tile — Dispose (SF)')+_nfi(c,'wall_insul','Insulation — Dispose (SF)')+
+   '<div class="fg"><label>Cavity Drying Holes (EA)</label><input type="number" id="r'+id+'_drill" placeholder="0" min="0"></div>'+
+   '</div>';
+  html+='<div class="sl">Ceiling</div>'+'<div class="fr">'+
+   _nfi(c,'ceil_dw','Drywall Ceiling — Dispose (SF)')+_nfi(c,'ceil_tile','Suspended Tile — Dispose (SF)')+'</div>';
+  if(c.sp.includes('shower_tile')){
+   html+='<div class="sl">Bathroom Surfaces</div><div class="fr">'+
+    '<div class="fg"><label>Shower/Tub Tile — Dispose (SF)'+_qb('Non-salvageable tile removed to expose the substrate.')+'</label><input type="number" id="r'+id+'_sh_tile" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>'+
+    '<div class="fg"><label>Shower Bench — Dispose (SF)'+_qb('Tiled bench structure demoed to framing, per SF of bench surface.')+'</label><input type="number" id="r'+id+'_bench" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>'+
+    '</div>';
+  }
+  return html;
+ },
+ lines:function(c){
+  var FLMAP={float:['fl_float','Floating floor (laminate/LVP) — Dispose'],carpet:['fl_carpet','Carpet — Dispose'],pad:['fl_pad','Carpet pad — Dispose'],vinyl:['fl_vinyl','Sheet vinyl — Dispose'],tile:['fl_tile','Floor tile — Dispose'],wood:['fl_wood','Hardwood floor — Dispose'],under:['fl_under','Underlayment — Dispose'],backer:['fl_backer','Cement backer board — Dispose'],subfloor:['fl_sub','Subfloor — Dispose']};
+  ['A','B','C'].forEach(function(L){
+   var ty=c.sv('fl'+L+'_t'), q=c.gn('fl'+L+'_sf');
+   if(!ty||!q||!FLMAP[ty]) return;
+   c.addR(FLMAP[ty][1],q,'SF',FLMAP[ty][0],'Non-salvageable material removed and disposed.');
+   var u=c.sv('fl'+L+'_u');
+   var UMAP={pad:['fl_pad','Carpet pad — Dispose'],under:['fl_under','Underlayment — Dispose'],backer:['fl_backer','Cement backer board — Dispose'],memb:['fl_memb','Uncoupling membrane — Dispose']};
+   if(u&&UMAP[u]){c.addR(UMAP[u][1],q,'SF',UMAP[u][0],'Layer beneath the flooring above, same area.');}
+  });
+  if(c.gn('fl_tack')>0){c.addR('Tackless strip — Dispose',c.gn('fl_tack'),'LF','fl_tackless','');}
+  var DWMAP={cut2:['dw_lf_2',"Drywall flood cut 2' — Dispose",'LF','Flood cut at 2 ft height.'],cut4:['dw_lf_4',"Drywall flood cut 4' — Dispose",'LF','Flood cut at 4 ft height.'],full:['dw_sf','Drywall — Dispose','SF','']};
+  ['A','B'].forEach(function(L){
+   var ty=c.sv('dw'+L+'_t'), q=c.gn('dw'+L+'_q');
+   if(!ty||!q||!DWMAP[ty]) return;
+   c.addR(DWMAP[ty][1],q,DWMAP[ty][2],DWMAP[ty][0],DWMAP[ty][3]);
+  });
+  if(c.gn('wall_tile')>0){c.addR('Wall tile — Dispose',c.gn('wall_tile'),'SF','wall_tile','Wall tile removal.');}
+  if(c.gn('wall_insul')>0){c.addR('Insulation — Dispose',c.gn('wall_insul'),'SF','wall_insul','');}
+  if(c.gn('drill')>0){c.addR('Drill holes for wall cavity drying',c.gn('drill'),'EA','drill_hole','');}
+  if(c.gn('ceil_dw')>0){c.addR('Ceiling drywall — Dispose',c.gn('ceil_dw'),'SF','ceil_dw','');}
+  if(c.gn('ceil_tile')>0){c.addR('Suspended ceiling tile — Dispose',c.gn('ceil_tile'),'SF','ceil_tile','');}
+  if(c.sp.includes('shower_tile')&&c.gn('sh_tile')>0){c.addR('Shower/tub tile — Dispose',c.gn('sh_tile'),'SF','shower_tile','Non-salvageable tile removed to expose substrate.');}
+  if(c.sp.includes('shower_tile')&&c.gn('bench')>0){c.addR('Shower bench — Dispose',c.gn('bench'),'SF','shower_bench','Tiled bench structure demoed to framing.');}
+  // Crawl space (fields only present on Crawl Space rooms)
+  // NOTE: level soil & hydrated lime are kept in the catalog but UNWIRED (no rate reference yet).
+  if(c.gn('insul_rem')>0){c.addR('Remove batt insulation - crawl space',c.gn('insul_rem'),'SF','crawl_insul_rem','');}
+  if(c.gn('vapor_sf')>0){c.addR('Install vapor barrier',c.gn('vapor_sf'),'SF','crawl_vapor','');}
+  if(c.gn('insul_inst')>0){c.addR('Install rigid foam insulation board',c.gn('insul_inst'),'SF','crawl_insul_inst','');}
+ }},
+{key:'clean',title:'Cleaning',badge:' <span class="badge b-auto">HEPA sandwich enforced</span>',est:'Cleaning',
+ form:function(c){var id=c.id;return ''+
+  '<div class="fr">'+
+   '<div class="fg"><label>Clean Walls (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
+    '<input type="number" class="sug-f" id="r'+id+'_cl_w" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
+   '</div>'+
+   '<div class="fg"><label>Clean Floor (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
+    '<input type="number" class="sug-f" id="r'+id+'_cl_f" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
+   '</div>'+
+   '<div class="fg"><label>Clean Ceiling/Joists (SF)</label>'+
+    '<input type="number" id="r'+id+'_cl_c" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')">'+
+   '</div>'+
+  '</div>'+
+  '<div class="fr">'+
+   '<div class="fg"><label>Clean Stud Walls (SF) <span style="color:var(--muted);font-weight:400;font-size:10px">exposed framing</span></label><input type="number" id="r'+id+'_cl_stud" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')"></div>'+
+   '<div class="fg"><label>Clean Joists (SF) <span style="color:var(--muted);font-weight:400;font-size:10px">floor/ceiling joists</span></label><input type="number" id="r'+id+'_cl_joist" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')"></div>'+
+  '</div>'+
+  '<div class="fr">'+
+   '<div class="fg">'+
+    '<label style="display:flex;align-items:center;gap:6px;text-transform:none;font-weight:600;color:var(--text)"><input type="checkbox" id="r'+id+'_mold_stain_chk" onchange="toggleMoldStain('+id+')" style="width:15px;height:15px;cursor:pointer;accent-color:var(--dark)">Apply mold/mildew stain remover <span style="color:var(--amber);font-weight:400;font-size:10px">only if noted</span></label>'+
+    '<input type="number" class="sug-f" id="r'+id+'_mold_stain" placeholder="0" min="0" step="0.1" style="display:none;margin-top:5px" oninput="this.dataset.manual=1"><div class="hint" id="r'+id+'_mold_stain_hint" style="display:none">Suggested SF auto-filled from cleaned area — adjust if needed.</div>'+
+   '</div>'+
+  '</div>'+
+  '<div class="hseq-wrap">'+
+   '<div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">HEPA Sandwich (auto)</div>'+
+   '<div class="hseq">'+
+    '<div class="hs" id="r'+id+'_hl">HEPA Light — 0 SF</div><div class="ha">→</div>'+
+    '<div class="hs m" id="r'+id+'_cw">Clean Walls — 0 SF</div><div class="ha">→</div>'+
+    '<div class="hs m" id="r'+id+'_cf">Clean Floor — 0 SF</div><div class="ha">→</div>'+
+    '<div class="hs" id="r'+id+'_am">Antimicrobial — 0 SF</div><div class="ha">→</div>'+
+    '<div class="hs" id="r'+id+'_hd">HEPA Detailed — 0 SF</div>'+
+   '</div>'+
+  '</div>';},
+ lines:function(c){
+  var clW=c.gn('cl_w'),clF=c.gn('cl_f'),clC=c.gn('cl_c'),clS=c.gn('cl_stud'),clJ=c.gn('cl_joist');
+  var hSF=parseFloat((clW+clF+clC+clS+clJ).toFixed(2));
+  var dSF=(clS+clJ)>0?parseFloat((clS+clJ).toFixed(2)):hSF;
+  var amSF=parseFloat((clF+clC+clS+clJ).toFixed(2));
+  if(hSF>0){c.addR('HEPA Vacuuming - Light - (PER SF)',hSF,'SF','hepa_light','Initial HEPA vacuum pass across all demo\'d surfaces. '+clW+' SF walls + '+clF+' SF floor + '+clC+' SF ceiling = '+hSF+' SF.');}
+  if(clW>0){c.addR('Clean the surface area with cleaning agent (walls)',clW,'SF','clean_walls','Mechanical scrubbing of exposed wall framing/surfaces per IICRC S500/S520.');}
+  if(clF>0){c.addR('Clean floor/surface - scrub and mop',clF,'SF','clean_floor','Mechanical scrubbing of exposed subfloor following flooring removal.');}
+  if(clC>0){c.addR('Clean floor or roof joist system',clC,'SF','clean_ceil','Cleaning of exposed ceiling joists/structure.');}
+  if(clS>0){c.addR('Clean stud wall surfaces (exposed framing)',clS,'SF','clean_walls','Mechanical cleaning of exposed wall studs per IICRC S500/S520.');}
+  if(clJ>0){c.addR('Clean floor joists (exposed framing)',clJ,'SF','clean_ceil','Mechanical cleaning of exposed floor joists per IICRC S500/S520.');}
+  if(amSF>0){c.addR('Apply anti-microbial agent to the surface area',amSF,'SF','antimicrobial','EPA-registered antimicrobial applied to the actual affected area (floor/joists) per IICRC S500/S520 — not doubled across surfaces.');}
+  if(hSF>0){c.addR('HEPA Vacuuming - Detailed - (PER SF)',dSF,'SF','hepa_detailed',(clS+clJ)>0?'Detailed HEPA pass on exposed stud walls and joists ('+dSF+' SF).':'Final detailed HEPA pass. Completes the HEPA sandwich per IICRC S500/S520.');}
+  var moldStain=c.gn('mold_stain');
+  if(moldStain>0){c.addR('Apply mold/mildew stain remover',moldStain,'SF','mold_stain','Applied where visible staining requires treatment.');}
+ }},
+{key:'equip',title:'Equipment in This Room',est:'Equipment',
+ form:function(c){return '<div class="eg" id="re_grid_'+c.id+'"></div>'+
+  '<div class="fr" style="margin-top:10px">'+
+   '<div class="fg"><label>Lay-Flat Ducting (LF) <span class="qb" data-tip="Lay-flat exhaust ducting routing the negative-air discharge out of this room, per LF.">?</span></label><input type="number" id="r'+c.id+'_duct" placeholder="0" min="0" style="max-width:140px"></div>'+
+  '</div>';},
+ lines:function(c){
+  if(c.gn('duct')>0){c.addR('Ducting - lay-flat - Large',c.gn('duct'),'LF','ducting','Lay-flat ducting used to direct exhaust from negative air fan out of containment.');}
+  c.appendRaw(getEquipRows('re',c.id,c.TAX,c.alt()));
+ }},
+{key:'other',title:'Other Items',est:'Additional Items',
+ form:function(c){return '<div id="other-r'+c.id+'-items"></div><div id="other-r'+c.id+'-search-ui"></div>';},
+ lines:function(c){
+  (otherSections['r'+c.id]||[]).forEach(function(entry){
+   if(!entry.qty||entry.qty<=0) return;
+   var ln=modelLine(entry); if(!ln) return;
+   c.addRow(ln.label,entry.qty,ln.unit,ln.price,'');
+  });
+ }}
+];
+
+// ════════════════════════════════════════════════════════════
+// BUILD ROOM BODY — thin shell over SECTIONS
 // ════════════════════════════════════════════════════════════
 function buildRoomBody(id,name,type) {
   const sp=ROOM_SPECIALS[type]||[];
-  const isCrawl=(type==='Crawl Space');
-
-  function nfi(fid,lbl,hint,cls){
-    return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0" step="0.1"'+(cls?' class="'+cls+'"':'')+' oninput="suggestClean('+id+')">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
-  }
-  function nfi_noev(fid,lbl,hint){
-    return '<div class="fg"><label>'+lbl+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0" step="0.1">'+(hint?'<div class="hint">'+hint+'</div>':'')+'</div>';
-  }
+  const c={id:id,type:type,sp:sp,isCrawl:(type==='Crawl Space')};
 
   let html='<div class="card"><div class="ct">📍 '+name+' <span style="font-weight:400;color:var(--muted);font-size:12px">— '+type+'</span></div>';
-
-  // Containment per room
-  html+='<div class="ss"><div class="ss-title">Safety</div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Containment Barrier (SF)</label><input type="number" id="r'+id+'_cont_sf" placeholder="0" min="0"></div>'+
-      '<div class="fg"><label>Peel &amp; Seal Zipper (EA)</label><input type="number" id="r'+id+'_zip" placeholder="0" min="0"></div>'+
-    '</div>'+
-    '<div class="fr" style="margin-top:6px;align-items:flex-start">'+
-      '<div class="fg" style="flex:2"><label>Tension Posts</label>'+
-        '<div id="r'+id+'_posts"></div>'+
-        '<button class="btn-add" onclick="addDynRow(\'r'+id+'_posts\',\'rp'+id+'\')">+ Add Post Period</button>'+
-      '</div>'+
-      '<div class="fg"><label>Mask/Cover Register (EA)</label><input type="number" id="r'+id+'_reg" placeholder="0" min="0"></div>'+
-    '</div></div>';
-
-  // Extraction
-  html+='<div class="ss"><div class="ss-title">Stabilization</div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Carpet Extraction (SF)</label><input type="number" id="r'+id+'_ext_carp" placeholder="0" min="0" oninput="extDis('+id+')"></div>'+
-      '<div class="fg"><label>Hard Surface Extraction (SF)</label><input type="number" id="r'+id+'_ext_hard" placeholder="0" min="0" oninput="extDis('+id+')"></div>'+
-    '</div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Muck-Out</label>'+
-        '<div class="rg sm">'+
-          '<div class="rb gy"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_n" value="no" checked><label for="r'+id+'_muck_n">No</label></div>'+
-          '<div class="rb g"><input type="radio" name="r'+id+'_muck" id="r'+id+'_muck_y" value="yes"><label for="r'+id+'_muck_y">Yes</label></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="fg" id="r'+id+'_muck_sf_wrap" style="display:none"><label>Muck-Out Area (SF)</label><input type="number" id="r'+id+'_muck_sf" placeholder="0" min="0"><div class="hint">Removal &amp; disposal of standing debris/sludge</div></div>'+
-    '</div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Disinfect Extracted Areas (SF) <span class="qb" data-tip="Disinfectant sprayed on every extracted surface. Auto-fills from the extraction SF above; type to override.">?</span></label><input type="number" id="r'+id+'_ext_dis" placeholder="0" min="0" step="0.1" oninput="this.dataset.manual=1"></div>'+
-      '<div class="fg"><label>Block &amp; Pad Furniture (EA)</label><input type="number" id="r'+id+'_blockpad" placeholder="0" min="0"></div>'+
-      '<div class="fg"><label>Contents Manipulation (HR)</label><input type="number" id="r'+id+'_contents" placeholder="0" min="0" step="0.5"></div>'+
-    '</div></div>';
-
-  // Wire muck-out radio
-  // (done via inline onchange — set below in script after innerHTML)
-
-  // Room-specific fixtures
-  if(!isCrawl && sp.length){
-    function qb(t){return t?'<span class="qb" data-tip="'+t.replace(/"/g,'&quot;')+'">?</span>':'';}
-    var GRID='display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px 16px;align-items:start;margin-bottom:6px';
-    function fx(spKey,fid,lbl,verb,unit,supLines,desc,nd){
-      if(!sp.includes(spKey)) return '';
-      var h='<div class="fg"><label>'+lbl+' ('+unit+')'+qb(desc)+'</label><input type="number" id="r'+id+'_'+fid+'" placeholder="0" min="0"'+(unit==='LF'?' step="0.5"':'')+' style="max-width:110px">'+
-        '<div class="rg sm" style="margin-top:4px">'+
-        '<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_o" value="only"><label for="r'+id+'_'+fid+'_o">'+verb+' Only</label></div>'+
-        '<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_re" value="reset" checked><label for="r'+id+'_'+fid+'_re">'+verb+' &amp; Reinstall</label></div>'+
-        (nd?'':'<div class="rb"><input type="radio" name="r'+id+'_'+fid+'_act" id="r'+id+'_'+fid+'_dp" value="dispose"><label for="r'+id+'_'+fid+'_dp">Dispose</label></div>')+
-        '</div>';
-      if(supLines){h+='<select id="r'+id+'_'+fid+'_sup" style="margin-top:4px;font-size:11px;max-width:210px" title="Cap: disconnect, thread-seal tape and cap fitting. Cut &amp; cap: house water shut off and drained, line cut and permanently capped."><option value="cap" selected>Cap supply line'+(supLines>1?'s':'')+' ('+supLines+'\u00d7)</option><option value="cutcap">Cut &amp; Cap ('+supLines+'\u00d7)</option></select>';}
-      return h+'</div>';
-    }
-    html+='<div class="ss"><div class="ss-title">Fixtures</div><div style="'+GRID+'">'+
-      fx('toilet','toilet','Toilet','Disconnect','EA',1,'Disconnect at the supply line; pulled and reset on a new wax ring when reinstalled.')+
-      fx('pedestal','ped','Pedestal Sink','Disconnect','EA',2,'Two-piece pedestal sink; basin and pedestal removed for access.',1)+
-      fx('sink','sink','Sink','Disconnect','EA',2,'Drop-in or undermount sink; hot and cold lines disconnected.')+
-      fx('bathtub','tub','Bathtub','Remove','EA',2,'Tub pulled for access and drying; hot and cold lines at the valve.')+
-      fx('shower_door','sh_door','Shower Door','Remove','EA',0,'Glass door and frame removed; no supply lines.')+
-      fx('vanity','van','Vanity','Remove','LF',0,'Vanity cabinet only — enter the sink separately for its supply lines.')+
-      fx('garbage_disp','gdisp','Garbage Disposal','Disconnect','EA',0,'Electrical disconnect; drains through the sink — no supply line.',1)+
-      fx('dishwasher','dw','Dishwasher','Disconnect','EA',1,'Pulled from the cabinet run; single water supply.',1)+
-      fx('range_elec','re','Range — Electric','Disconnect','EA',0,'Unplugged and moved; no water supply.',1)+
-      fx('range_gas','rg','Range — Gas','Disconnect','EA',0,'Gas line work is by a licensed plumber — add a subcontractor if the line must be capped.',1)+
-      fx('fridge','frid','Refrigerator','Disconnect','EA',1,'Moved for access; ice-maker line is the single supply.',1)+
-      fx('range_hood','rhood','Range Hood','Disconnect','EA',0,'Electrical disconnect and removal from cabinet/wall.',1)+
-      fx('cab_lower','cabl','Cabinets — Lower','Remove','LF',0,'Base cabinet run, priced per linear foot.')+
-      fx('cab_upper','cabu','Cabinets — Upper','Remove','LF',0,'Wall cabinet run, priced per linear foot.')+
-      fx('washer','wash','Washer','Disconnect','EA',2,'Hot and cold hoses disconnected at the box.',1)+
-      fx('dryer','dryr','Dryer','Disconnect','EA',0,'Electrical/vent disconnect; gas dryers need a plumber for the gas line.',1)+
-      fx('exhaust_fan','exfan','Exhaust Fan','Disconnect','EA',0,'Ceiling exhaust fan; electrical disconnect.')+
-      fx('countertop','ctr_sol','Countertop — Solid/Granite','Remove','LF',0,'Solid surface or stone top lifted off the run.')+
-      fx('countertop','ctr_lam','Countertop — Laminate','Remove','LF',0,'Laminate top removed from the run.')+
-      '</div><div style="'+GRID+'">';
-    if(sp.includes('countertop')) html+='<div class="fg"><label>Countertop — Tile — Dispose (SF)'+qb('Tile and substrate broken out and disposed.')+'</label><input type="number" id="r'+id+'_ctr_tile" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>';
-    if(sp.includes('shower_tile')) html+='<div class="fg"><label>Shower/Tub Tile — Dispose (SF)'+qb('Non-salvageable tile removed to expose the substrate.')+'</label><input type="number" id="r'+id+'_sh_tile" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>';
-    if(sp.includes('water_detach'))html+='<div class="fg"><label>Supply Line — Remove (EA)'+qb('Remove a fixture supply line on its own.')+'</label><input type="number" id="r'+id+'_wdet" placeholder="0" min="0" style="max-width:110px"></div>';
-    if(sp.includes('mirrors')){
-      html+='<div class="fg"><label>Mirror — Dispose'+qb('Framed mirrors priced each by size; glued-on mirrors per SF.')+'</label><select id="r'+id+'_mir_t" style="margin-bottom:4px"><option value="">— type —</option><option value="sm">Framed — up to 24" (EA)</option><option value="md">Framed — 24–48" (EA)</option><option value="lg">Framed — 48"+ (EA)</option><option value="glued">Glued-on (SF)</option></select>'+
-        '<input type="number" id="r'+id+'_mir_q" placeholder="0" min="0" step="0.1" style="max-width:110px"></div>';
-    }
-    if(sp.includes('wh_furnace')){
-      html+='<div class="fg" style="grid-column:1/-1"><label style="text-transform:none">Professional Disconnects '+qb('We do not disconnect gas appliances or sealed systems. Checking these adds a flagged line so the estimate documents the requirement.')+'</label>'+
-        '<label style="display:flex;align-items:center;gap:6px;font-weight:400;text-transform:none;margin-top:3px"><input type="checkbox" id="r'+id+'_wh_chk" style="width:15px;height:15px"> Water heater disconnect needed — licensed sub, separate estimate</label>'+
-        '<label style="display:flex;align-items:center;gap:6px;font-weight:400;text-transform:none;margin-top:3px"><input type="checkbox" id="r'+id+'_furn_chk" style="width:15px;height:15px"> Furnace/HVAC disconnect needed — licensed sub, separate estimate</label></div>';
-    }
-    html+='</div></div>';
-  }
-
-  // Crawl space
-  if(isCrawl){
-    html+='<div class="ss"><div class="ss-title">Crawl Space</div><div class="fr">'+
-      nfi_noev('vapor_sf','Vapor Barrier (SF)')+nfi_noev('insul_rem','Insulation Remove (SF)')+
-      nfi_noev('insul_inst','Insul. Board Install (SF)')+'</div></div>';
-  }
-
-  // ── DEMO ──
-  html+='<div class="ss"><div class="ss-title">Demo</div>'+
-    '<div class=\"sl\">Flooring</div>'+
-    '<div class="fr" id="r'+id+'_flrowA">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flA_t" onchange="flUnder('+id+',\'A\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flA_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flA_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flA_u"></select></div>'+'</div>'+
-    '<div class="fr" id="r'+id+'_flrowB" style="display:none">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flB_t" onchange="flUnder('+id+',\'B\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flB_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flB_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flB_u"></select></div>'+'</div>'+
-    '<div class="fr" id="r'+id+'_flrowC" style="display:none">'+'<div class="fg"><label>Flooring Type</label><select id="r'+id+'_flC_t" onchange="flUnder('+id+',\'C\');suggestClean('+id+')">'+'<option value="">— none —</option><option value="float">Floating Floor (LVP/Laminate)</option><option value="carpet">Carpet</option><option value="pad">Carpet Pad only</option><option value="vinyl">Sheet Vinyl</option><option value="tile">Floor Tile</option><option value="wood">Hardwood</option><option value="under">Underlayment only</option><option value="backer">Cement Backer</option><option value="subfloor">Subfloor</option>'+'</select></div>'+'<div class="fg"><label>Area (SF)</label><input type="number" id="r'+id+'_flC_sf" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'<div class="fg" id="r'+id+'_flC_uw" style="display:none"><label>Under It — also dispose</label><select id="r'+id+'_flC_u"></select></div>'+'</div>'+
-    '<button class="btn-add" type="button" onclick="showNextFl('+id+')">+ Add Additional Flooring</button>'+
-    '<div class="fr" style="margin-top:8px"><div class="fg"><label>Tackless Strip — Dispose (LF)</label><input type="number" id="r'+id+'_fl_tack" placeholder="0" min="0" step="0.5" oninput="suggestClean('+id+')"></div></div>';
-
-  html+='<div class=\"sl\">Walls</div>'+
-    '<div class="fr" id="r'+id+'_dwrowA">'+'<div class="fg"><label>Drywall Demo</label><select id="r'+id+'_dwA_t" onchange="suggestClean('+id+')">'+'<option value="">— none —</option><option value="cut2">Flood Cut 2&#39; (per LF)</option><option value="cut4">Flood Cut 4&#39; (per LF)</option><option value="full">Full Tear Out (per SF)</option>'+'</select></div>'+'<div class="fg"><label>Quantity (LF or SF)</label><input type="number" id="r'+id+'_dwA_q" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'</div>'+
-    '<div class="fr" id="r'+id+'_dwrowB" style="display:none">'+'<div class="fg"><label>Drywall Demo</label><select id="r'+id+'_dwB_t" onchange="suggestClean('+id+')">'+'<option value="">— none —</option><option value="cut2">Flood Cut 2&#39; (per LF)</option><option value="cut4">Flood Cut 4&#39; (per LF)</option><option value="full">Full Tear Out (per SF)</option>'+'</select></div>'+'<div class="fg"><label>Quantity (LF or SF)</label><input type="number" id="r'+id+'_dwB_q" placeholder="0" min="0" step="0.1" oninput="suggestClean('+id+')"></div>'+'</div>'+
-    '<button class="btn-add" type="button" onclick="showNextDw('+id+')">+ Add Additional Drywall</button>'+
-    '<div class="fr" style="margin-top:8px">'+nfi('wall_tile','Wall Tile — Dispose (SF)')+nfi('wall_insul','Insulation — Dispose (SF)')+
-    '<div class="fg"><label>Cavity Drying Holes (EA)</label><input type="number" id="r'+id+'_drill" placeholder="0" min="0"></div>'+
-    '</div>';
-
-  html+='<div class=\"sl\">Ceiling</div>'+'<div class="fr">'+
-    nfi('ceil_dw','Drywall Ceiling — Dispose (SF)')+nfi('ceil_tile','Suspended Tile — Dispose (SF)')+'</div>';
-
-  html+='<div class=\"sl\">Doors, Lighting &amp; Trim</div>'+'<div class="fr">'+
-    '<div class="fg"><label>Interior Door Slab (EA)</label><input type="number" id="r'+id+'_dslab" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_d" value="detach"><label for="r'+id+'_dslab_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_re" value="reset" checked><label for="r'+id+'_dslab_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_dslab_act" id="r'+id+'_dslab_dp" value="dispose"><label for="r'+id+'_dslab_dp">Dispose</label></div>'+'</div></div>'+
-    '<div class="fg"><label>Recessed Light / Can (EA)</label><input type="number" id="r'+id+'_rlight" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_rlight_act" id="r'+id+'_rlight_d" value="detach"><label for="r'+id+'_rlight_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_rlight_act" id="r'+id+'_rlight_re" value="reset" checked><label for="r'+id+'_rlight_re">Remove &amp; Reinstall</label></div>'+'</div></div>'+
-    '</div><div class="fr">'+
-    '<div class="fg"><label>Ceiling Fan (EA)</label><input type="number" id="r'+id+'_cfan" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_d" value="detach"><label for="r'+id+'_cfan_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_re" value="reset" checked><label for="r'+id+'_cfan_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_cfan_act" id="r'+id+'_cfan_dp" value="dispose"><label for="r'+id+'_cfan_dp">Dispose</label></div>'+'</div></div>'+
-    '<div class="fg"><label>Light Fixture (EA)</label><input type="number" id="r'+id+'_lfix" placeholder="0" min="0" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px">'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_d" value="detach"><label for="r'+id+'_lfix_d">Remove Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_re" value="reset" checked><label for="r'+id+'_lfix_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_lfix_act" id="r'+id+'_lfix_dp" value="dispose"><label for="r'+id+'_lfix_dp">Dispose</label></div>'+'</div></div>'+
-    '</div><div class="fr">'+
-    '<div class="fg"><label>Baseboard (LF)</label><input type="number" id="r'+id+'_bboard" placeholder="0" min="0" step="0.5" style="max-width:110px">'+'<div class="rg sm" style="margin-top:4px"><div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_o" value="only" checked><label for="r'+id+'_bboard_o">Detach Only</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_re" value="reinstall"><label for="r'+id+'_bboard_re">Remove &amp; Reinstall</label></div>'+'<div class="rb"><input type="radio" name="r'+id+'_bboard_act" id="r'+id+'_bboard_dp" value="dispose"><label for="r'+id+'_bboard_dp">Dispose</label></div></div></div>'+
-    '</div></div>';
-
-  // Cleaning
-  html+='<div class="ss"><div class="ss-title">Clean-Up <span class="badge b-auto">HEPA sandwich enforced</span></div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Clean Walls (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
-        '<input type="number" class="sug-f" id="r'+id+'_cl_w" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
-      '</div>'+
-      '<div class="fg"><label>Clean Floor (SF) <span style="color:var(--amber);font-weight:400;font-size:10px">suggested</span></label>'+
-        '<input type="number" class="sug-f" id="r'+id+'_cl_f" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+');this.dataset.manual=1">'+
-      '</div>'+
-      '<div class="fg"><label>Clean Ceiling/Joists (SF)</label>'+
-        '<input type="number" id="r'+id+'_cl_c" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')">'+
-      '</div>'+
-    '</div>'+
-    '<div class="fr">'+
-      '<div class="fg"><label>Clean Stud Walls (SF) <span style="color:var(--muted);font-weight:400;font-size:10px">exposed framing</span></label><input type="number" id="r'+id+'_cl_stud" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')"></div>'+
-      '<div class="fg"><label>Clean Joists (SF) <span style="color:var(--muted);font-weight:400;font-size:10px">floor/ceiling joists</span></label><input type="number" id="r'+id+'_cl_joist" placeholder="0" min="0" step="0.1" oninput="recalcHepa('+id+')"></div>'+
-    '</div>'+
-    '<div class="fr">'+
-      '<div class="fg">'+
-        '<label style="display:flex;align-items:center;gap:6px;text-transform:none;font-weight:600;color:var(--text)"><input type="checkbox" id="r'+id+'_mold_stain_chk" onchange="toggleMoldStain('+id+')" style="width:15px;height:15px;cursor:pointer;accent-color:var(--dark)">Apply mold/mildew stain remover <span style="color:var(--amber);font-weight:400;font-size:10px">only if noted</span></label>'+
-        '<input type="number" class="sug-f" id="r'+id+'_mold_stain" placeholder="0" min="0" step="0.1" style="display:none;margin-top:5px" oninput="this.dataset.manual=1"><div class="hint" id="r'+id+'_mold_stain_hint" style="display:none">Suggested SF auto-filled from cleaned area — adjust if needed.</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="hseq-wrap">'+
-      '<div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">HEPA Sandwich (auto)</div>'+
-      '<div class="hseq">'+
-        '<div class="hs" id="r'+id+'_hl">HEPA Light — 0 SF</div><div class="ha">→</div>'+
-        '<div class="hs m" id="r'+id+'_cw">Clean Walls — 0 SF</div><div class="ha">→</div>'+
-        '<div class="hs m" id="r'+id+'_cf">Clean Floor — 0 SF</div><div class="ha">→</div>'+
-        '<div class="hs" id="r'+id+'_am">Antimicrobial — 0 SF</div><div class="ha">→</div>'+
-        '<div class="hs" id="r'+id+'_hd">HEPA Detailed — 0 SF</div>'+
-      '</div>'+
-    '</div></div>';
-
-  // Equipment
-  html+='<div class="ss"><div class="ss-title">Equipment in This Room</div>'+
-    '<div class="eg" id="re_grid_'+id+'"></div>'+
-    '<div class="fr" style="margin-top:10px">'+
-      '<div class="fg"><label>Lay-Flat Ducting (LF) <span class="qb" data-tip="Lay-flat exhaust ducting routing the negative-air discharge out of this room, per LF.">?</span></label><input type="number" id="r'+id+'_duct" placeholder="0" min="0" style="max-width:140px"></div>'+
-    '</div></div>';
-
-  // Other Items (searchable)
-  html+='<div class="ss"><div class="ss-title">Other Items</div>'+
-    '<div id="other-r'+id+'-items"></div>'+
-    '<div id="other-r'+id+'-search-ui"></div>'+
-    '</div>';
-
+  SECTIONS.forEach(function(sec){
+    var inner=sec.form?sec.form(c):'';
+    if(!inner) return;
+    html+='<div class="ss"><div class="ss-title">'+sec.title+(sec.badge||'')+'</div>'+inner+'</div>';
+  });
   html+='</div>';// end card
 
   const div=document.createElement('div');
@@ -1641,7 +1626,7 @@ function renderEstimate() {
   // Emergency call
   if(document.getElementById('emg_y').checked){
     const afterH=document.getElementById('eh_a').checked;
-    const r2=row('Emergency Service Call — '+(afterH?'After Hours':'During Hours'),1,'EA',P.emerg_call,TAX,alt,'After-hours emergency response charge.');
+    const r2=row('Emergency Service Call — '+(afterH?'After Hours':'During Hours'),1,'EA',afterH?P.emerg_call_after:P.emerg_call_during,TAX,alt,afterH?'After-hours emergency response charge.':'Emergency response during business hours.');
     tableBody+=r2.html; mPre+=r2.pre; mTax+=r2.tax; alt=!alt;
   }
 
@@ -1793,20 +1778,23 @@ function renderEstimate() {
   grandPre+=mPre; grandTax+=mTax;
   tableBody+=subTotal('Total: Main',Math.round(mTax*100)/100,Math.round((mPre+mTax)*100)/100);
 
-  // ── ROOMS ──
+  // ── ROOMS — driven by the SECTIONS table ──
   rooms.forEach(function(rm){
     const id=rm.id;
     tableBody+=secHdr(rm.name);
     let rPre=0,rTax=0; let rAlt=false;
 
-    function addR(desc,qty,unit,pkey,notes){
+    function addRow(desc,qty,unit,p,notes){
       if(!qty||qty<=0) return;
-      const r2=row(desc,qty,unit,P[pkey],TAX,rAlt,notes||'');
+      const r2=row(desc,qty,unit,p,TAX,rAlt,notes||'');
       var _h=r2.html;
       if(desc.charCodeAt(0)===9888){ _h=_h.replace(/<td/g,'<td style="background:#fff3bf"'); }
       tableBody+=_h; rPre+=r2.pre; rTax+=r2.tax; rAlt=!rAlt;
     }
+    function addR(desc,qty,unit,pkey,notes){ addRow(desc,qty,unit,P[pkey],notes); }
     function gn(fid){return parseFloat(document.getElementById('r'+id+'_'+fid)?.value)||0;}
+    function sv(fid){return (document.getElementById('r'+id+'_'+fid)||{}).value||'';}
+    function fact(fid){return (document.querySelector('input[name="r'+id+'_'+fid+'_act"]:checked')||{}).value||'reset';}
     // Run a subsection; only emit its header if line items were actually added.
     function sub(name, fn){
       const lenBefore=tableBody.length;
@@ -1817,162 +1805,13 @@ function renderEstimate() {
       }
     }
 
-    // Containment per room
-    if(gn('cont_sf')>0){addR('Containment Barrier/Airlock/Decon. Chamber',gn('cont_sf'),'SF','containment','');}
-    let rPostDA=0;
-    document.querySelectorAll('#r'+id+'_posts .dyn-row').forEach(function(r){
-      const q=parseFloat(r.querySelector('.dyn-qty').value)||0;
-      const d=parseFloat(r.querySelector('.dyn-days').value)||0;
-      rPostDA+=q*d;
-    });
-    if(rPostDA>0){addR('Containment Barrier - tension post (per day)',rPostDA,'DA','tension_post','');}
-    if(gn('zip')>0){addR('Peel & seal zipper - heavy duty',gn('zip'),'EA','zipper','');}
-    if(gn('reg')>0){addR('Mask and cover register / air return',gn('reg'),'EA','register','');}
+    const c={id:id,rm:rm,type:rm.type,sp:ROOM_SPECIALS[rm.type]||[],isCrawl:rm.type==='Crawl Space',
+      gn:gn,sv:sv,addR:addR,addRow:addRow,fact:fact,actOf:fact,TAX:TAX,
+      alt:function(){return rAlt;},
+      appendRaw:function(res){tableBody+=res.html;rPre+=res.pre;rTax+=res.tax;}};
 
-    // Demo subsection
-    sub('Demolition', function(){
-
-    // Extraction
-    if(gn('ext_carp')>0){addR('Water extraction from carpeted floor',gn('ext_carp'),'SF','extract_carpet','');}
-    if(gn('ext_hard')>0){addR('Water extraction from hard surface floor',gn('ext_hard'),'SF','extract_hard','');}
-    if(document.getElementById('r'+id+'_muck_y')?.checked&&gn('muck_sf')>0){
-      addR('Muck-out/Flood loss cleanup',gn('muck_sf'),'SF','muckout','');
-    }
-    if(gn('ext_dis')>0){addR('Apply disinfectant to extracted areas',gn('ext_dis'),'SF','antimicrobial','EPA-registered disinfectant applied to all extracted surfaces.');}
-    if(gn('blockpad')>0){addR('Block & pad furniture',gn('blockpad'),'EA','block_pad','Furniture blocked and padded to prevent secondary damage during drying.');}
-    if(gn('contents')>0){addR('Contents manipulation',gn('contents'),'HR','contents_manip','Moving and protecting contents in the work area.');}
-
-    // Room-type fixtures
-    const sp=ROOM_SPECIALS[rm.type]||[];
-    function fact(fid){return (document.querySelector('input[name="r'+id+'_'+fid+'_act"]:checked')||{}).value||'reset';}
-    function addFx(spKey,fid,base,verb,resetKey,dpKey,unit,note,supLines){
-      if(!sp.includes(spKey)) return; var q=gn(fid); if(q<=0) return;
-      var a=fact(fid);
-      var d=a==='dispose'?base+' — Dispose':(a==='only'?base+' — '+verb+' Only':base+' — '+verb+' & Reinstall');
-      addR(d,q,unit||'EA',a==='reset'?resetKey:dpKey,note||'');
-      if(supLines){
-        var s=(document.getElementById('r'+id+'_'+fid+'_sup')||{}).value||'cap';
-        if(s==='cap'){addR('Supply line — cap (tape & fitting)',q*supLines,'EA','sup_cap','Supply line disconnected; thread-seal tape and cap fitting installed.');}
-        if(s==='cutcap'){addR('Supply line — cut & cap',q*supLines,'EA','sup_cutcap','House water shut off and lines drained; supply line cut and permanently capped.');}
-      }
-    }
-    addFx('toilet','toilet','Toilet','Disconnect','toilet','toilet_dp','EA','Detached for flood cut and subfloor access.',1);
-    addFx('pedestal','ped','Pedestal sink','Disconnect','ped','ped_dp','EA','Two-piece pedestal sink.',2);
-    addFx('bathtub','tub','Bathtub','Remove','bathtub','bathtub_dp','EA','',2);
-    if(sp.includes('shower_tile')&&gn('sh_tile')>0){addR('Shower/tub tile — Dispose',gn('sh_tile'),'SF','shower_tile','Non-salvageable tile removed to expose substrate.');}
-    addFx('shower_door','sh_door','Shower door','Remove','shower_door_re','shower_door');
-    if(sp.includes('water_detach')&&gn('wdet')>0){addR('Plumbing fixture supply line — Remove',gn('wdet'),'EA','water_detach','');}
-    addFx('vanity','van','Vanity','Remove','vanity','vanity_dp','LF');
-    addFx('sink','sink','Sink','Disconnect','sink','sink_dp','EA','',2);
-    addFx('garbage_disp','gdisp','Garbage disposal','Disconnect','garbage_disp_re','garbage_disp');
-    addFx('dishwasher','dw','Dishwasher','Disconnect','dishwasher','dishwasher_dp','EA','',1);
-    addFx('range_elec','re','Range, electric','Disconnect','range_elec','range_elec_dp');
-    addFx('range_gas','rg','Range, gas','Disconnect','range_gas','range_gas_dp');
-    addFx('fridge','frid','Refrigerator','Disconnect','fridge','fridge_dp','EA','',1);
-    addFx('range_hood','rhood','Range hood','Disconnect','range_hood_re','range_hood');
-    addFx('cab_lower','cabl','Cabinets, lower','Remove','cab_lower','cab_lower_dp','LF');
-    addFx('cab_upper','cabu','Cabinets, upper','Remove','cab_upper','cab_upper_dp','LF');
-    addFx('washer','wash','Washer','Disconnect','washer','washer_dp','EA','',2);
-    addFx('dryer','dryr','Dryer','Disconnect','dryer','dryer_dp');
-    addFx('exhaust_fan','exfan','Exhaust fan','Disconnect','light_fix_re','light_fix');
-    if(sp.includes('wh_furnace')){
-      if(document.getElementById('r'+id+'_wh_chk')?.checked){addR('\u26A0 WATER HEATER disconnect/reconnect — licensed sub — SEPARATE ESTIMATE REQUIRED',1,'EA','sub_note','Professional disconnection required before mitigation can proceed; quoted separately.');}
-      if(document.getElementById('r'+id+'_furn_chk')?.checked){addR('\u26A0 FURNACE/HVAC disconnect/reconnect — licensed sub — SEPARATE ESTIMATE REQUIRED',1,'EA','sub_note','Professional disconnection required before mitigation can proceed; quoted separately.');}
-    }
-    addFx('countertop','ctr_sol','Countertop, solid/granite','Remove','ctr_solid','ctr_solid_dp','LF');
-    addFx('countertop','ctr_lam','Countertop, laminate','Remove','ctr_lam','ctr_lam_dp','LF');
-    if(sp.includes('countertop')&&gn('ctr_tile')>0){addR('Countertop, tile — Dispose',gn('ctr_tile'),'SF','ctr_tile','');}
-    if(sp.includes('mirrors')){
-      var mtEl=document.getElementById('r'+id+'_mir_t'); var mt=mtEl?mtEl.value:''; var mq=gn('mir_q');
-      var MIR={sm:['mirror_framed_sm','Mirror, framed (up to 24") — Dispose','EA'],md:['mirror_framed_md','Mirror, framed (24–48") — Dispose','EA'],lg:['mirror_framed_lg','Mirror, framed (48"+) — Dispose','EA'],glued:['mirror_glued','Mirror, glued-on — Dispose','SF']};
-      if(mt&&mq>0&&MIR[mt]){addR(MIR[mt][1],mq,MIR[mt][2],MIR[mt][0],'');}
-    }
-
-    // Doors, lighting & trim
-    function actOf(fid){return (document.querySelector('input[name="r'+id+'_'+fid+'_act"]:checked')||{}).value||'reset';}
-    function addAct(fid,base,keys){var q=gn(fid);if(q<=0)return;var a=actOf(fid);
-      var d=a==='detach'?base+' — Remove Only':(a==='dispose'?base+' — Dispose':base+' — Remove & Reinstall');
-      addR(d,q,'EA',keys[a]||keys.reset,'');}
-    addAct('dslab','Interior door slab',{detach:'door_slab_d',reset:'door_slab',dispose:'door_slab_dp'});
-    addAct('rlight','Recessed light / can',{detach:'recessed_d',reset:'recessed_re',dispose:'recessed_dp'});
-    addAct('cfan','Ceiling fan & light',{detach:'ceil_fan_d',reset:'ceil_fan_re',dispose:'ceil_fan'});
-    addAct('lfix','Light fixture',{detach:'light_fix_d',reset:'light_fix_re',dispose:'light_fix'});
-    if(gn('bboard')>0){
-      var bbAct=(document.querySelector('input[name="r'+id+'_bboard_act"]:checked')||{}).value||'only';
-      addR(bbAct==='dispose'?'Baseboard — Dispose':(bbAct==='reinstall'?'Baseboard — Remove & Reinstall':'Baseboard — Detach Only'), gn('bboard'),'LF', bbAct==='dispose'?'baseboard_dispose':(bbAct==='reinstall'?'baseboard_re':'baseboard'),'');
-    }
-
-    // Flooring demo (typed rows)
-    function sv(fid){return (document.getElementById('r'+id+'_'+fid)||{}).value||'';}
-    var FLMAP={float:['fl_float','Floating floor (laminate/LVP) — Dispose'],carpet:['fl_carpet','Carpet — Dispose'],pad:['fl_pad','Carpet pad — Dispose'],vinyl:['fl_vinyl','Sheet vinyl — Dispose'],tile:['fl_tile','Floor tile — Dispose'],wood:['fl_wood','Hardwood floor — Dispose'],under:['fl_under','Underlayment — Dispose'],backer:['fl_backer','Cement backer board — Dispose'],subfloor:['fl_sub','Subfloor — Dispose']};
-    ['A','B','C'].forEach(function(L){
-      var t=sv('fl'+L+'_t'), q=gn('fl'+L+'_sf');
-      if(!t||!q||!FLMAP[t]) return;
-      addR(FLMAP[t][1],q,'SF',FLMAP[t][0],'Non-salvageable material removed and disposed.');
-      var u=sv('fl'+L+'_u');
-      var UMAP={pad:['fl_pad','Carpet pad — Dispose'],under:['fl_under','Underlayment — Dispose'],backer:['fl_backer','Cement backer board — Dispose'],memb:['fl_memb','Uncoupling membrane — Dispose']};
-      if(u&&UMAP[u]){addR(UMAP[u][1],q,'SF',UMAP[u][0],'Layer beneath the flooring above, same area.');}
-    });
-    if(gn('fl_tack')>0){addR('Tackless strip — Dispose',gn('fl_tack'),'LF','fl_tackless','');}
-
-    // Walls demo (typed rows)
-    var DWMAP={cut2:['dw_lf_2',"Drywall flood cut 2' — Dispose",'LF','Flood cut at 2 ft height.'],cut4:['dw_lf_4',"Drywall flood cut 4' — Dispose",'LF','Flood cut at 4 ft height.'],full:['dw_sf','Drywall — Dispose','SF','']};
-    ['A','B'].forEach(function(L){
-      var t=sv('dw'+L+'_t'), q=gn('dw'+L+'_q');
-      if(!t||!q||!DWMAP[t]) return;
-      addR(DWMAP[t][1],q,DWMAP[t][2],DWMAP[t][0],DWMAP[t][3]);
-    });
-    if(gn('wall_tile')>0){addR('Wall tile — Dispose',gn('wall_tile'),'SF','wall_tile','Wall tile removal.');}
-    if(gn('wall_insul')>0){addR('Insulation — Dispose',gn('wall_insul'),'SF','wall_insul','');}
-    if(gn('drill')>0){addR('Drill holes for wall cavity drying',gn('drill'),'EA','drill_hole','');}
-
-    // Ceiling demo
-    if(gn('ceil_dw')>0){addR('Ceiling drywall — Dispose',gn('ceil_dw'),'SF','ceil_dw','');}
-    if(gn('ceil_tile')>0){addR('Suspended ceiling tile — Dispose',gn('ceil_tile'),'SF','ceil_tile','');}
-
-    // Crawl space (fields only present on Crawl Space rooms)
-    // NOTE: level soil & hydrated lime are kept in the catalog but UNWIRED (no rate reference yet).
-    if(gn('insul_rem')>0){addR('Remove batt insulation - crawl space',gn('insul_rem'),'SF','crawl_insul_rem','');}
-    if(gn('vapor_sf')>0){addR('Install vapor barrier',gn('vapor_sf'),'SF','crawl_vapor','');}
-    if(gn('insul_inst')>0){addR('Install rigid foam insulation board',gn('insul_inst'),'SF','crawl_insul_inst','');}
-
-    });
-
-    // Cleaning
-    sub('Cleaning', function(){
-    const clW=gn('cl_w'),clF=gn('cl_f'),clC=gn('cl_c'),clS=gn('cl_stud'),clJ=gn('cl_joist');
-    const hSF=parseFloat((clW+clF+clC+clS+clJ).toFixed(2));
-    const dSF=(clS+clJ)>0?parseFloat((clS+clJ).toFixed(2)):hSF;
-    const amSF=parseFloat((clF+clC+clS+clJ).toFixed(2));
-    if(hSF>0){
-      addR('HEPA Vacuuming - Light - (PER SF)',hSF,'SF','hepa_light','Initial HEPA vacuum pass across all demo\'d surfaces. '+clW+' SF walls + '+clF+' SF floor + '+clC+' SF ceiling = '+hSF+' SF.');
-    }
-    if(clW>0){addR('Clean the surface area with cleaning agent (walls)',clW,'SF','clean_walls','Mechanical scrubbing of exposed wall framing/surfaces per IICRC S500/S520.');}
-    if(clF>0){addR('Clean floor/surface - scrub and mop',clF,'SF','clean_floor','Mechanical scrubbing of exposed subfloor following flooring removal.');}
-    if(clC>0){addR('Clean floor or roof joist system',clC,'SF','clean_ceil','Cleaning of exposed ceiling joists/structure.');}
-    if(gn('cl_stud')>0){addR('Clean stud wall surfaces (exposed framing)',gn('cl_stud'),'SF','clean_walls','Mechanical cleaning of exposed wall studs per IICRC S500/S520.');}
-    if(gn('cl_joist')>0){addR('Clean floor joists (exposed framing)',gn('cl_joist'),'SF','clean_ceil','Mechanical cleaning of exposed floor joists per IICRC S500/S520.');}
-    if(amSF>0){addR('Apply anti-microbial agent to the surface area',amSF,'SF','antimicrobial','EPA-registered antimicrobial applied to the actual affected area (floor/joists) per IICRC S500/S520 — not doubled across surfaces.');}
-    if(hSF>0){addR('HEPA Vacuuming - Detailed - (PER SF)',dSF,'SF','hepa_detailed',(clS+clJ)>0?'Detailed HEPA pass on exposed stud walls and joists ('+dSF+' SF).':'Final detailed HEPA pass. Completes the HEPA sandwich per IICRC S500/S520.');}
-    const moldStain=gn('mold_stain');
-    if(moldStain>0){addR('Apply mold/mildew stain remover',moldStain,'SF','mold_stain','Applied where visible staining requires treatment.');}
-    });
-
-    // Equipment
-    sub('Equipment', function(){
-      if(gn('duct')>0){addR('Ducting - lay-flat - Large',gn('duct'),'LF','ducting','Lay-flat ducting used to direct exhaust from negative air fan out of containment.');}
-      const roomEqRes=getEquipRows('re',id,TAX,rAlt);
-      tableBody+=roomEqRes.html; rPre+=roomEqRes.pre; rTax+=roomEqRes.tax;
-    });
-
-    // Other Items added via catalog search (this room)
-    sub('Additional Items', function(){
-      (otherSections['r'+id]||[]).forEach(function(entry){
-        if(!entry.qty||entry.qty<=0) return;
-        var ln=modelLine(entry); if(!ln) return;
-        var r2=row(ln.label,entry.qty,ln.unit,ln.price,TAX,rAlt);
-        tableBody+=r2.html; rPre+=r2.pre; rTax+=r2.tax; rAlt=!rAlt;
-      });
+    SECTIONS.forEach(function(sec){
+      if(sec.lines) sub(sec.est, function(){ sec.lines(c); });
     });
 
     grandPre+=rPre; grandTax+=rTax;
@@ -2112,7 +1951,12 @@ function addRoomFromData(name, type) {
   buildRoomBody(id, name, (type||'Other'));
   return id;
 }
-const MIGRATIONS=[/* {v:'0.20.0', apply:function(data){ rename/remap data.fields keys here }} */];
+const MIGRATIONS=[
+  // v0.21.0 — architecture pass: room sections regrouped (Appliances /
+  // Fixtures / Detach & Salvage split, config-driven SECTIONS table) and
+  // P derived from MODEL. All field IDs unchanged — no remap needed.
+  {v:'0.21.0', apply:function(data){ /* no field-ID changes */ }}
+];
 function _verLt(a,b){a=(a||'0').split('.').map(Number);b=b.split('.').map(Number);for(var i=0;i<3;i++){if((a[i]||0)<(b[i]||0))return true;if((a[i]||0)>(b[i]||0))return false;}return false;}
 function loadQuote(data) {
   MIGRATIONS.forEach(function(mg){ try{ if(_verLt(data.version,mg.v)) mg.apply(data); }catch(e){} });
