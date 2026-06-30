@@ -2,6 +2,48 @@
 
 Version scheme: SemVer (MAJOR.MINOR.PATCH) with build date. MAJOR breaks saved quotes or the estimate format; MINOR adds features; PATCH is fixes/wording/pricing.
 
+## v0.26.2 — 2026-06-23
+- **Shower bench labels use the proper construction terms:** the horizontal seat is now **Tread (LF)** and the vertical face is **Riser (SF)** (were "Run"/"Rise"). Display only — pricing and saved data unchanged.
+
+## v0.26.1 — 2026-06-23
+- **Shower bench prints as a single estimate line.** You still enter Run (LF) and Rise (SF) separately, but they combine into one "Shower Bench — Dispose" line (qty 1) with the run/rise breakdown shown in the line note. Total unchanged.
+
+## v0.26.0 — 🚀 RELEASE (2026-06-23)
+- **Shower bench is one row with two measurements:** Run (LF, solid-surface seat top) and Rise (SF, tile face/riser) — enter both on a single bench entry instead of adding two rows. Prices unchanged (run $30/LF, rise $5.00/SF). v0.25 two-row benches auto-convert on load.
+- Smoke test → 71 checks (dual bench render + conversion).
+
+## v0.25.0 — 🚀 RELEASE (2026-06-23)
+- **Shower bench** is now a demo-only type in the bathing-fixture control, split into its two real parts: **solid-surface seat top (per LF)** and **tile face/riser (per SF)** — add one row for each. Cost-model derived: top $30/LF, tile $5.00/SF. The old single-field "shower bench" in the Demo section is retired (old entries auto-migrate to the tile face).
+- Smoke test → 70 checks.
+
+## v0.24.0 — 🚀 RELEASE (2026-06-23)
+- **Shower wall panels (prefab fiberglass)** added to the bathing-fixture control — priced **per panel** (enter the count), with Remove & Reinstall / Remove Only / Dispose. Cost-model derived (~$46 detach / $69 reinstall per panel).
+- **Shower door folded into the bathing-fixture control** — it now lives alongside tub / jacuzzi / shower pan / panels instead of in the fixtures grid, so a full prefab shower is entered in one place. Same pricing as before.
+- **Bug fix:** saved bathing fixtures now survive a save/load round-trip (room-id remap on reload was orphaning them); pre-0.24 grid shower-door entries auto-migrate into the bathing control.
+- Smoke test → 67 checks (panels, folded door, save/load round-trip).
+
+## v0.23.2 — 2026-06-23
+- **Fixed PDF pagination:** page numbers are now stamped per actual printed sheet as **“Page X of N”** (was hardcoded “Page 1 / Page 2,” which mislabeled and let long line-item lists spill across sheets with no footer). Footer (estimate ID · date · page) now appears correctly on every page of the PDF.
+
+## v0.23.1 — 2026-06-23
+- **Bathing fixtures now show a default row** in Bathrooms (Tub / Acrylic, qty 0 so it doesn't bill until you set a count) — no more hunting for the + button.
+- **Click-to-add notes on every line:** each estimate line shows a faint “✎ click to add note” you can type into; lines with a built-in note are editable as before. The placeholder and any blank note rows never appear in the printed/PDF estimate.
+
+## v0.23.0 — 🚀 RELEASE (2026-06-23)
+- **Bathing fixtures, consolidated & repeatable.** Tub, shower pan, and the separate boxes are now one control: pick **Type** (Bathtub / Jacuzzi–Whirlpool / Shower Pan) → **Material** → **Action**, with **+ Add bathing fixture** for rooms that have more than one (e.g., a tub and a separate shower).
+- **Materials everywhere:** Bathtub now Acrylic/Fiberglass vs **Cast Iron** (heavier, priced higher); Shower Pan Fiberglass vs Cast Iron; **Jacuzzi/Whirlpool** added with a jetted-unit (EA) tier and a tiled-deck/platform (SF) tier.
+- Pricing is cost-model derived and market-credible (independent of any third-party list): acrylic tub holds the $176.20/$264.30 anchor; cast iron tub $300/$450; jacuzzi $325/$487.50; deck $8.50/SF.
+- **Old quotes auto-migrate:** pre-0.23 tub/shower-pan entries convert into bathing-fixture rows on load.
+- Smoke test → 58 checks (every type × material × action + migration).
+
+## v0.22.1 — 2026-06-23
+- **Notes UX:** removed the all-or-nothing edit toggle; note rows are now always click-to-edit with a hover highlight. Cleaner, more discoverable, zero extra space.
+
+## v0.22.0 — 🚀 RELEASE (2026-06-23)
+- **New line item: Shower Pan / Base** (Bathroom fixture) — Fiberglass/Acrylic and Cast Iron, each with Remove & Reinstall / Remove Only / Dispose. Cost-model priced and bathtub-anchored (flat detach = Only/Dispose; reinstall = detach × 1.5; cast iron heavier than fiberglass). Also searchable from the catalog.
+- **Editable line notes** — every italic note on the Estimate Preview is **click-to-edit** (no toggle, no per-line boxes; cells highlight on hover). Edits save with the quote and never change any total.
+- Smoke test extended to 54 checks (shower pan tiers + note-override persistence/total-safety).
+
 ## v0.21.0 — 🚀 RELEASE (2026-06-04) — architecture pass
 - **One SECTIONS table now drives both the room form and the estimate render.** New room order: Safety → Stabilization → **Appliances → Fixtures → Detach & Salvage** → Demo → Cleaning → Equipment → Other. Appliances get their own section; doors/lights/window treatments/baseboard live under Detach & Salvage. **No field IDs changed — saved quotes load with no migration.**
 - **Every price is now derived from the pricing model at load** (P_MAP → model × market factor). The second hand-maintained price table is gone, so app prices can never drift from the model again.
@@ -9,6 +51,7 @@ Version scheme: SemVer (MAJOR.MINOR.PATCH) with build date. MAJOR breaks saved q
 - **Fixed: Cat 1/2/3 cleaning rates reprice live** when the category changes (were frozen at Cat 2). Five rates corrected +$0.01 (truncation → proper rounding).
 - **Headless smoke test added** (`dryscope_smoke_test.mjs`) — synthetic 4-room job touching every section and action, asserting the total after every edit (49 checks). `npm install jsdom`, then `node dryscope_smoke_test.mjs`. Gates every release.
 - **Starter kit synced to v0.21:** same architecture, template model rebuilt to the full 97-item catalog (all prices null until you set them), P-Trap rooms added.
+- **Embedded `odapm/` copy removed** — ODAPM's canonical home is the [getodapm](https://github.com/getodapm/getodapm.github.io) org; one source of truth, no drift.
 
 ## v0.20.0 — (2026-06-03) — internal bump
 - Version alignment during the 6/3 session; shipped changes are listed under v0.19.0 below.
